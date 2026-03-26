@@ -1,44 +1,34 @@
-import ChainLinkDataFeed from "./ChainLinkDataFeed.js";
-import { baseDataFeeds } from "./dataFeeds/base.js";
-import { ethereumDataFeeds } from "./dataFeeds/ethereum.js";
-import { polygonDataFeeds } from "./dataFeeds/polygon.js";
-import { bscDataFeeds } from "./dataFeeds/bsc.js";
-import { fantomDataFeeds } from "./dataFeeds/fantom.js";
-import { xdaiDataFeeds } from "./dataFeeds/xdai.js";
-import { celoDataFeeds } from "./dataFeeds/celo.js";
-import { arbitrumDataFeeds } from "./dataFeeds/arbitrum.js";
-import { avalancheDataFeeds } from "./dataFeeds/avalanche.js";
-import { moonbeamDataFeeds } from "./dataFeeds/moonbeam.js";
-import { optimismDataFeeds } from "./dataFeeds/optimism.js";
-import { harmonyDataFeeds } from "./dataFeeds/harmony.js";
-import { scrollDataFeeds } from "./dataFeeds/scroll.js";
-import {
-  subscribeToChainLinkPriceUpdate,
-  subscribeToChainLinkPriceUpdates,
-} from "./Aggregator.js";
-import { useDataFeed } from "./useDataFeed.js";
-import { useWebsocketOrHttpTransport } from "./utils.js";
+// Feed address lists — each tree-shakes independently
+export { baseDataFeeds } from "./dataFeeds/base.js";
+export { ethereumDataFeeds } from "./dataFeeds/ethereum.js";
+export { polygonDataFeeds } from "./dataFeeds/polygon.js";
+export { bscDataFeeds } from "./dataFeeds/bsc.js";
+export { fantomDataFeeds } from "./dataFeeds/fantom.js";
+export { xdaiDataFeeds } from "./dataFeeds/xdai.js";
+export { celoDataFeeds } from "./dataFeeds/celo.js";
+export { arbitrumDataFeeds } from "./dataFeeds/arbitrum.js";
+export { avalancheDataFeeds } from "./dataFeeds/avalanche.js";
+export { moonbeamDataFeeds } from "./dataFeeds/moonbeam.js";
+export { optimismDataFeeds } from "./dataFeeds/optimism.js";
+export { harmonyDataFeeds } from "./dataFeeds/harmony.js";
+export { scrollDataFeeds } from "./dataFeeds/scroll.js";
 
+// RPC client — zero dependencies
 export {
-  baseDataFeeds,
-  ethereumDataFeeds,
-  polygonDataFeeds,
-  bscDataFeeds,
-  fantomDataFeeds,
-  xdaiDataFeeds,
-  celoDataFeeds,
-  arbitrumDataFeeds,
-  avalancheDataFeeds,
-  moonbeamDataFeeds,
-  optimismDataFeeds,
-  harmonyDataFeeds,
-  scrollDataFeeds,
-};
+  getLatestRoundData,
+  getLatestRoundDataRaw,
+  getLatestRoundDataWithMeta,
+  getRoundData,
+  getFeedMetadata,
+  getPhaseId,
+  getPhaseAggregator,
+  getAggregator,
+  getMultipleFeedPrices,
+  formatPrice,
+} from "./rpc.js";
 
-export {
-  ChainLinkDataFeed,
-  subscribeToChainLinkPriceUpdate,
-  subscribeToChainLinkPriceUpdates,
-  useDataFeed,
-  useWebsocketOrHttpTransport,
-};
+export type {
+  RoundData,
+  RoundDataRaw,
+  FeedMetadata,
+} from "./rpc.js";

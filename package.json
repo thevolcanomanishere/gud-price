@@ -1,8 +1,8 @@
 {
   "name": "@hypotenuselabs/ts-chainlink-datafeed",
   "license": "MIT",
-  "version": "0.0.11",
-  "description": "Typescript library for interacting with Chainlink datafeeds",
+  "version": "1.0.0",
+  "description": "Zero-dependency Typescript library for reading Chainlink price feeds",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.cts",
@@ -27,17 +27,14 @@
   "keywords": [
     "chainlink",
     "datafeed",
-    "viem",
+    "price-feed",
     "typescript",
-    "ethers"
+    "zero-dependency"
   ],
   "author": "Alex McGonagle",
   "type": "module",
   "scripts": {
-    "example": "tsx example/index.ts",
-    "arbitrum": "tsx example/arbitrum.ts",
     "test": "vitest",
-    "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:live": "vitest run --config vitest.live.config.ts",
     "updateAllFeeds": "tsx ./scraper/playwright.ts && prettier --write ./src/dataFeeds/*.ts",
@@ -45,21 +42,12 @@
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
-    "@types/react": "^19.2.14",
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "~5.8.0",
-    "viem": ">=2.47.6",
     "vitest": "^4.1.2"
-  },
-  "peerDependencies": {
-    "@ponder/utils": "^0.1.1",
-    "viem": ">=2.0.0"
-  },
-  "optionalDependencies": {
-    "react": "^19.2.4"
   },
   "bugs": {
     "url": "https://github.com/hyplabs/ts-chainlink-datafeed/issues"
