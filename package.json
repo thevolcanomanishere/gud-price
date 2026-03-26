@@ -8,13 +8,85 @@
   "types": "./dist/index.d.cts",
   "sideEffects": false,
   "exports": {
-    "require": {
-      "types": "./dist/index.d.cts",
-      "default": "./dist/index.cjs"
+    ".": {
+      "require": { "types": "./dist/index.d.cts", "default": "./dist/index.cjs" },
+      "import": { "types": "./dist/index.d.ts", "default": "./dist/index.js" }
     },
-    "import": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+    "./rpc": {
+      "require": { "types": "./dist/rpc.d.cts", "default": "./dist/rpc.cjs" },
+      "import": { "types": "./dist/rpc.d.ts", "default": "./dist/rpc.js" }
+    },
+    "./feeds/arbitrum": {
+      "require": { "types": "./dist/dataFeeds/arbitrum.d.cts", "default": "./dist/dataFeeds/arbitrum.cjs" },
+      "import": { "types": "./dist/dataFeeds/arbitrum.d.ts", "default": "./dist/dataFeeds/arbitrum.js" }
+    },
+    "./feeds/avalanche": {
+      "require": { "types": "./dist/dataFeeds/avalanche.d.cts", "default": "./dist/dataFeeds/avalanche.cjs" },
+      "import": { "types": "./dist/dataFeeds/avalanche.d.ts", "default": "./dist/dataFeeds/avalanche.js" }
+    },
+    "./feeds/base": {
+      "require": { "types": "./dist/dataFeeds/base.d.cts", "default": "./dist/dataFeeds/base.cjs" },
+      "import": { "types": "./dist/dataFeeds/base.d.ts", "default": "./dist/dataFeeds/base.js" }
+    },
+    "./feeds/bnb": {
+      "require": { "types": "./dist/dataFeeds/bnb.d.cts", "default": "./dist/dataFeeds/bnb.cjs" },
+      "import": { "types": "./dist/dataFeeds/bnb.d.ts", "default": "./dist/dataFeeds/bnb.js" }
+    },
+    "./feeds/bsc": {
+      "require": { "types": "./dist/dataFeeds/bsc.d.cts", "default": "./dist/dataFeeds/bsc.cjs" },
+      "import": { "types": "./dist/dataFeeds/bsc.d.ts", "default": "./dist/dataFeeds/bsc.js" }
+    },
+    "./feeds/celo": {
+      "require": { "types": "./dist/dataFeeds/celo.d.cts", "default": "./dist/dataFeeds/celo.cjs" },
+      "import": { "types": "./dist/dataFeeds/celo.d.ts", "default": "./dist/dataFeeds/celo.js" }
+    },
+    "./feeds/ethereum": {
+      "require": { "types": "./dist/dataFeeds/ethereum.d.cts", "default": "./dist/dataFeeds/ethereum.cjs" },
+      "import": { "types": "./dist/dataFeeds/ethereum.d.ts", "default": "./dist/dataFeeds/ethereum.js" }
+    },
+    "./feeds/fantom": {
+      "require": { "types": "./dist/dataFeeds/fantom.d.cts", "default": "./dist/dataFeeds/fantom.cjs" },
+      "import": { "types": "./dist/dataFeeds/fantom.d.ts", "default": "./dist/dataFeeds/fantom.js" }
+    },
+    "./feeds/gnosis": {
+      "require": { "types": "./dist/dataFeeds/gnosis.d.cts", "default": "./dist/dataFeeds/gnosis.cjs" },
+      "import": { "types": "./dist/dataFeeds/gnosis.d.ts", "default": "./dist/dataFeeds/gnosis.js" }
+    },
+    "./feeds/harmony": {
+      "require": { "types": "./dist/dataFeeds/harmony.d.cts", "default": "./dist/dataFeeds/harmony.cjs" },
+      "import": { "types": "./dist/dataFeeds/harmony.d.ts", "default": "./dist/dataFeeds/harmony.js" }
+    },
+    "./feeds/linea": {
+      "require": { "types": "./dist/dataFeeds/linea.d.cts", "default": "./dist/dataFeeds/linea.cjs" },
+      "import": { "types": "./dist/dataFeeds/linea.d.ts", "default": "./dist/dataFeeds/linea.js" }
+    },
+    "./feeds/metis": {
+      "require": { "types": "./dist/dataFeeds/metis.d.cts", "default": "./dist/dataFeeds/metis.cjs" },
+      "import": { "types": "./dist/dataFeeds/metis.d.ts", "default": "./dist/dataFeeds/metis.js" }
+    },
+    "./feeds/moonbeam": {
+      "require": { "types": "./dist/dataFeeds/moonbeam.d.cts", "default": "./dist/dataFeeds/moonbeam.cjs" },
+      "import": { "types": "./dist/dataFeeds/moonbeam.d.ts", "default": "./dist/dataFeeds/moonbeam.js" }
+    },
+    "./feeds/moonriver": {
+      "require": { "types": "./dist/dataFeeds/moonriver.d.cts", "default": "./dist/dataFeeds/moonriver.cjs" },
+      "import": { "types": "./dist/dataFeeds/moonriver.d.ts", "default": "./dist/dataFeeds/moonriver.js" }
+    },
+    "./feeds/optimism": {
+      "require": { "types": "./dist/dataFeeds/optimism.d.cts", "default": "./dist/dataFeeds/optimism.cjs" },
+      "import": { "types": "./dist/dataFeeds/optimism.d.ts", "default": "./dist/dataFeeds/optimism.js" }
+    },
+    "./feeds/polygon": {
+      "require": { "types": "./dist/dataFeeds/polygon.d.cts", "default": "./dist/dataFeeds/polygon.cjs" },
+      "import": { "types": "./dist/dataFeeds/polygon.d.ts", "default": "./dist/dataFeeds/polygon.js" }
+    },
+    "./feeds/scroll": {
+      "require": { "types": "./dist/dataFeeds/scroll.d.cts", "default": "./dist/dataFeeds/scroll.cjs" },
+      "import": { "types": "./dist/dataFeeds/scroll.d.ts", "default": "./dist/dataFeeds/scroll.js" }
+    },
+    "./feeds/xdai": {
+      "require": { "types": "./dist/dataFeeds/xdai.d.cts", "default": "./dist/dataFeeds/xdai.cjs" },
+      "import": { "types": "./dist/dataFeeds/xdai.d.ts", "default": "./dist/dataFeeds/xdai.js" }
     }
   },
   "files": [
@@ -38,7 +110,7 @@
     "test:run": "vitest run",
     "test:live": "vitest run --config vitest.live.config.ts",
     "updateAllFeeds": "tsx ./scraper/playwright.ts && prettier --write ./src/dataFeeds/*.ts",
-    "build": "rm -rf dist && tsup src/index.ts --minify --format cjs,esm --dts"
+    "build": "rm -rf dist && tsup --minify --format cjs,esm --dts"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",

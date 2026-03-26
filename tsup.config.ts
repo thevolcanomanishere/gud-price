@@ -1,10 +1,30 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/index.ts"],
+  entry: [
+    "src/index.ts",
+    "src/rpc.ts",
+    "src/dataFeeds/arbitrum.ts",
+    "src/dataFeeds/avalanche.ts",
+    "src/dataFeeds/base.ts",
+    "src/dataFeeds/bnb.ts",
+    "src/dataFeeds/bsc.ts",
+    "src/dataFeeds/celo.ts",
+    "src/dataFeeds/ethereum.ts",
+    "src/dataFeeds/fantom.ts",
+    "src/dataFeeds/gnosis.ts",
+    "src/dataFeeds/harmony.ts",
+    "src/dataFeeds/linea.ts",
+    "src/dataFeeds/metis.ts",
+    "src/dataFeeds/moonbeam.ts",
+    "src/dataFeeds/moonriver.ts",
+    "src/dataFeeds/optimism.ts",
+    "src/dataFeeds/polygon.ts",
+    "src/dataFeeds/scroll.ts",
+    "src/dataFeeds/xdai.ts",
+  ],
   splitting: true,
   sourcemap: false,
   treeshake: true,
   clean: true,
-  external: ["react"],
 });
