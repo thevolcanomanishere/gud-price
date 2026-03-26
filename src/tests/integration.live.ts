@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
 import {
-  getLatestRoundData,
-  getLatestRoundDataRaw,
-  getLatestRoundDataWithMeta,
-  getFeedMetadata,
-  getPhaseId,
-  getAggregator,
-  getMultipleFeedPrices,
+  readLatestPrice,
+  readLatestPriceRaw,
+  readLatestPriceWithMeta,
+  readFeedMetadata,
+  readPhaseId,
+  readAggregator,
+  readPrices,
 } from "../rpc.js";
 import { polygonDataFeeds } from "../dataFeeds/polygon.js";
 import { ethereumDataFeeds } from "../dataFeeds/ethereum.js";
@@ -24,7 +24,7 @@ const BASE_RPC = "https://base-rpc.publicnode.com";
 
 describe("Polygon - live RPC", { timeout: 30000 }, () => {
   test("ETH / USD feed returns valid data", async () => {
-    const data = await getLatestRoundData(POLYGON_RPC, polygonDataFeeds["ETH / USD"]);
+    const data = await readLatestPrice(POLYGON_RPC, polygonDataFeeds["ETH / USD"]);
     console.log("Polygon ETH/USD:", data);
 
     expect(data.description).toBe("ETH / USD");
@@ -34,7 +34,7 @@ describe("Polygon - live RPC", { timeout: 30000 }, () => {
   });
 
   test("BTC / USD feed returns valid data", async () => {
-    const data = await getLatestRoundData(POLYGON_RPC, polygonDataFeeds["BTC / USD"]);
+    const data = await readLatestPrice(POLYGON_RPC, polygonDataFeeds["BTC / USD"]);
     console.log("Polygon BTC/USD:", data);
 
     expect(data.description).toBe("BTC / USD");
@@ -42,7 +42,7 @@ describe("Polygon - live RPC", { timeout: 30000 }, () => {
   });
 
   test("raw data returns bigints", async () => {
-    const data = await getLatestRoundDataRaw(POLYGON_RPC, polygonDataFeeds["ETH / USD"]);
+    const data = await readLatestPriceRaw(POLYGON_RPC, polygonDataFeeds["ETH / USD"]);
 
     expect(data.roundId).toBeTypeOf("bigint");
     expect(data.answer).toBeTypeOf("bigint");
@@ -50,27 +50,27 @@ describe("Polygon - live RPC", { timeout: 30000 }, () => {
   });
 
   test("metadata + separate round fetch", async () => {
-    const meta = await getFeedMetadata(POLYGON_RPC, polygonDataFeeds["ETH / USD"]);
+    const meta = await readFeedMetadata(POLYGON_RPC, polygonDataFeeds["ETH / USD"]);
     expect(meta.decimals).toBe(8);
     expect(meta.description).toBe("ETH / USD");
 
-    const data = await getLatestRoundDataWithMeta(POLYGON_RPC, polygonDataFeeds["ETH / USD"], meta);
+    const data = await readLatestPriceWithMeta(POLYGON_RPC, polygonDataFeeds["ETH / USD"], meta);
     expect(Number(data.answer)).toBeGreaterThan(0);
   });
 
-  test("getPhaseId returns a bigint", async () => {
-    const phase = await getPhaseId(POLYGON_RPC, polygonDataFeeds["ETH / USD"]);
+  test("readPhaseId returns a bigint", async () => {
+    const phase = await readPhaseId(POLYGON_RPC, polygonDataFeeds["ETH / USD"]);
     expect(phase).toBeTypeOf("bigint");
     expect(phase).toBeGreaterThan(0n);
   });
 
-  test("getAggregator returns a valid address", async () => {
-    const agg = await getAggregator(POLYGON_RPC, polygonDataFeeds["ETH / USD"]);
+  test("readAggregator returns a valid address", async () => {
+    const agg = await readAggregator(POLYGON_RPC, polygonDataFeeds["ETH / USD"]);
     expect(agg).toMatch(/^0x[a-fA-F0-9]{40}$/);
   });
 
-  test("getMultipleFeedPrices fetches multiple feeds", async () => {
-    const results = await getMultipleFeedPrices(POLYGON_RPC, {
+  test("readPrices fetches multiple feeds", async () => {
+    const results = await readPrices(POLYGON_RPC, {
       "ETH / USD": polygonDataFeeds["ETH / USD"],
       "BTC / USD": polygonDataFeeds["BTC / USD"],
     });
@@ -86,14 +86,14 @@ describe("Polygon - live RPC", { timeout: 30000 }, () => {
 
 describe("Ethereum - live RPC", { timeout: 30000 }, () => {
   test("ETH / USD feed", async () => {
-    const data = await getLatestRoundData(ETHEREUM_RPC, ethereumDataFeeds["ETH / USD"]);
+    const data = await readLatestPrice(ETHEREUM_RPC, ethereumDataFeeds["ETH / USD"]);
     console.log("Ethereum ETH/USD:", data);
     expect(data.description).toBe("ETH / USD");
     expect(Number(data.answer)).toBeGreaterThan(0);
   });
 
   test("BTC / USD feed", async () => {
-    const data = await getLatestRoundData(ETHEREUM_RPC, ethereumDataFeeds["BTC / USD"]);
+    const data = await readLatestPrice(ETHEREUM_RPC, ethereumDataFeeds["BTC / USD"]);
     console.log("Ethereum BTC/USD:", data);
     expect(data.description).toBe("BTC / USD");
     expect(Number(data.answer)).toBeGreaterThan(0);
@@ -104,7 +104,7 @@ describe("Ethereum - live RPC", { timeout: 30000 }, () => {
 
 describe("Arbitrum - live RPC", { timeout: 30000 }, () => {
   test("ETH / USD feed", async () => {
-    const data = await getLatestRoundData(ARBITRUM_RPC, arbitrumDataFeeds["ETH / USD"]);
+    const data = await readLatestPrice(ARBITRUM_RPC, arbitrumDataFeeds["ETH / USD"]);
     console.log("Arbitrum ETH/USD:", data);
     expect(data.description).toBe("ETH / USD");
     expect(Number(data.answer)).toBeGreaterThan(0);
@@ -115,7 +115,7 @@ describe("Arbitrum - live RPC", { timeout: 30000 }, () => {
 
 describe("Base - live RPC", { timeout: 30000 }, () => {
   test("ETH / USD feed", async () => {
-    const data = await getLatestRoundData(BASE_RPC, baseDataFeeds["ETH / USD"]);
+    const data = await readLatestPrice(BASE_RPC, baseDataFeeds["ETH / USD"]);
     console.log("Base ETH/USD:", data);
     expect(data.description).toBe("ETH / USD");
     expect(Number(data.answer)).toBeGreaterThan(0);

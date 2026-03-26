@@ -10,15 +10,13 @@ npm install @hypotenuselabs/ts-chainlink-datafeed
 
 ## Usage
 
-### Get a price
+### Read a price
 
 ```typescript
-import { getLatestRoundData, polygonDataFeeds } from "@hypotenuselabs/ts-chainlink-datafeed";
+import { readLatestPrice } from "@hypotenuselabs/ts-chainlink-datafeed/rpc";
+import { ETH_USD } from "@hypotenuselabs/ts-chainlink-datafeed/feeds/ethereum";
 
-const data = await getLatestRoundData(
-  "https://polygon-bor.publicnode.com",
-  polygonDataFeeds["ETH / USD"]
-);
+const data = await readLatestPrice("https://ethereum-rpc.publicnode.com", ETH_USD);
 
 console.log(data);
 // {
@@ -31,14 +29,15 @@ console.log(data);
 // }
 ```
 
-### Get multiple prices
+### Read multiple prices
 
 ```typescript
-import { getMultipleFeedPrices, ethereumDataFeeds } from "@hypotenuselabs/ts-chainlink-datafeed";
+import { readPrices } from "@hypotenuselabs/ts-chainlink-datafeed/rpc";
+import { ETH_USD, BTC_USD } from "@hypotenuselabs/ts-chainlink-datafeed/feeds/ethereum";
 
-const prices = await getMultipleFeedPrices("https://ethereum-rpc.publicnode.com", {
-  "ETH / USD": ethereumDataFeeds["ETH / USD"],
-  "BTC / USD": ethereumDataFeeds["BTC / USD"],
+const prices = await readPrices("https://ethereum-rpc.publicnode.com", {
+  "ETH / USD": ETH_USD,
+  "BTC / USD": BTC_USD,
 });
 
 console.log(prices["ETH / USD"].answer); // "1800.5"
@@ -50,17 +49,17 @@ console.log(prices["BTC / USD"].answer); // "42000"
 If you're polling the same feed, fetch metadata once to avoid redundant RPC calls:
 
 ```typescript
-import { getFeedMetadata, getLatestRoundDataWithMeta, polygonDataFeeds } from "@hypotenuselabs/ts-chainlink-datafeed";
+import { readFeedMetadata, readLatestPriceWithMeta } from "@hypotenuselabs/ts-chainlink-datafeed/rpc";
+import { ETH_USD } from "@hypotenuselabs/ts-chainlink-datafeed/feeds/polygon";
 
 const rpc = "https://polygon-bor.publicnode.com";
-const address = polygonDataFeeds["ETH / USD"];
 
-const meta = await getFeedMetadata(rpc, address);
+const meta = await readFeedMetadata(rpc, ETH_USD);
 // { decimals: 8, description: "ETH / USD" }
 
 // Now each call is a single RPC request instead of three
 setInterval(async () => {
-  const data = await getLatestRoundDataWithMeta(rpc, address, meta);
+  const data = await readLatestPriceWithMeta(rpc, ETH_USD, meta);
   console.log(data.answer);
 }, 5000);
 ```
@@ -68,61 +67,67 @@ setInterval(async () => {
 ### Raw data
 
 ```typescript
-import { getLatestRoundDataRaw, polygonDataFeeds } from "@hypotenuselabs/ts-chainlink-datafeed";
+import { readLatestPriceRaw } from "@hypotenuselabs/ts-chainlink-datafeed/rpc";
+import { ETH_USD } from "@hypotenuselabs/ts-chainlink-datafeed/feeds/polygon";
 
-const raw = await getLatestRoundDataRaw(
-  "https://polygon-bor.publicnode.com",
-  polygonDataFeeds["ETH / USD"]
-);
-
-console.log(raw);
+const raw = await readLatestPriceRaw("https://polygon-bor.publicnode.com", ETH_USD);
 // { roundId: 100n, answer: 180050000000n, startedAt: 1700000000n, updatedAt: 1700000001n, answeredInRound: 100n }
 ```
 
 ### Other functions
 
 ```typescript
-import { getRoundData, getPhaseId, getAggregator, getPhaseAggregator } from "@hypotenuselabs/ts-chainlink-datafeed";
+import { readPriceAtRound, readPhaseId, readAggregator, readPhaseAggregator } from "@hypotenuselabs/ts-chainlink-datafeed/rpc";
 
-// Get data for a specific round
-const round = await getRoundData(rpc, address, 50n);
+// Read the price at a specific round
+const round = await readPriceAtRound(rpc, address, 50n);
 
-// Get current phase ID
-const phase = await getPhaseId(rpc, address);
+// Read current phase ID
+const phase = await readPhaseId(rpc, address);
 
-// Get current aggregator address
-const agg = await getAggregator(rpc, address);
+// Read current aggregator address
+const agg = await readAggregator(rpc, address);
 
-// Get aggregator for a specific phase
-const phaseAgg = await getPhaseAggregator(rpc, address, phase);
+// Read aggregator for a specific phase
+const phaseAgg = await readPhaseAggregator(rpc, address, phase);
 ```
 
 ## API
 
 | Function | Description |
 |---|---|
-| `getLatestRoundData(rpc, address)` | Latest price, formatted with metadata |
-| `getLatestRoundDataWithMeta(rpc, address, meta)` | Latest price using pre-fetched metadata (1 RPC call) |
-| `getLatestRoundDataRaw(rpc, address)` | Latest price as raw bigints |
-| `getRoundData(rpc, address, roundId)` | Price for a specific round |
-| `getFeedMetadata(rpc, address)` | Decimals and description |
-| `getMultipleFeedPrices(rpc, feeds)` | Multiple feeds in parallel |
-| `getPhaseId(rpc, address)` | Current phase ID |
-| `getAggregator(rpc, address)` | Current aggregator address |
-| `getPhaseAggregator(rpc, address, phaseId)` | Aggregator for a specific phase |
+| `readLatestPrice(rpc, address)` | Latest price, formatted with metadata |
+| `readLatestPriceWithMeta(rpc, address, meta)` | Latest price using pre-fetched metadata (1 RPC call) |
+| `readLatestPriceRaw(rpc, address)` | Latest price as raw bigints |
+| `readPriceAtRound(rpc, address, roundId)` | Price at a specific Chainlink round |
+| `readFeedMetadata(rpc, address)` | Decimals and description |
+| `readPrices(rpc, feeds)` | Multiple feeds in parallel |
+| `readPhaseId(rpc, address)` | Current phase ID |
+| `readAggregator(rpc, address)` | Current aggregator address |
+| `readPhaseAggregator(rpc, address, phaseId)` | Aggregator for a specific phase |
 | `formatPrice(raw, decimals)` | Format raw bigint price to decimal string |
+
+## Imports
+
+Each chain and the RPC client are separate entry points for optimal tree-shaking:
+
+```typescript
+// Individual feed addresses — tree-shakes to just the address string (67 bytes)
+import { ETH_USD } from "@hypotenuselabs/ts-chainlink-datafeed/feeds/ethereum";
+
+// Full chain map — for when you need all feeds on a chain
+import { ethereumDataFeeds } from "@hypotenuselabs/ts-chainlink-datafeed/feeds/ethereum";
+
+// RPC functions — separate entry point, no feed data included
+import { readLatestPrice } from "@hypotenuselabs/ts-chainlink-datafeed/rpc";
+
+// Barrel import — convenience, pulls in all chains + RPC
+import { readLatestPrice, ethereumDataFeeds } from "@hypotenuselabs/ts-chainlink-datafeed";
+```
 
 ## Supported chains
 
-Feed address lists are available for: Ethereum, Polygon, Arbitrum, Base, Optimism, Avalanche, BSC/BNB, Fantom, Gnosis/xDai, Scroll, Moonbeam, Moonriver, Harmony, Celo, Linea, Metis.
-
-Each is a separate export that tree-shakes independently:
-
-```typescript
-import { ethereumDataFeeds } from "@hypotenuselabs/ts-chainlink-datafeed";
-import { arbitrumDataFeeds } from "@hypotenuselabs/ts-chainlink-datafeed";
-// Only the chains you import are included in your bundle
-```
+Ethereum, Polygon, Arbitrum, Base, Optimism, Avalanche, BSC/BNB, Fantom, Gnosis/xDai, Scroll, Moonbeam, Moonriver, Harmony, Celo, Linea, Metis.
 
 ## RPCs
 
@@ -130,13 +135,11 @@ Get free RPC URLs from [Chainlist](https://chainlist.org/).
 
 ## Updating feed addresses
 
-The scraper pulls the latest feed addresses from [data.chain.link](https://data.chain.link/feeds):
-
 ```bash
 npm run updateAllFeeds
 ```
 
-This requires Playwright and will update all `src/dataFeeds/*.ts` files.
+This uses Playwright to scrape the latest addresses from [data.chain.link](https://data.chain.link/feeds).
 
 ## License
 

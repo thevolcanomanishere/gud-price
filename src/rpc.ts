@@ -118,8 +118,8 @@ function formatRound(raw: RoundDataRaw, decimals: number, description: string): 
   };
 }
 
-/** Get decimals and description for a feed contract. */
-export async function getFeedMetadata(
+/** Read the decimals and description from a Chainlink price feed contract. */
+export async function readFeedMetadata(
   rpcUrl: string,
   contractAddress: string
 ): Promise<FeedMetadata> {
@@ -133,20 +133,20 @@ export async function getFeedMetadata(
   };
 }
 
-/** Get the latest round data, formatted with price as a decimal string. */
-export async function getLatestRoundData(
+/** Read the latest price from a Chainlink feed, formatted as a decimal string. */
+export async function readLatestPrice(
   rpcUrl: string,
   contractAddress: string
 ): Promise<RoundData & { description: string }> {
   const [meta, hex] = await Promise.all([
-    getFeedMetadata(rpcUrl, contractAddress),
+    readFeedMetadata(rpcUrl, contractAddress),
     ethCall(rpcUrl, contractAddress, SEL_LATEST_ROUND_DATA),
   ]);
   return formatRound(parseRoundDataRaw(hex), meta.decimals, meta.description);
 }
 
-/** Get the latest round data without fetching metadata (provide your own). */
-export async function getLatestRoundDataWithMeta(
+/** Read the latest price using pre-fetched metadata (saves 2 RPC calls). */
+export async function readLatestPriceWithMeta(
   rpcUrl: string,
   contractAddress: string,
   meta: FeedMetadata
@@ -155,8 +155,8 @@ export async function getLatestRoundDataWithMeta(
   return formatRound(parseRoundDataRaw(hex), meta.decimals, meta.description);
 }
 
-/** Get raw (unformatted) latest round data. */
-export async function getLatestRoundDataRaw(
+/** Read the latest price as raw bigint values (no formatting). */
+export async function readLatestPriceRaw(
   rpcUrl: string,
   contractAddress: string
 ): Promise<RoundDataRaw> {
@@ -164,21 +164,21 @@ export async function getLatestRoundDataRaw(
   return parseRoundDataRaw(hex);
 }
 
-/** Get data for a specific round ID. */
-export async function getRoundData(
+/** Read the price at a specific Chainlink round ID. */
+export async function readPriceAtRound(
   rpcUrl: string,
   contractAddress: string,
   roundId: bigint
 ): Promise<RoundData & { description: string }> {
   const [meta, hex] = await Promise.all([
-    getFeedMetadata(rpcUrl, contractAddress),
+    readFeedMetadata(rpcUrl, contractAddress),
     ethCall(rpcUrl, contractAddress, SEL_GET_ROUND_DATA + encodeUint(roundId)),
   ]);
   return formatRound(parseRoundDataRaw(hex), meta.decimals, meta.description);
 }
 
-/** Get the current phase ID. */
-export async function getPhaseId(
+/** Read the current phase ID from a Chainlink feed proxy. */
+export async function readPhaseId(
   rpcUrl: string,
   contractAddress: string
 ): Promise<bigint> {
@@ -186,8 +186,8 @@ export async function getPhaseId(
   return readWord(hex, 0);
 }
 
-/** Get the aggregator address for a given phase. */
-export async function getPhaseAggregator(
+/** Read the aggregator contract address for a specific phase. */
+export async function readPhaseAggregator(
   rpcUrl: string,
   contractAddress: string,
   phaseId: bigint
@@ -200,8 +200,8 @@ export async function getPhaseAggregator(
   return "0x" + hex.slice(26, 66);
 }
 
-/** Get the current aggregator address. */
-export async function getAggregator(
+/** Read the current aggregator contract address. */
+export async function readAggregator(
   rpcUrl: string,
   contractAddress: string
 ): Promise<string> {
@@ -209,14 +209,14 @@ export async function getAggregator(
   return "0x" + hex.slice(26, 66);
 }
 
-/** Fetch latest prices for multiple feeds in parallel. */
-export async function getMultipleFeedPrices(
+/** Read latest prices from multiple Chainlink feeds in parallel. */
+export async function readPrices(
   rpcUrl: string,
   feeds: Record<string, string>
 ): Promise<Record<string, RoundData & { description: string }>> {
   const entries = Object.entries(feeds);
   const results = await Promise.all(
-    entries.map(([, address]) => getLatestRoundData(rpcUrl, address))
+    entries.map(([, address]) => readLatestPrice(rpcUrl, address))
   );
   const out: Record<string, RoundData & { description: string }> = {};
   for (let i = 0; i < entries.length; i++) {

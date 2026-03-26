@@ -15,15 +15,15 @@ export { scrollDataFeeds } from "./dataFeeds/scroll.js";
 
 // RPC client — zero dependencies
 export {
-  getLatestRoundData,
-  getLatestRoundDataRaw,
-  getLatestRoundDataWithMeta,
-  getRoundData,
-  getFeedMetadata,
-  getPhaseId,
-  getPhaseAggregator,
-  getAggregator,
-  getMultipleFeedPrices,
+  readLatestPrice,
+  readLatestPriceRaw,
+  readLatestPriceWithMeta,
+  readPriceAtRound,
+  readFeedMetadata,
+  readPhaseId,
+  readPhaseAggregator,
+  readAggregator,
+  readPrices,
   formatPrice,
 } from "./rpc.js";
 
