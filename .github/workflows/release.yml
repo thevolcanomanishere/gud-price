@@ -15,8 +15,6 @@ jobs:
   publish-npm:
     name: Publish to npm
     runs-on: ubuntu-latest
-    env:
-      NODE_AUTH_TOKEN: ""
     steps:
       - uses: actions/checkout@v4
 
@@ -26,6 +24,9 @@ jobs:
           node-version: 22
           cache: pnpm
           registry-url: https://registry.npmjs.org
+
+      - name: Clear injected auth token so OIDC can authenticate
+        run: echo "NODE_AUTH_TOKEN=" >> $GITHUB_ENV
 
       - run: pnpm install --frozen-lockfile
 
