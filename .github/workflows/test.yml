@@ -7,11 +7,13 @@ on:
     branches: [main]
 
 jobs:
-  typescript:
-    name: TypeScript
+  test:
+    name: All Languages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # ── TypeScript ────────────────────────────────────────────────
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -21,32 +23,20 @@ jobs:
       - run: npm run test:run
       - run: npm run build
 
-  go:
-    name: Go
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+      # ── Go ────────────────────────────────────────────────────────
       - uses: actions/setup-go@v5
         with:
           go-version: "1.22"
       - run: go test ./rpc/
         working-directory: generated/go
 
-  python:
-    name: Python
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+      # ── Python ────────────────────────────────────────────────────
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: python -m unittest discover -s generated/python -p "test_*.py"
 
-  rust:
-    name: Rust
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+      # ── Rust ──────────────────────────────────────────────────────
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo test
         working-directory: generated/rust
