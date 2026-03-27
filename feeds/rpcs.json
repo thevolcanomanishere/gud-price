@@ -16,20 +16,20 @@
     "https://polygon-mainnet.rpcfast.com?api_key=xbhWBI1Wkguk8SNMu1bvvLurPGLXmgwYeC4S6g2H7WdwFigZSmPWVZRxrskEQwIf"
   ],
   "arbitrum": [
-    "https://arbitrum-one-rpc.publicnode.com",
     "https://arbitrum.drpc.org",
+    "https://arbitrum-one.public.blastapi.io",
     "https://arbitrum-one-public.nodies.app",
     "https://arbitrum.public.blockpi.network/v1/rpc/public",
     "https://arbitrum.meowrpc.com",
-    "https://arbitrum-one.public.blastapi.io"
+    "https://arbitrum-one-rpc.publicnode.com"
   ],
   "base": [
-    "https://base-rpc.publicnode.com",
+    "https://base.drpc.org",
+    "https://base-mainnet.public.blastapi.io",
+    "https://base.llamarpc.com",
     "https://base-public.nodies.app",
     "https://base.meowrpc.com",
-    "https://base.llamarpc.com",
-    "https://base.drpc.org",
-    "https://base-mainnet.public.blastapi.io"
+    "https://base-rpc.publicnode.com"
   ],
   "optimism": [
     "https://go.getblock.io/e8a75f8dcf614861becfbcb185be6eb4",
