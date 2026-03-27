@@ -5,4 +5,5 @@ dist
 build
 __pycache__/
 *.pyc
+.ruff_cache/
 generated/rust/target/

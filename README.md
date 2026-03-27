@@ -35,6 +35,20 @@ const data = await readLatestPrice(EUR_USD);
 console.log(`EUR/USD: ${data.answer}`); // "EUR/USD: 1.0847"
 ```
 
+You can also pass any Chainlink feed contract address directly:
+
+```typescript
+const data = await readLatestPrice("0xb49f677943BC038e9857d61E7d053CaA2C1734C1");
+```
+
+For addresses not built into the library, pass an RPC URL as the second argument:
+
+```typescript
+const data = await readLatestPrice("0xYourFeedAddress", "https://ethereum-rpc.publicnode.com");
+```
+
+Find more feed addresses at [data.chain.link](https://data.chain.link/feeds).
+
 ## Install
 
 | Language | Install | Docs |

@@ -29,20 +29,6 @@ const CHAIN_IDS = {
   polygon: 137,
   arbitrum: 42161,
   base: 8453,
-  optimism: 10,
-  avalanche: 43114,
-  bsc: 56,
-  bnb: 56,
-  fantom: 250,
-  gnosis: 100,
-  xdai: 100,
-  scroll: 534352,
-  moonbeam: 1284,
-  moonriver: 1285,
-  harmony: 1666600000,
-  celo: 42220,
-  linea: 59144,
-  metis: 1088,
 };
 
 // ─── CLI args ───────────────────────────────────────────────────────────────

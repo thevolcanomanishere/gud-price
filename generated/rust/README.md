@@ -19,7 +19,7 @@ fn main() {
 
 ## Supported Chains
 
-Arbitrum, Avalanche, Base, BNB Chain, BSC, Celo, Ethereum, Fantom, Gnosis, Harmony, Linea, Metis, Moonbeam, Moonriver, Optimism, Polygon, Scroll, xDai.
+Ethereum, Arbitrum, Base, Polygon.
 
 ## License
 
