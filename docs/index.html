@@ -23,6 +23,7 @@
   .card .chain { font-size: 0.65rem; color: #444; margin-top: 0.2rem; }
   .card.loading .price { color: var(--dim); }
   .card.error .price { color: var(--red); font-size: 0.85rem; }
+  .note { font-size: 0.68rem; color: var(--dim); margin-top: 0.6rem; line-height: 1.4; border-top: 1px solid var(--border); padding-top: 0.5rem; }
   .flash-green { animation: flashG 0.6s; }
   .flash-red { animation: flashR 0.6s; }
   @keyframes flashG { 0% { color: var(--green); } 100% { color: var(--text); } }
@@ -49,26 +50,59 @@
 <script>
 const { readLatestPrice, feeds } = window.gudPrice;
 
-// Feeds to display, grouped by category
-// 10 feeds = 30 RPC calls per refresh. One from each category to show breadth.
+// Feeds to display, grouped by category.
+// Arbitrum is used wherever available — L2 feeds update more frequently than mainnet.
 const SECTIONS = {
   "Forex": {
-    "EUR / USD": { chain: "ethereum", addr: feeds.ethereum["EUR / USD"] },
-    "GBP / USD": { chain: "ethereum", addr: feeds.ethereum["GBP / USD"] },
+    "EUR / USD": { chain: "arbitrum", addr: feeds.arbitrum["EUR / USD"] },
+    "GBP / USD": { chain: "arbitrum", addr: feeds.arbitrum["GBP / USD"] },
+    "JPY / USD": { chain: "arbitrum", addr: feeds.arbitrum["JPY / USD"] },
+    "AUD / USD": { chain: "arbitrum", addr: feeds.arbitrum["AUD / USD"] },
+    "CAD / USD": { chain: "arbitrum", addr: feeds.arbitrum["CAD / USD"] },
+    "CHF / USD": { chain: "arbitrum", addr: feeds.arbitrum["CHF / USD"] },
+    "CNY / USD": { chain: "arbitrum", addr: feeds.arbitrum["CNY / USD"] },
+    "SGD / USD": { chain: "arbitrum", addr: feeds.arbitrum["SGD / USD"] },
+    "BRL / USD": { chain: "arbitrum", addr: feeds.arbitrum["BRL / USD"] },
+    "TRY / USD": { chain: "arbitrum", addr: feeds.arbitrum["TRY / USD"] },
+    "ARS / USD": { chain: "ethereum", addr: feeds.ethereum["ARS / USD"] },
   },
   "Equities": {
     "AAPL / USD": { chain: "arbitrum", addr: feeds.arbitrum["AAPL / USD"] },
+    "MSFT / USD": { chain: "arbitrum", addr: feeds.arbitrum["MSFT / USD"] },
+    "AMZN / USD": { chain: "arbitrum", addr: feeds.arbitrum["AMZN / USD"] },
+    "NVDA / USD": { chain: "arbitrum", addr: feeds.arbitrum["NVDA / USD"] },
+    "GOOGL / USD": { chain: "arbitrum", addr: feeds.arbitrum["GOOGL / USD"] },
+    "META / USD": { chain: "arbitrum", addr: feeds.arbitrum["META / USD"] },
     "TSLA / USD": { chain: "arbitrum", addr: feeds.arbitrum["TSLA / USD"] },
+    "COIN / USD": { chain: "arbitrum", addr: feeds.arbitrum["COIN / USD"] },
+    "SPY / USD": { chain: "arbitrum", addr: feeds.arbitrum["SPY / USD"] },
   },
   "Commodities": {
-    "Gold (XAU)": { chain: "ethereum", addr: feeds.ethereum["XAU / USD"] },
-    "Silver (XAG)": { chain: "ethereum", addr: feeds.ethereum["XAG / USD"] },
+    "Gold (XAU)": { chain: "arbitrum", addr: feeds.arbitrum["XAU / USD"] },
+    "Silver (XAG)": { chain: "arbitrum", addr: feeds.arbitrum["XAG / USD"] },
+    "Oil (WTI)": { chain: "arbitrum", addr: feeds.arbitrum["WTI / USD"] },
   },
   "Crypto": {
-    "BTC / USD": { chain: "ethereum", addr: feeds.ethereum["BTC / USD"] },
-    "ETH / USD": { chain: "ethereum", addr: feeds.ethereum["ETH / USD"] },
-    "SOL / USD": { chain: "ethereum", addr: feeds.ethereum["SOL / USD"] },
-    "LINK / USD": { chain: "ethereum", addr: feeds.ethereum["LINK / USD"] },
+    "BTC / USD": { chain: "arbitrum", addr: feeds.arbitrum["BTC / USD"] },
+    "ETH / USD": { chain: "arbitrum", addr: feeds.arbitrum["ETH / USD"] },
+    "SOL / USD": { chain: "arbitrum", addr: feeds.arbitrum["SOL / USD"] },
+    "XRP / USD": { chain: "arbitrum", addr: feeds.arbitrum["XRP / USD"] },
+    "AVAX / USD": { chain: "arbitrum", addr: feeds.arbitrum["AVAX / USD"] },
+    "DOGE / USD": { chain: "arbitrum", addr: feeds.arbitrum["DOGE / USD"] },
+    "ADA / USD": { chain: "arbitrum", addr: feeds.arbitrum["ADA / USD"] },
+    "DOT / USD": { chain: "arbitrum", addr: feeds.arbitrum["DOT / USD"] },
+    "LINK / USD": { chain: "arbitrum", addr: feeds.arbitrum["LINK / USD"] },
+  },
+  // On-chain macroeconomic data — actual US economic indicators published on-chain.
+  // GDP/CPI are updated quarterly; ETF prices update on trading days.
+  "Macro / Unusual": {
+    "CPI": { chain: "ethereum", addr: feeds.ethereum["Consumer Price Index"], note: "US Consumer Price Index — measures inflation by tracking a basket of goods and services. Updated quarterly by the BLS." },
+    "Real GDP Level": { chain: "arbitrum", addr: feeds.arbitrum["Real GDP — Level"], note: "Real US GDP in chained dollars — the total value of all goods and services produced, adjusted for inflation. Updated quarterly." },
+    "Real GDP % Change": { chain: "arbitrum", addr: feeds.arbitrum["Real GDP — Percent Change (Annual Rate)"], note: "Quarter-over-quarter GDP growth expressed as an annualized rate. Negative for two straight quarters = recession." },
+    "Real Final Sales": { chain: "arbitrum", addr: feeds.arbitrum["Real Final Sales to Private Domestic Purchasers — Level"], note: "GDP minus government spending and exports — a cleaner read on private-sector demand in the US economy." },
+    "Total Crypto Market Cap": { chain: "arbitrum", addr: feeds.arbitrum["Total Marketcap USD"], note: "Aggregate USD market cap of all crypto assets tracked by Chainlink, updated on-chain in real time." },
+    "IB01 (T-Bills ETF)": { chain: "ethereum", addr: feeds.ethereum["IB01 / USD"], note: "iShares $ Treasury Bond 0-1yr ETF — tracks short-dated US government debt (T-bills). Price moves inversely with short-term interest rate expectations." },
+    "T-Bonds ETF (IBTA)": { chain: "ethereum", addr: feeds.ethereum["IBTA / USD"], note: "iShares $ Treasury Bond 1-3yr ETF — tracks short-to-medium US Treasuries. More rate-sensitive than T-bills; falls when the Fed hikes." },
   },
 };
 
@@ -83,7 +117,7 @@ for (const [section, items] of Object.entries(SECTIONS)) {
   app.appendChild(div);
   const grid = div.querySelector(".grid");
 
-  for (const [name, { chain }] of Object.entries(items)) {
+  for (const [name, { chain, note }] of Object.entries(items)) {
     const display = name.replace(" / USD", "");
     const card = document.createElement("div");
     card.className = "card loading";
@@ -92,6 +126,7 @@ for (const [section, items] of Object.entries(SECTIONS)) {
       <div class="price">--</div>
       <div class="meta"></div>
       <div class="chain">${chain}</div>
+      ${note ? `<div class="note">${note}</div>` : ""}
     `;
     grid.appendChild(card);
     cardEls[name] = {
