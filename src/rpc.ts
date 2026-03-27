@@ -51,14 +51,14 @@ export function formatPrice(raw: bigint, decimals: number): string {
 }
 
 /** A single RPC URL or a list of fallback URLs (tried in order). */
-export type RpcUrl = string | string[];
+export type RpcUrl = string | readonly string[];
 
 // ─── JSON-RPC transport ──────────────────────────────────────────────────────
 
 let rpcIdCounter = 1;
 
 async function ethCall(
-  rpcUrl: string | string[],
+  rpcUrl: RpcUrl,
   to: string,
   data: string
 ): Promise<string> {

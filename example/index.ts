@@ -1,65 +1,50 @@
-import { createPublicClient, fallback, http } from "viem";
-import { pause } from "../src/utils.js";
-import { polygon } from "viem/chains";
-import { polygonDataFeeds } from "../src/dataFeeds/polygon.js";
-import ChainLinkDataFeed from "../src/ChainLinkDataFeed.js";
-
 /**
- * See {@link https://chainlist.org/chain/137}
- * Free public RPC list
+ * gud-price usage example.
+ *
+ * Run: npx tsx example/index.ts
  */
 
-const PolygonRPCList = [
-  "https://polygon.llamarpc.com",
-  "https://polygon-bor.publicnode.com",
-  "https://polygon.meowrpc.com",
-];
+import {
+  readLatestPrice,
+  readLatestPriceRaw,
+  readFeedMetadata,
+  readLatestPriceWithMeta,
+  readPrices,
+  rpcs,
+  ethereumDataFeeds,
+} from "../src/index.js";
 
-const publicClient = createPublicClient({
-  chain: polygon,
-  // We use a fallback transport to ensure we don't miss any data
-  transport: fallback(
-    PolygonRPCList.map((url) => http(url)),
-    {
-      // Use latency measurement to rank RPCs
-      rank: true,
-    }
-  ),
+const rpc = rpcs.ethereum;
+const feed = ethereumDataFeeds["ETH / USD"];
+
+// ─── Read a single price ────────────────────────────────────────────────────
+
+const price = await readLatestPrice(rpc, feed);
+console.log(`ETH / USD: $${price.answer}`);
+console.log(`  Round: ${price.roundId}`);
+console.log(`  Updated: ${price.updatedAt.toISOString()}`);
+
+// ─── Raw bigint values (useful for on-chain math) ───────────────────────────
+
+const raw = await readLatestPriceRaw(rpc, feed);
+console.log(`\nRaw answer: ${raw.answer}`);
+
+// ─── Reuse metadata across multiple reads (saves RPC calls) ─────────────────
+
+const meta = await readFeedMetadata(rpc, feed);
+console.log(`\nFeed: ${meta.description} (${meta.decimals} decimals)`);
+
+const withMeta = await readLatestPriceWithMeta(rpc, feed, meta);
+console.log(`Price: $${withMeta.answer}`);
+
+// ─── Read multiple feeds in parallel ────────────────────────────────────────
+
+const prices = await readPrices(rpc, {
+  "ETH / USD": ethereumDataFeeds["ETH / USD"],
+  "BTC / USD": ethereumDataFeeds["BTC / USD"],
 });
-const EthUSD = polygonDataFeeds["ETH / USD"];
 
-const ethUsdDataFeed = new ChainLinkDataFeed({
-  contractAddress: EthUSD,
-  viemClient: publicClient,
-});
-
-console.log(
-  "Price of ETH / USD :",
-  await ethUsdDataFeed.getLatestRoundData(true)
-);
-
-const contractAddresses = Object.values(polygonDataFeeds);
-
-const feeds = contractAddresses.map((address) => {
-  return new ChainLinkDataFeed({
-    contractAddress: address,
-    viemClient: publicClient,
-  });
-});
-
-for (const feed of feeds) {
-  if (!feed.isWorking) {
-    const key = Object.keys(polygonDataFeeds).find(
-      (key) =>
-        polygonDataFeeds[key as keyof typeof polygonDataFeeds] ===
-        feed.contractAddress
-    );
-    console.log(`👹 Feed ${key} is not working`);
-    await pause(0.5);
-    continue;
-  }
-  const price = await feed.getLatestRoundData(true);
-  console.log(`🍀 Feed ${feed.description} is working: ${price.answer}`);
-  await pause(0.1);
+console.log("\nMultiple feeds:");
+for (const [name, data] of Object.entries(prices)) {
+  console.log(`  ${name}: $${data.answer}`);
 }
-console.log("All feeds completed");
