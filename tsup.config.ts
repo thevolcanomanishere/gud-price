@@ -4,6 +4,7 @@ export default defineConfig({
   entry: [
     "src/index.ts",
     "src/rpc.ts",
+    "src/rpcs.ts",
     "src/dataFeeds/arbitrum.ts",
     "src/dataFeeds/avalanche.ts",
     "src/dataFeeds/base.ts",

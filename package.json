@@ -16,6 +16,10 @@
       "require": { "types": "./dist/rpc.d.cts", "default": "./dist/rpc.cjs" },
       "import": { "types": "./dist/rpc.d.ts", "default": "./dist/rpc.js" }
     },
+    "./rpcs": {
+      "require": { "types": "./dist/rpcs.d.cts", "default": "./dist/rpcs.cjs" },
+      "import": { "types": "./dist/rpcs.d.ts", "default": "./dist/rpcs.js" }
+    },
     "./feeds/arbitrum": {
       "require": { "types": "./dist/dataFeeds/arbitrum.d.cts", "default": "./dist/dataFeeds/arbitrum.cjs" },
       "import": { "types": "./dist/dataFeeds/arbitrum.d.ts", "default": "./dist/dataFeeds/arbitrum.js" }

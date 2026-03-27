@@ -32,3 +32,7 @@ export type {
   RoundDataRaw,
   FeedMetadata,
 } from "./rpc.js";
+
+// Default public RPC endpoints per chain
+export { rpcs, rpc } from "./rpcs.js";
+export type { Chain } from "./rpcs.js";
