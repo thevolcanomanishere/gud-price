@@ -169,7 +169,7 @@ class TestReadFeedMetadata(unittest.TestCase):
         ]
         mock_urlopen.side_effect = responses
 
-        meta = read_feed_metadata(RPC_URL, FEED_ADDR)
+        meta = read_feed_metadata(FEED_ADDR, RPC_URL)
         self.assertEqual(meta.decimals, 8)
         self.assertEqual(meta.description, "ETH / USD")
 
@@ -193,7 +193,7 @@ class TestReadLatestPriceRaw(unittest.TestCase):
     @patch("gud_price.rpc.urllib.request.urlopen")
     def test_raw(self, mock_urlopen):
         mock_urlopen.return_value = _mock_urlopen(_make_rpc_response(_ROUND_HEX))
-        raw = read_latest_price_raw(RPC_URL, FEED_ADDR)
+        raw = read_latest_price_raw(FEED_ADDR, RPC_URL)
         self.assertIsInstance(raw, RoundDataRaw)
         self.assertEqual(raw.round_id, 100)
         self.assertEqual(raw.answer, 350000000000)
@@ -217,7 +217,7 @@ class TestReadLatestPrice(unittest.TestCase):
         ]
         mock_urlopen.side_effect = responses
 
-        rd = read_latest_price(RPC_URL, FEED_ADDR)
+        rd = read_latest_price(FEED_ADDR, RPC_URL)
         self.assertIsInstance(rd, RoundData)
         self.assertEqual(rd.answer, "3500")
         self.assertEqual(rd.description, "ETH / USD")
@@ -229,7 +229,7 @@ class TestReadLatestPriceWithMeta(unittest.TestCase):
     def test_with_meta(self, mock_urlopen):
         mock_urlopen.return_value = _mock_urlopen(_make_rpc_response(_ROUND_HEX))
         meta = FeedMetadata(decimals=8, description="ETH / USD")
-        rd = read_latest_price_with_meta(RPC_URL, FEED_ADDR, meta)
+        rd = read_latest_price_with_meta(FEED_ADDR, meta, RPC_URL)
         self.assertEqual(rd.answer, "3500")
         self.assertEqual(rd.description, "ETH / USD")
 
@@ -242,14 +242,14 @@ class TestPhaseAndAggregator(unittest.TestCase):
     def test_read_phase_id(self, mock_urlopen):
         hex_data = "0x" + _pad_word(6)
         mock_urlopen.return_value = _mock_urlopen(_make_rpc_response(hex_data))
-        self.assertEqual(read_phase_id(RPC_URL, FEED_ADDR), 6)
+        self.assertEqual(read_phase_id(FEED_ADDR, RPC_URL), 6)
 
     @patch("gud_price.rpc.urllib.request.urlopen")
     def test_read_aggregator(self, mock_urlopen):
         addr = "abcdef1234567890abcdef1234567890abcdef12"
         hex_data = "0x" + ("0" * 24) + addr
         mock_urlopen.return_value = _mock_urlopen(_make_rpc_response(hex_data))
-        result = read_aggregator(RPC_URL, FEED_ADDR)
+        result = read_aggregator(FEED_ADDR, RPC_URL)
         self.assertEqual(result, "0x" + addr)
 
 
@@ -276,7 +276,7 @@ class TestReadPrices(unittest.TestCase):
             "ETH_USD": "0xaddr1",
             "BTC_USD": "0xaddr2",
         }
-        result = read_prices(RPC_URL, feeds)
+        result = read_prices(feeds, RPC_URL)
         self.assertIn("ETH_USD", result)
         self.assertIn("BTC_USD", result)
         self.assertEqual(result["ETH_USD"].answer, "3500")

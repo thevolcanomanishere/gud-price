@@ -10,6 +10,7 @@ import (
 	"io"
 	"math/big"
 	"net/http"
+	"sort"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -135,6 +136,59 @@ func FormatPrice(raw *big.Int, decimals int) string {
 	return result
 }
 
+// ── Circuit breaker ─────────────────────────────────────────────────────────
+
+var (
+	failedMu        sync.Mutex
+	failedEndpoints = map[string]time.Time{}
+	cooldown        = 60 * time.Second
+)
+
+func sortByHealth(urls []string) []string {
+	sorted := make([]string, len(urls))
+	copy(sorted, urls)
+	now := time.Now()
+	failedMu.Lock()
+	defer failedMu.Unlock()
+	sort.SliceStable(sorted, func(i, j int) bool {
+		ti, iFailed := failedEndpoints[sorted[i]]
+		tj, jFailed := failedEndpoints[sorted[j]]
+		iHealthy := !iFailed || now.Sub(ti) > cooldown
+		jHealthy := !jFailed || now.Sub(tj) > cooldown
+		if iHealthy && !jHealthy {
+			return true
+		}
+		if !iHealthy && jHealthy {
+			return false
+		}
+		return false
+	})
+	return sorted
+}
+
+func markFailed(url string) {
+	failedMu.Lock()
+	failedEndpoints[url] = time.Now()
+	failedMu.Unlock()
+}
+
+// ── URL resolution ──────────────────────────────────────────────────────────
+
+func resolveURLs(address string, rpcUrls []string) ([]string, error) {
+	if len(rpcUrls) > 0 {
+		return rpcUrls, nil
+	}
+	chain := FeedChain(address)
+	if chain == "" {
+		return nil, fmt.Errorf("unknown feed address: %s — pass an RPC URL", address)
+	}
+	urls, ok := DefaultRPCs[chain]
+	if !ok || len(urls) == 0 {
+		return nil, fmt.Errorf("no RPC endpoints for chain: %s", chain)
+	}
+	return urls, nil
+}
+
 // ── JSON-RPC transport ──────────────────────────────────────────────────────
 
 type rpcRequest struct {
@@ -149,8 +203,8 @@ type rpcResponse struct {
 	Error  json.RawMessage `json:"error"`
 }
 
-// ethCall performs a JSON-RPC eth_call against the given RPC URL.
-func ethCall(rpcUrl, to, data string) (string, error) {
+// ethCallSingle performs a JSON-RPC eth_call against a single RPC URL.
+func ethCallSingle(rpcUrl, to, data string) (string, error) {
 	id := atomic.AddUint64(&rpcID, 1)
 	req := rpcRequest{
 		JSONRPC: "2.0",
@@ -184,7 +238,6 @@ func ethCall(rpcUrl, to, data string) (string, error) {
 	}
 
 	if len(rpcResp.Error) > 0 && string(rpcResp.Error) != "null" {
-		// Try as {"message": "..."} first, fall back to raw string
 		var errObj struct{ Message string }
 		if json.Unmarshal(rpcResp.Error, &errObj) == nil && errObj.Message != "" {
 			return "", fmt.Errorf("RPC error: %s", errObj.Message)
@@ -193,6 +246,26 @@ func ethCall(rpcUrl, to, data string) (string, error) {
 	}
 
 	return rpcResp.Result, nil
+}
+
+// ethCall performs an eth_call with fallback across multiple URLs.
+func ethCall(address, data string, rpcUrls []string) (string, error) {
+	urls, err := resolveURLs(address, rpcUrls)
+	if err != nil {
+		return "", err
+	}
+	sorted := sortByHealth(urls)
+	var lastErr error
+	for _, url := range sorted {
+		result, err := ethCallSingle(url, address, data)
+		if err != nil {
+			markFailed(url)
+			lastErr = err
+			continue
+		}
+		return result, nil
+	}
+	return "", lastErr
 }
 
 // ── Internal helpers ────────────────────────────────────────────────────────
@@ -221,12 +294,12 @@ func formatRound(raw RoundDataRaw, decimals int, description string) RoundData {
 // ── Public API ──────────────────────────────────────────────────────────────
 
 // ReadFeedMetadata reads the decimals and description from a Chainlink feed.
-func ReadFeedMetadata(rpcUrl, address string) (FeedMetadata, error) {
-	decHex, err := ethCall(rpcUrl, address, SelDecimals)
+func ReadFeedMetadata(address string, rpcUrls ...string) (FeedMetadata, error) {
+	decHex, err := ethCall(address, SelDecimals, rpcUrls)
 	if err != nil {
 		return FeedMetadata{}, err
 	}
-	descHex, err := ethCall(rpcUrl, address, SelDescription)
+	descHex, err := ethCall(address, SelDescription, rpcUrls)
 	if err != nil {
 		return FeedMetadata{}, err
 	}
@@ -239,13 +312,13 @@ func ReadFeedMetadata(rpcUrl, address string) (FeedMetadata, error) {
 
 // ReadLatestPrice reads the latest price from a Chainlink feed, formatted as
 // a decimal string.
-func ReadLatestPrice(rpcUrl, address string) (RoundData, error) {
-	meta, err := ReadFeedMetadata(rpcUrl, address)
+func ReadLatestPrice(address string, rpcUrls ...string) (RoundData, error) {
+	meta, err := ReadFeedMetadata(address, rpcUrls...)
 	if err != nil {
 		return RoundData{}, err
 	}
 
-	hexStr, err := ethCall(rpcUrl, address, SelLatestRoundData)
+	hexStr, err := ethCall(address, SelLatestRoundData, rpcUrls)
 	if err != nil {
 		return RoundData{}, err
 	}
@@ -255,8 +328,8 @@ func ReadLatestPrice(rpcUrl, address string) (RoundData, error) {
 
 // ReadLatestPriceWithMeta reads the latest price using pre-fetched metadata
 // (saves 2 RPC calls).
-func ReadLatestPriceWithMeta(rpcUrl, address string, meta FeedMetadata) (RoundData, error) {
-	hexStr, err := ethCall(rpcUrl, address, SelLatestRoundData)
+func ReadLatestPriceWithMeta(address string, meta FeedMetadata, rpcUrls ...string) (RoundData, error) {
+	hexStr, err := ethCall(address, SelLatestRoundData, rpcUrls)
 	if err != nil {
 		return RoundData{}, err
 	}
@@ -265,8 +338,8 @@ func ReadLatestPriceWithMeta(rpcUrl, address string, meta FeedMetadata) (RoundDa
 }
 
 // ReadLatestPriceRaw reads the latest price as raw big.Int values.
-func ReadLatestPriceRaw(rpcUrl, address string) (RoundDataRaw, error) {
-	hexStr, err := ethCall(rpcUrl, address, SelLatestRoundData)
+func ReadLatestPriceRaw(address string, rpcUrls ...string) (RoundDataRaw, error) {
+	hexStr, err := ethCall(address, SelLatestRoundData, rpcUrls)
 	if err != nil {
 		return RoundDataRaw{}, err
 	}
@@ -275,13 +348,13 @@ func ReadLatestPriceRaw(rpcUrl, address string) (RoundDataRaw, error) {
 }
 
 // ReadPriceAtRound reads the price at a specific Chainlink round ID.
-func ReadPriceAtRound(rpcUrl, address string, roundId *big.Int) (RoundData, error) {
-	meta, err := ReadFeedMetadata(rpcUrl, address)
+func ReadPriceAtRound(address string, roundId *big.Int, rpcUrls ...string) (RoundData, error) {
+	meta, err := ReadFeedMetadata(address, rpcUrls...)
 	if err != nil {
 		return RoundData{}, err
 	}
 
-	hexStr, err := ethCall(rpcUrl, address, SelGetRoundData+EncodeUint(roundId))
+	hexStr, err := ethCall(address, SelGetRoundData+EncodeUint(roundId), rpcUrls)
 	if err != nil {
 		return RoundData{}, err
 	}
@@ -290,8 +363,8 @@ func ReadPriceAtRound(rpcUrl, address string, roundId *big.Int) (RoundData, erro
 }
 
 // ReadPhaseId reads the current phase ID from a Chainlink feed proxy.
-func ReadPhaseId(rpcUrl, address string) (*big.Int, error) {
-	hexStr, err := ethCall(rpcUrl, address, SelPhaseID)
+func ReadPhaseId(address string, rpcUrls ...string) (*big.Int, error) {
+	hexStr, err := ethCall(address, SelPhaseID, rpcUrls)
 	if err != nil {
 		return nil, err
 	}
@@ -299,8 +372,8 @@ func ReadPhaseId(rpcUrl, address string) (*big.Int, error) {
 }
 
 // ReadAggregator reads the current aggregator contract address.
-func ReadAggregator(rpcUrl, address string) (string, error) {
-	hexStr, err := ethCall(rpcUrl, address, SelAggregator)
+func ReadAggregator(address string, rpcUrls ...string) (string, error) {
+	hexStr, err := ethCall(address, SelAggregator, rpcUrls)
 	if err != nil {
 		return "", err
 	}
@@ -308,8 +381,8 @@ func ReadAggregator(rpcUrl, address string) (string, error) {
 }
 
 // ReadPhaseAggregator reads the aggregator address for a specific phase.
-func ReadPhaseAggregator(rpcUrl, address string, phaseId *big.Int) (string, error) {
-	hexStr, err := ethCall(rpcUrl, address, SelPhaseAggregators+EncodeUint(phaseId))
+func ReadPhaseAggregator(address string, phaseId *big.Int, rpcUrls ...string) (string, error) {
+	hexStr, err := ethCall(address, SelPhaseAggregators+EncodeUint(phaseId), rpcUrls)
 	if err != nil {
 		return "", err
 	}
@@ -317,7 +390,7 @@ func ReadPhaseAggregator(rpcUrl, address string, phaseId *big.Int) (string, erro
 }
 
 // ReadPrices reads the latest prices from multiple Chainlink feeds concurrently.
-func ReadPrices(rpcUrl string, feeds map[string]string) (map[string]RoundData, error) {
+func ReadPrices(feeds map[string]string, rpcUrls ...string) (map[string]RoundData, error) {
 	type result struct {
 		name string
 		data RoundData
@@ -331,7 +404,7 @@ func ReadPrices(rpcUrl string, feeds map[string]string) (map[string]RoundData, e
 		wg.Add(1)
 		go func(n, a string) {
 			defer wg.Done()
-			d, err := ReadLatestPrice(rpcUrl, a)
+			d, err := ReadLatestPrice(a, rpcUrls...)
 			ch <- result{n, d, err}
 		}(name, address)
 	}

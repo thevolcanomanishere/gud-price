@@ -10,36 +10,34 @@ import {
   readFeedMetadata,
   readLatestPriceWithMeta,
   readPrices,
-  rpcs,
   ethereumDataFeeds,
 } from "../src/index.js";
 
-const rpc = rpcs.ethereum;
 const feed = ethereumDataFeeds["ETH / USD"];
 
 // ─── Read a single price ────────────────────────────────────────────────────
 
-const price = await readLatestPrice(rpc, feed);
+const price = await readLatestPrice(feed);
 console.log(`ETH / USD: $${price.answer}`);
 console.log(`  Round: ${price.roundId}`);
 console.log(`  Updated: ${price.updatedAt.toISOString()}`);
 
 // ─── Raw bigint values (useful for on-chain math) ───────────────────────────
 
-const raw = await readLatestPriceRaw(rpc, feed);
+const raw = await readLatestPriceRaw(feed);
 console.log(`\nRaw answer: ${raw.answer}`);
 
 // ─── Reuse metadata across multiple reads (saves RPC calls) ─────────────────
 
-const meta = await readFeedMetadata(rpc, feed);
+const meta = await readFeedMetadata(feed);
 console.log(`\nFeed: ${meta.description} (${meta.decimals} decimals)`);
 
-const withMeta = await readLatestPriceWithMeta(rpc, feed, meta);
+const withMeta = await readLatestPriceWithMeta(feed, meta);
 console.log(`Price: $${withMeta.answer}`);
 
 // ─── Read multiple feeds in parallel ────────────────────────────────────────
 
-const prices = await readPrices(rpc, {
+const prices = await readPrices({
   "ETH / USD": ethereumDataFeeds["ETH / USD"],
   "BTC / USD": ethereumDataFeeds["BTC / USD"],
 });

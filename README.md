@@ -26,19 +26,10 @@ Get the EUR/USD exchange rate in 3 lines:
 
 ```typescript
 import { readLatestPrice } from "gud-price/rpc";
-
-const data = await readLatestPrice("https://ethereum-rpc.publicnode.com", "0xb49f677943BC038e9857d61E7d053CaA2C1734C1");
-console.log(`EUR/USD: ${data.answer}`); // "EUR/USD: 1.0847"
-```
-
-Or use the built-in feed constants so you don't need to look up addresses:
-
-```typescript
-import { readLatestPrice } from "gud-price/rpc";
 import { EUR_USD } from "gud-price/feeds/ethereum";
 
-const data = await readLatestPrice("https://ethereum-rpc.publicnode.com", EUR_USD);
-console.log(`EUR/USD: ${data.answer}`);
+const data = await readLatestPrice(EUR_USD);
+console.log(`EUR/USD: ${data.answer}`); // "EUR/USD: 1.0847"
 ```
 
 ## Install
@@ -65,9 +56,9 @@ npm install gud-price
 import { readLatestPrice } from "gud-price/rpc";
 import { EUR_USD, GBP_USD, JPY_USD } from "gud-price/feeds/ethereum";
 
-const eur = await readLatestPrice("https://ethereum-rpc.publicnode.com", EUR_USD);
-const gbp = await readLatestPrice("https://ethereum-rpc.publicnode.com", GBP_USD);
-const jpy = await readLatestPrice("https://ethereum-rpc.publicnode.com", JPY_USD);
+const eur = await readLatestPrice(EUR_USD);
+const gbp = await readLatestPrice(GBP_USD);
+const jpy = await readLatestPrice(JPY_USD);
 
 console.log(`EUR/USD: ${eur.answer}`); // "1.0847"
 console.log(`GBP/USD: ${gbp.answer}`); // "1.2634"
@@ -80,7 +71,7 @@ console.log(`JPY/USD: ${jpy.answer}`); // "0.0067"
 import { readPrices } from "gud-price/rpc";
 import { AAPL_USD, TSLA_USD, AMZN_USD, GOOGL_USD } from "gud-price/feeds/arbitrum";
 
-const prices = await readPrices("https://arbitrum.drpc.org", {
+const prices = await readPrices({
   "Apple": AAPL_USD,
   "Tesla": TSLA_USD,
   "Amazon": AMZN_USD,
@@ -98,7 +89,7 @@ for (const [name, data] of Object.entries(prices)) {
 import { readLatestPrice } from "gud-price/rpc";
 import { ETH_USD, BTC_USD } from "gud-price/feeds/ethereum";
 
-const eth = await readLatestPrice("https://ethereum-rpc.publicnode.com", ETH_USD);
+const eth = await readLatestPrice(ETH_USD);
 console.log(`ETH/USD: $${eth.answer}`);
 ```
 
@@ -108,12 +99,11 @@ console.log(`ETH/USD: $${eth.answer}`);
 import { readFeedMetadata, readLatestPriceWithMeta } from "gud-price/rpc";
 import { EUR_USD } from "gud-price/feeds/polygon";
 
-const rpc = "https://polygon-bor-rpc.publicnode.com";
-const meta = await readFeedMetadata(rpc, EUR_USD);
+const meta = await readFeedMetadata(EUR_USD);
 
 // Each call is now 1 RPC request instead of 3
 setInterval(async () => {
-  const data = await readLatestPriceWithMeta(rpc, EUR_USD, meta);
+  const data = await readLatestPriceWithMeta(EUR_USD, meta);
   console.log(`EUR/USD: ${data.answer}`);
 }, 5000);
 ```
@@ -142,14 +132,11 @@ package main
 import (
 	"fmt"
 	"github.com/thevolcanomanishere/gud-price/generated/go/rpc"
+	"github.com/thevolcanomanishere/gud-price/generated/go/ethereum"
 )
 
 func main() {
-	// Get EUR/USD exchange rate
-	data, err := rpc.ReadLatestPrice(
-		"https://ethereum-rpc.publicnode.com",
-		"0xb49f677943BC038e9857d61E7d053CaA2C1734C1", // EUR/USD
-	)
+	data, err := rpc.ReadLatestPrice(ethereum.EUR_USD)
 	if err != nil {
 		panic(err)
 	}
@@ -164,10 +151,7 @@ use gud_price::rpc;
 use gud_price::ethereum;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let data = rpc::read_latest_price(
-        "https://ethereum-rpc.publicnode.com",
-        ethereum::EUR_USD,
-    )?;
+    let data = rpc::read_latest_price(ethereum::EUR_USD, None)?;
     println!("EUR/USD: {}", data.answer);
     Ok(())
 }
@@ -179,7 +163,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 from gud_price.rpc import read_latest_price
 from gud_price.ethereum import EUR_USD
 
-data = read_latest_price("https://ethereum-rpc.publicnode.com", EUR_USD)
+data = read_latest_price(EUR_USD)
 print(f"EUR/USD: {data.answer}")
 ```
 
@@ -187,16 +171,18 @@ print(f"EUR/USD: {data.answer}")
 
 | Function | Description |
 |---|---|
-| `readLatestPrice(rpc, address)` | Latest price, formatted with metadata |
-| `readLatestPriceWithMeta(rpc, address, meta)` | Latest price using pre-fetched metadata (1 RPC call) |
-| `readLatestPriceRaw(rpc, address)` | Latest price as raw integers |
-| `readPriceAtRound(rpc, address, roundId)` | Price at a specific Chainlink round |
-| `readFeedMetadata(rpc, address)` | Decimals and description |
-| `readPrices(rpc, feeds)` | Multiple feeds in parallel |
-| `readPhaseId(rpc, address)` | Current phase ID |
-| `readAggregator(rpc, address)` | Current aggregator address |
-| `readPhaseAggregator(rpc, address, phaseId)` | Aggregator for a specific phase |
+| `readLatestPrice(address)` | Latest price, formatted with metadata |
+| `readLatestPriceWithMeta(address, meta)` | Latest price using pre-fetched metadata (1 RPC call) |
+| `readLatestPriceRaw(address)` | Latest price as raw integers |
+| `readPriceAtRound(address, roundId)` | Price at a specific Chainlink round |
+| `readFeedMetadata(address)` | Decimals and description |
+| `readPrices(feeds)` | Multiple feeds in parallel |
+| `readPhaseId(address)` | Current phase ID |
+| `readAggregator(address)` | Current aggregator address |
+| `readPhaseAggregator(address, phaseId)` | Aggregator for a specific phase |
 | `formatPrice(raw, decimals)` | Format raw integer price to decimal string |
+
+All functions accept an optional RPC URL as the last argument. When omitted, built-in public endpoints are used with automatic fallback.
 
 Function names follow each language's conventions (e.g. `ReadLatestPrice` in Go, `read_latest_price` in Rust/Python).
 
@@ -212,19 +198,18 @@ Chainlink price feeds are smart contracts deployed on EVM blockchains. Each feed
 
 ## RPC endpoints
 
-gud-price ships with built-in public RPC endpoints that work out of the box. These are shared public endpoints -- please use them responsibly and don't hammer them with high-frequency requests.
+gud-price ships with built-in public RPC endpoints and automatically selects the right ones based on which feed you're reading. If an endpoint fails, the library falls back to the next one and remembers which endpoints are down.
 
-For production use or higher throughput, supply your own RPC endpoint. Free tiers are available from providers like [Alchemy](https://www.alchemy.com/), [QuickNode](https://www.quicknode.com/), [Infura](https://www.infura.io/), and others. You can also find more public endpoints on [Chainlist](https://chainlist.org/).
+These are shared public endpoints -- please use them responsibly and don't hammer them with high-frequency requests.
 
-Every function in gud-price takes an RPC URL as its first argument, so swapping endpoints is trivial:
+For production use or higher throughput, supply your own RPC endpoint as the last argument to any function. Free tiers are available from providers like [Alchemy](https://www.alchemy.com/), [QuickNode](https://www.quicknode.com/), [Infura](https://www.infura.io/), and others. You can also find more public endpoints on [Chainlist](https://chainlist.org/).
 
 ```typescript
-// Using built-in public RPC
-import { rpc } from "gud-price/rpcs";
-const data = await readLatestPrice(rpc("ethereum"), EUR_USD);
+// Uses built-in public RPCs automatically
+const data = await readLatestPrice(EUR_USD);
 
-// Using your own endpoint for better reliability and limits
-const data = await readLatestPrice("https://eth-mainnet.g.alchemy.com/v2/YOUR_KEY", EUR_USD);
+// Or supply your own for better reliability and limits
+const data = await readLatestPrice(EUR_USD, "https://eth-mainnet.g.alchemy.com/v2/YOUR_KEY");
 ```
 
 ## Architecture

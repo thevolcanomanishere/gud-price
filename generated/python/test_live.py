@@ -3,7 +3,6 @@
 import unittest
 import signal
 from gud_price.rpc import read_latest_price, read_latest_price_raw, read_feed_metadata, read_prices
-from gud_price.rpcs import rpc
 
 
 def timeout_handler(signum, frame):
@@ -19,13 +18,13 @@ class LiveEthereumTests(unittest.TestCase):
         signal.alarm(0)
 
     def test_eth_usd(self):
-        data = read_latest_price(rpc("ethereum"), "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419")
+        data = read_latest_price("0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419")
         self.assertEqual(data.description, "ETH / USD")
         self.assertGreater(float(data.answer), 0)
         print(f"Ethereum ETH/USD: {data.answer}")
 
     def test_btc_usd(self):
-        data = read_latest_price(rpc("ethereum"), "0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c")
+        data = read_latest_price("0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c")
         self.assertEqual(data.description, "BTC / USD")
         self.assertGreater(float(data.answer), 0)
         print(f"Ethereum BTC/USD: {data.answer}")
@@ -40,17 +39,17 @@ class LivePolygonTests(unittest.TestCase):
         signal.alarm(0)
 
     def test_eth_usd(self):
-        data = read_latest_price(rpc("polygon"), "0xF9680D99D6C9589e2a93a78A04A279e509205945")
+        data = read_latest_price("0xF9680D99D6C9589e2a93a78A04A279e509205945")
         self.assertEqual(data.description, "ETH / USD")
         self.assertGreater(float(data.answer), 0)
         print(f"Polygon ETH/USD: {data.answer}")
 
     def test_raw_data(self):
-        data = read_latest_price_raw(rpc("polygon"), "0xF9680D99D6C9589e2a93a78A04A279e509205945")
+        data = read_latest_price_raw("0xF9680D99D6C9589e2a93a78A04A279e509205945")
         self.assertGreater(data.answer, 0)
 
     def test_metadata(self):
-        meta = read_feed_metadata(rpc("polygon"), "0xF9680D99D6C9589e2a93a78A04A279e509205945")
+        meta = read_feed_metadata("0xF9680D99D6C9589e2a93a78A04A279e509205945")
         self.assertEqual(meta.decimals, 8)
         self.assertEqual(meta.description, "ETH / USD")
 
@@ -64,7 +63,7 @@ class LiveArbitrumTests(unittest.TestCase):
         signal.alarm(0)
 
     def test_eth_usd(self):
-        data = read_latest_price(rpc("arbitrum"), "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612")
+        data = read_latest_price("0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612")
         self.assertEqual(data.description, "ETH / USD")
         self.assertGreater(float(data.answer), 0)
         print(f"Arbitrum ETH/USD: {data.answer}")
@@ -79,7 +78,7 @@ class LiveBaseTests(unittest.TestCase):
         signal.alarm(0)
 
     def test_eth_usd(self):
-        data = read_latest_price(rpc("base"), "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70")
+        data = read_latest_price("0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70")
         self.assertEqual(data.description, "ETH / USD")
         self.assertGreater(float(data.answer), 0)
         print(f"Base ETH/USD: {data.answer}")
@@ -98,7 +97,7 @@ class LiveMultipleFeedsTest(unittest.TestCase):
             "ETH / USD": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
             "BTC / USD": "0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c",
         }
-        results = read_prices(rpc("ethereum"), feeds)
+        results = read_prices(feeds)
         for name, data in results.items():
             self.assertGreater(float(data.answer), 0)
             print(f"{name}: {data.answer}")

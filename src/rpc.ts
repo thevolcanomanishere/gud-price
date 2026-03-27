@@ -1,5 +1,8 @@
 // Chainlink price feed reader — zero dependencies, just fetch()
 
+import { rpcs } from "./rpcs.js";
+import { feedChain } from "./feedChains.js";
+
 // ─── Function selectors ──────────────────────────────────────────────────────
 
 const SEL_DECIMALS = "0x313ce567";
@@ -53,16 +56,49 @@ export function formatPrice(raw: bigint, decimals: number): string {
 /** A single RPC URL or a list of fallback URLs (tried in order). */
 export type RpcUrl = string | readonly string[];
 
+// ─── Circuit breaker ────────────────────────────────────────────────────────
+
+const failedEndpoints = new Map<string, number>();
+const COOLDOWN_MS = 60_000;
+
+function sortByHealth(urls: readonly string[]): string[] {
+  const now = Date.now();
+  return [...urls].sort((a, b) => {
+    const aFailed = failedEndpoints.get(a);
+    const bFailed = failedEndpoints.get(b);
+    const aHealthy = !aFailed || now - aFailed > COOLDOWN_MS;
+    const bHealthy = !bFailed || now - bFailed > COOLDOWN_MS;
+    if (aHealthy && !bHealthy) return -1;
+    if (!aHealthy && bHealthy) return 1;
+    return 0;
+  });
+}
+
+// ─── URL resolution ─────────────────────────────────────────────────────────
+
+function resolveUrls(contractAddress: string, rpcUrl?: RpcUrl): string[] {
+  if (rpcUrl !== undefined) {
+    return Array.isArray(rpcUrl) ? [...rpcUrl] : [rpcUrl as string];
+  }
+  const chain = feedChain(contractAddress);
+  if (!chain) {
+    throw new Error(
+      `Unknown feed address: ${contractAddress}. Pass an RPC URL as the second argument.`
+    );
+  }
+  return [...rpcs[chain]];
+}
+
 // ─── JSON-RPC transport ──────────────────────────────────────────────────────
 
 let rpcIdCounter = 1;
 
 async function ethCall(
-  rpcUrl: RpcUrl,
-  to: string,
-  data: string
+  contractAddress: string,
+  data: string,
+  rpcUrl?: RpcUrl
 ): Promise<string> {
-  const urls = Array.isArray(rpcUrl) ? rpcUrl : [rpcUrl];
+  const urls = sortByHealth(resolveUrls(contractAddress, rpcUrl));
   let lastError: Error | undefined;
   for (const url of urls) {
     try {
@@ -73,7 +109,7 @@ async function ethCall(
           jsonrpc: "2.0",
           id: rpcIdCounter++,
           method: "eth_call",
-          params: [{ to, data }, "latest"],
+          params: [{ to: contractAddress, data }, "latest"],
         }),
       });
       const json = (await res.json()) as { result?: string; error?: { code?: number; message?: string; data?: string } };
@@ -83,6 +119,7 @@ async function ethCall(
       }
       return json.result!;
     } catch (err) {
+      failedEndpoints.set(url, Date.now());
       lastError = err as Error;
     }
   }
@@ -135,12 +172,12 @@ function formatRound(raw: RoundDataRaw, decimals: number, description: string): 
 
 /** Read the decimals and description from a Chainlink price feed contract. */
 export async function readFeedMetadata(
-  rpcUrl: RpcUrl,
-  contractAddress: string
+  contractAddress: string,
+  rpcUrl?: RpcUrl
 ): Promise<FeedMetadata> {
   const [decHex, descHex] = await Promise.all([
-    ethCall(rpcUrl, contractAddress, SEL_DECIMALS),
-    ethCall(rpcUrl, contractAddress, SEL_DESCRIPTION),
+    ethCall(contractAddress, SEL_DECIMALS, rpcUrl),
+    ethCall(contractAddress, SEL_DESCRIPTION, rpcUrl),
   ]);
   return {
     decimals: Number(readWord(decHex, 0)),
@@ -150,88 +187,88 @@ export async function readFeedMetadata(
 
 /** Read the latest price from a Chainlink feed, formatted as a decimal string. */
 export async function readLatestPrice(
-  rpcUrl: RpcUrl,
-  contractAddress: string
+  contractAddress: string,
+  rpcUrl?: RpcUrl
 ): Promise<RoundData & { description: string }> {
   const [meta, hex] = await Promise.all([
-    readFeedMetadata(rpcUrl, contractAddress),
-    ethCall(rpcUrl, contractAddress, SEL_LATEST_ROUND_DATA),
+    readFeedMetadata(contractAddress, rpcUrl),
+    ethCall(contractAddress, SEL_LATEST_ROUND_DATA, rpcUrl),
   ]);
   return formatRound(parseRoundDataRaw(hex), meta.decimals, meta.description);
 }
 
 /** Read the latest price using pre-fetched metadata (saves 2 RPC calls). */
 export async function readLatestPriceWithMeta(
-  rpcUrl: RpcUrl,
   contractAddress: string,
-  meta: FeedMetadata
+  meta: FeedMetadata,
+  rpcUrl?: RpcUrl
 ): Promise<RoundData & { description: string }> {
-  const hex = await ethCall(rpcUrl, contractAddress, SEL_LATEST_ROUND_DATA);
+  const hex = await ethCall(contractAddress, SEL_LATEST_ROUND_DATA, rpcUrl);
   return formatRound(parseRoundDataRaw(hex), meta.decimals, meta.description);
 }
 
 /** Read the latest price as raw bigint values (no formatting). */
 export async function readLatestPriceRaw(
-  rpcUrl: RpcUrl,
-  contractAddress: string
+  contractAddress: string,
+  rpcUrl?: RpcUrl
 ): Promise<RoundDataRaw> {
-  const hex = await ethCall(rpcUrl, contractAddress, SEL_LATEST_ROUND_DATA);
+  const hex = await ethCall(contractAddress, SEL_LATEST_ROUND_DATA, rpcUrl);
   return parseRoundDataRaw(hex);
 }
 
 /** Read the price at a specific Chainlink round ID. */
 export async function readPriceAtRound(
-  rpcUrl: RpcUrl,
   contractAddress: string,
-  roundId: bigint
+  roundId: bigint,
+  rpcUrl?: RpcUrl
 ): Promise<RoundData & { description: string }> {
   const [meta, hex] = await Promise.all([
-    readFeedMetadata(rpcUrl, contractAddress),
-    ethCall(rpcUrl, contractAddress, SEL_GET_ROUND_DATA + encodeUint(roundId)),
+    readFeedMetadata(contractAddress, rpcUrl),
+    ethCall(contractAddress, SEL_GET_ROUND_DATA + encodeUint(roundId), rpcUrl),
   ]);
   return formatRound(parseRoundDataRaw(hex), meta.decimals, meta.description);
 }
 
 /** Read the current phase ID from a Chainlink feed proxy. */
 export async function readPhaseId(
-  rpcUrl: RpcUrl,
-  contractAddress: string
+  contractAddress: string,
+  rpcUrl?: RpcUrl
 ): Promise<bigint> {
-  const hex = await ethCall(rpcUrl, contractAddress, SEL_PHASE_ID);
+  const hex = await ethCall(contractAddress, SEL_PHASE_ID, rpcUrl);
   return readWord(hex, 0);
 }
 
 /** Read the aggregator contract address for a specific phase. */
 export async function readPhaseAggregator(
-  rpcUrl: RpcUrl,
   contractAddress: string,
-  phaseId: bigint
+  phaseId: bigint,
+  rpcUrl?: RpcUrl
 ): Promise<string> {
   const hex = await ethCall(
-    rpcUrl,
     contractAddress,
-    SEL_PHASE_AGGREGATORS + encodeUint(phaseId)
+    SEL_PHASE_AGGREGATORS + encodeUint(phaseId),
+    rpcUrl
   );
   return "0x" + hex.slice(26, 66);
 }
 
 /** Read the current aggregator contract address. */
 export async function readAggregator(
-  rpcUrl: RpcUrl,
-  contractAddress: string
+  contractAddress: string,
+  rpcUrl?: RpcUrl
 ): Promise<string> {
-  const hex = await ethCall(rpcUrl, contractAddress, SEL_AGGREGATOR);
+  const hex = await ethCall(contractAddress, SEL_AGGREGATOR, rpcUrl);
   return "0x" + hex.slice(26, 66);
 }
 
 /** Read latest prices from multiple Chainlink feeds in parallel. */
 export async function readPrices(
-  rpcUrl: RpcUrl,
-  feeds: Record<string, string>
+  feeds: Record<string, string>,
+  rpcUrl?: RpcUrl
 ): Promise<Record<string, RoundData & { description: string }>> {
   const entries = Object.entries(feeds);
   const results = await Promise.all(
-    entries.map(([, address]) => readLatestPrice(rpcUrl, address))
+    entries.map(([, address]) => readLatestPrice(address, rpcUrl))
   );
   const out: Record<string, RoundData & { description: string }> = {};
   for (let i = 0; i < entries.length; i++) {

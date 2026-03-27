@@ -2,6 +2,8 @@
 
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Mutex;
+use std::time::Instant;
 
 // ---- Function selectors -------------------------------------------------------
 
@@ -170,6 +172,46 @@ pub fn parse_feed_metadata(decimals_hex: &str, description_hex: &str) -> FeedMet
     }
 }
 
+// ---- Circuit breaker ----------------------------------------------------------
+
+static FAILED_ENDPOINTS: Mutex<Option<HashMap<String, Instant>>> = Mutex::new(None);
+const COOLDOWN_SECS: u64 = 60;
+
+fn mark_failed(url: &str) {
+    let mut guard = FAILED_ENDPOINTS.lock().unwrap();
+    let map = guard.get_or_insert_with(HashMap::new);
+    map.insert(url.to_string(), Instant::now());
+}
+
+fn sort_by_health(urls: &[&str]) -> Vec<String> {
+    let mut sorted: Vec<String> = urls.iter().map(|u| u.to_string()).collect();
+    let guard = FAILED_ENDPOINTS.lock().unwrap();
+    if let Some(map) = guard.as_ref() {
+        let now = Instant::now();
+        sorted.sort_by(|a, b| {
+            let a_healthy = map.get(a).map_or(true, |t| now.duration_since(*t).as_secs() > COOLDOWN_SECS);
+            let b_healthy = map.get(b).map_or(true, |t| now.duration_since(*t).as_secs() > COOLDOWN_SECS);
+            b_healthy.cmp(&a_healthy)
+        });
+    }
+    sorted
+}
+
+// ---- URL resolution -----------------------------------------------------------
+
+fn resolve_urls<'a>(contract_address: &str, rpc_url: Option<&'a str>) -> Result<Vec<&'a str>, String> {
+    if let Some(url) = rpc_url {
+        return Ok(vec![url]);
+    }
+    let chain = crate::feed_chains::feed_chain(contract_address)
+        .ok_or_else(|| format!("Unknown feed address: {}. Pass an RPC URL.", contract_address))?;
+    let urls = crate::rpcs::rpcs(chain);
+    if urls.is_empty() {
+        return Err(format!("No RPC endpoints for chain: {}", chain));
+    }
+    Ok(urls.to_vec())
+}
+
 // ---- JSON-RPC transport -------------------------------------------------------
 
 static RPC_ID_COUNTER: AtomicU64 = AtomicU64::new(1);
@@ -204,91 +246,107 @@ pub fn eth_call(rpc_url: &str, to: &str, data: &str) -> Result<String, String> {
     Err(format!("Unexpected RPC response: {}", text))
 }
 
+/// Perform an `eth_call` with fallback across multiple URLs.
+fn eth_call_fallback(contract_address: &str, data: &str, rpc_url: Option<&str>) -> Result<String, String> {
+    let urls = resolve_urls(contract_address, rpc_url)?;
+    let sorted = sort_by_health(&urls.iter().map(|s| *s).collect::<Vec<_>>());
+    let mut last_err = String::new();
+    for url in &sorted {
+        match eth_call(url, contract_address, data) {
+            Ok(result) => return Ok(result),
+            Err(e) => {
+                mark_failed(url);
+                last_err = e;
+            }
+        }
+    }
+    Err(last_err)
+}
+
 // ---- Public API ---------------------------------------------------------------
 
 /// Read the decimals and description from a Chainlink price feed contract.
-pub fn read_feed_metadata(rpc_url: &str, contract_address: &str) -> Result<FeedMetadata, String> {
-    let dec_hex = eth_call(rpc_url, contract_address, SEL_DECIMALS)?;
-    let desc_hex = eth_call(rpc_url, contract_address, SEL_DESCRIPTION)?;
+pub fn read_feed_metadata(contract_address: &str, rpc_url: Option<&str>) -> Result<FeedMetadata, String> {
+    let dec_hex = eth_call_fallback(contract_address, SEL_DECIMALS, rpc_url)?;
+    let desc_hex = eth_call_fallback(contract_address, SEL_DESCRIPTION, rpc_url)?;
     Ok(parse_feed_metadata(&dec_hex, &desc_hex))
 }
 
 /// Read the latest price from a Chainlink feed, formatted as a decimal string.
 pub fn read_latest_price(
-    rpc_url: &str,
     contract_address: &str,
+    rpc_url: Option<&str>,
 ) -> Result<RoundData, String> {
-    let meta = read_feed_metadata(rpc_url, contract_address)?;
-    let hex = eth_call(rpc_url, contract_address, SEL_LATEST_ROUND_DATA)?;
+    let meta = read_feed_metadata(contract_address, rpc_url)?;
+    let hex = eth_call_fallback(contract_address, SEL_LATEST_ROUND_DATA, rpc_url)?;
     let raw = parse_round_data_raw(&hex);
     Ok(format_round(&raw, meta.decimals, &meta.description))
 }
 
 /// Read the latest price as raw values (no formatting).
 pub fn read_latest_price_raw(
-    rpc_url: &str,
     contract_address: &str,
+    rpc_url: Option<&str>,
 ) -> Result<RoundDataRaw, String> {
-    let hex = eth_call(rpc_url, contract_address, SEL_LATEST_ROUND_DATA)?;
+    let hex = eth_call_fallback(contract_address, SEL_LATEST_ROUND_DATA, rpc_url)?;
     Ok(parse_round_data_raw(&hex))
 }
 
 /// Read the latest price using pre-fetched metadata (saves 2 RPC calls).
 pub fn read_latest_price_with_meta(
-    rpc_url: &str,
     contract_address: &str,
     meta: &FeedMetadata,
+    rpc_url: Option<&str>,
 ) -> Result<RoundData, String> {
-    let hex = eth_call(rpc_url, contract_address, SEL_LATEST_ROUND_DATA)?;
+    let hex = eth_call_fallback(contract_address, SEL_LATEST_ROUND_DATA, rpc_url)?;
     let raw = parse_round_data_raw(&hex);
     Ok(format_round(&raw, meta.decimals, &meta.description))
 }
 
 /// Read the price at a specific Chainlink round ID.
 pub fn read_price_at_round(
-    rpc_url: &str,
     contract_address: &str,
     round_id: u128,
+    rpc_url: Option<&str>,
 ) -> Result<RoundData, String> {
-    let meta = read_feed_metadata(rpc_url, contract_address)?;
+    let meta = read_feed_metadata(contract_address, rpc_url)?;
     let data_selector = format!("{}{}", SEL_GET_ROUND_DATA, encode_uint(round_id));
-    let hex = eth_call(rpc_url, contract_address, &data_selector)?;
+    let hex = eth_call_fallback(contract_address, &data_selector, rpc_url)?;
     let raw = parse_round_data_raw(&hex);
     Ok(format_round(&raw, meta.decimals, &meta.description))
 }
 
 /// Read the current phase ID from a Chainlink feed proxy.
-pub fn read_phase_id(rpc_url: &str, contract_address: &str) -> Result<u128, String> {
-    let hex = eth_call(rpc_url, contract_address, SEL_PHASE_ID)?;
+pub fn read_phase_id(contract_address: &str, rpc_url: Option<&str>) -> Result<u128, String> {
+    let hex = eth_call_fallback(contract_address, SEL_PHASE_ID, rpc_url)?;
     Ok(read_word(&hex, 0))
 }
 
 /// Read the current aggregator contract address.
-pub fn read_aggregator(rpc_url: &str, contract_address: &str) -> Result<String, String> {
-    let hex = eth_call(rpc_url, contract_address, SEL_AGGREGATOR)?;
-    // Address is the low 20 bytes of the 32-byte word: chars 26..66 (after "0x").
+pub fn read_aggregator(contract_address: &str, rpc_url: Option<&str>) -> Result<String, String> {
+    let hex = eth_call_fallback(contract_address, SEL_AGGREGATOR, rpc_url)?;
     Ok(format!("0x{}", &hex[26..66]))
 }
 
 /// Read the aggregator contract address for a specific phase.
 pub fn read_phase_aggregator(
-    rpc_url: &str,
     contract_address: &str,
     phase_id: u128,
+    rpc_url: Option<&str>,
 ) -> Result<String, String> {
     let data_selector = format!("{}{}", SEL_PHASE_AGGREGATORS, encode_uint(phase_id));
-    let hex = eth_call(rpc_url, contract_address, &data_selector)?;
+    let hex = eth_call_fallback(contract_address, &data_selector, rpc_url)?;
     Ok(format!("0x{}", &hex[26..66]))
 }
 
 /// Read latest prices from multiple Chainlink feeds.
 pub fn read_prices(
-    rpc_url: &str,
     feeds: &HashMap<String, String>,
+    rpc_url: Option<&str>,
 ) -> Result<HashMap<String, RoundData>, String> {
     let mut out = HashMap::new();
     for (name, address) in feeds {
-        let round = read_latest_price(rpc_url, address)?;
+        let round = read_latest_price(address, rpc_url)?;
         out.insert(name.clone(), round);
     }
     Ok(out)
@@ -561,8 +619,8 @@ mod tests {
     #[ignore]
     fn test_live_ethereum_eth_usd() {
         let data = read_latest_price(
-            crate::rpcs::rpc("ethereum"),
             "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+            None,
         ).expect("RPC call failed");
         assert_eq!(data.description, "ETH / USD");
         let price: f64 = data.answer.parse().unwrap();
@@ -574,8 +632,8 @@ mod tests {
     #[ignore]
     fn test_live_polygon_btc_usd() {
         let data = read_latest_price(
-            crate::rpcs::rpc("polygon"),
             "0xc907E116054Ad103354f2D350FD2514433D57F6f",
+            None,
         ).expect("RPC call failed");
         assert_eq!(data.description, "BTC / USD");
         let price: f64 = data.answer.parse().unwrap();
@@ -587,8 +645,8 @@ mod tests {
     #[ignore]
     fn test_live_arbitrum_eth_usd() {
         let data = read_latest_price(
-            crate::rpcs::rpc("arbitrum"),
             "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612",
+            None,
         ).expect("RPC call failed");
         assert_eq!(data.description, "ETH / USD");
         let price: f64 = data.answer.parse().unwrap();
@@ -600,8 +658,8 @@ mod tests {
     #[ignore]
     fn test_live_base_eth_usd() {
         let data = read_latest_price(
-            crate::rpcs::rpc("base"),
             "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70",
+            None,
         ).expect("RPC call failed");
         assert_eq!(data.description, "ETH / USD");
         let price: f64 = data.answer.parse().unwrap();

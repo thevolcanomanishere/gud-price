@@ -185,7 +185,7 @@ func TestReadFeedMetadata(t *testing.T) {
 	})
 	defer srv.Close()
 
-	meta, err := ReadFeedMetadata(srv.URL, "0xabc")
+	meta, err := ReadFeedMetadata("0xabc", srv.URL)
 	if err != nil {
 		t.Fatalf("ReadFeedMetadata: %v", err)
 	}
@@ -207,7 +207,7 @@ func TestReadLatestPrice(t *testing.T) {
 	})
 	defer srv.Close()
 
-	data, err := ReadLatestPrice(srv.URL, "0xabc")
+	data, err := ReadLatestPrice("0xabc", srv.URL)
 	if err != nil {
 		t.Fatalf("ReadLatestPrice: %v", err)
 	}
@@ -239,7 +239,7 @@ func TestReadLatestPriceRaw(t *testing.T) {
 	})
 	defer srv.Close()
 
-	data, err := ReadLatestPriceRaw(srv.URL, "0xabc")
+	data, err := ReadLatestPriceRaw("0xabc", srv.URL)
 	if err != nil {
 		t.Fatalf("ReadLatestPriceRaw: %v", err)
 	}
@@ -269,7 +269,7 @@ func TestReadLatestPriceWithMeta(t *testing.T) {
 	defer srv.Close()
 
 	meta := FeedMetadata{Decimals: 8, Description: "BTC / USD"}
-	data, err := ReadLatestPriceWithMeta(srv.URL, "0xabc", meta)
+	data, err := ReadLatestPriceWithMeta("0xabc", meta, srv.URL)
 	if err != nil {
 		t.Fatalf("ReadLatestPriceWithMeta: %v", err)
 	}
@@ -285,13 +285,13 @@ func TestReadLatestPriceWithMeta(t *testing.T) {
 
 func TestReadPriceAtRound(t *testing.T) {
 	srv := selectorRouter(map[string]string{
-		SelDecimals:    hexWords(8),
-		SelDescription: hexString("BTC / USD"),
+		SelDecimals:     hexWords(8),
+		SelDescription:  hexString("BTC / USD"),
 		SelGetRoundData: hexWords(50, 4200000000000, 1700000000, 1700000001, 50),
 	})
 	defer srv.Close()
 
-	data, err := ReadPriceAtRound(srv.URL, "0xabc", big.NewInt(50))
+	data, err := ReadPriceAtRound("0xabc", big.NewInt(50), srv.URL)
 	if err != nil {
 		t.Fatalf("ReadPriceAtRound: %v", err)
 	}
@@ -311,7 +311,7 @@ func TestReadPhaseId(t *testing.T) {
 	})
 	defer srv.Close()
 
-	phase, err := ReadPhaseId(srv.URL, "0xabc")
+	phase, err := ReadPhaseId("0xabc", srv.URL)
 	if err != nil {
 		t.Fatalf("ReadPhaseId: %v", err)
 	}
@@ -329,7 +329,7 @@ func TestReadAggregator(t *testing.T) {
 	})
 	defer srv.Close()
 
-	got, err := ReadAggregator(srv.URL, "0xabc")
+	got, err := ReadAggregator("0xabc", srv.URL)
 	if err != nil {
 		t.Fatalf("ReadAggregator: %v", err)
 	}
@@ -347,7 +347,7 @@ func TestReadPhaseAggregator(t *testing.T) {
 	})
 	defer srv.Close()
 
-	got, err := ReadPhaseAggregator(srv.URL, "0xabc", big.NewInt(5))
+	got, err := ReadPhaseAggregator("0xabc", big.NewInt(5), srv.URL)
 	if err != nil {
 		t.Fatalf("ReadPhaseAggregator: %v", err)
 	}
@@ -371,7 +371,7 @@ func TestReadPrices(t *testing.T) {
 		"BTC / USD": "0xbbb",
 	}
 
-	results, err := ReadPrices(srv.URL, feeds)
+	results, err := ReadPrices(feeds, srv.URL)
 	if err != nil {
 		t.Fatalf("ReadPrices: %v", err)
 	}
@@ -392,7 +392,7 @@ func TestRPCErrorHandling(t *testing.T) {
 	srv := errorServer("execution reverted")
 	defer srv.Close()
 
-	_, err := ReadLatestPriceRaw(srv.URL, "0xabc")
+	_, err := ReadLatestPriceRaw("0xabc", srv.URL)
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

@@ -319,6 +319,95 @@ for (const lang of langs) {
   console.log(`${lang}: ${Object.keys(chains).length} feeds → ${gen.dir}/`);
 }
 
+// ─── Feed chain lookup generators ────────────────────────────────────────────
+
+function buildAddressToChainMap(chains) {
+  const map = {};
+  for (const [chain, feeds] of Object.entries(chains)) {
+    for (const address of Object.values(feeds)) {
+      map[address.toLowerCase()] = chain;
+    }
+  }
+  return map;
+}
+
+function generateFeedChainsTs(addrMap) {
+  const lines = [];
+  lines.push('import type { Chain } from "./rpcs.js";');
+  lines.push("");
+  lines.push("const feedChainMap: Record<string, Chain> = {");
+  for (const [addr, chain] of Object.entries(addrMap)) {
+    lines.push(`  "${addr}": "${chain}",`);
+  }
+  lines.push("};");
+  lines.push("");
+  lines.push("export function feedChain(address: string): Chain | undefined {");
+  lines.push("  return feedChainMap[address.toLowerCase()];");
+  lines.push("}");
+  lines.push("");
+  return lines.join("\n");
+}
+
+function generateFeedChainsGo(addrMap) {
+  const lines = [];
+  lines.push("package rpc");
+  lines.push("");
+  lines.push('import "strings"');
+  lines.push("");
+  lines.push("// feedChains maps lowercase feed addresses to their chain name.");
+  lines.push("var feedChains = map[string]string{");
+  for (const [addr, chain] of Object.entries(addrMap)) {
+    lines.push(`\t"${addr}": "${chain}",`);
+  }
+  lines.push("}");
+  lines.push("");
+  lines.push("// FeedChain returns the chain name for a known feed address, or empty string.");
+  lines.push("func FeedChain(address string) string {");
+  lines.push("\treturn feedChains[strings.ToLower(address)]");
+  lines.push("}");
+  lines.push("");
+  return lines.join("\n");
+}
+
+function generateFeedChainsRust(addrMap) {
+  const lines = [];
+  lines.push("//! Lookup map from feed address to chain name.");
+  lines.push("");
+  lines.push("use phf::phf_map;");
+  lines.push("");
+  lines.push("/// Map from lowercase feed address to chain name.");
+  lines.push('pub static FEED_CHAINS: phf::Map<&\'static str, &\'static str> = phf_map! {');
+  for (const [addr, chain] of Object.entries(addrMap)) {
+    lines.push(`    "${addr}" => "${chain}",`);
+  }
+  lines.push("};");
+  lines.push("");
+  lines.push("/// Get the chain name for a known feed address.");
+  lines.push("pub fn feed_chain(address: &str) -> Option<&'static str> {");
+  lines.push("    FEED_CHAINS.get(&address.to_lowercase().as_str()).copied()");
+  lines.push("}");
+  lines.push("");
+  return lines.join("\n");
+}
+
+function generateFeedChainsPython(addrMap) {
+  const lines = [];
+  lines.push('"""Lookup map from feed address to chain name."""');
+  lines.push("");
+  lines.push("feed_chains: dict[str, str] = {");
+  for (const [addr, chain] of Object.entries(addrMap)) {
+    lines.push(`    "${addr}": "${chain}",`);
+  }
+  lines.push("}");
+  lines.push("");
+  lines.push("");
+  lines.push("def feed_chain(address: str) -> str | None:");
+  lines.push('    """Get the chain name for a known feed address."""');
+  lines.push("    return feed_chains.get(address.lower())");
+  lines.push("");
+  return lines.join("\n");
+}
+
 // ─── FEEDS.md ─────────────────────────────────────────────────────────────────
 
 function generateFeedsMd(chains) {
@@ -350,6 +439,28 @@ function generateFeedsMd(chains) {
   );
   lines.push("");
   return lines.join("\n");
+}
+
+// ─── Feed chain lookup maps ───────────────────────────────────────────────────
+
+const addrMap = buildAddressToChainMap(chains);
+
+const feedChainsGenerators = {
+  ts: { fn: generateFeedChainsTs, path: "src/feedChains.ts" },
+  go: { fn: generateFeedChainsGo, path: "generated/go/rpc/feed_chains.go" },
+  rust: { fn: generateFeedChainsRust, path: "generated/rust/src/feed_chains.rs" },
+  python: { fn: generateFeedChainsPython, path: "generated/python/gud_price/feed_chains.py" },
+};
+
+for (const lang of langs) {
+  if (feedChainsGenerators[lang]) {
+    const gen = feedChainsGenerators[lang];
+    const outPath = path.join(ROOT, gen.path);
+    fs.mkdirSync(path.dirname(outPath), { recursive: true });
+    fs.writeFileSync(outPath, gen.fn(addrMap));
+    totalFiles++;
+    console.log(`${lang}: feed_chains → ${gen.path}`);
+  }
 }
 
 const feedsMdPath = path.join(ROOT, "FEEDS.md");

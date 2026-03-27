@@ -99,7 +99,7 @@ describe("readFeedMetadata", () => {
       "0x7284e416": hexString("ETH / USD"), // description
     });
 
-    const meta = await readFeedMetadata("http://rpc", "0xabc");
+    const meta = await readFeedMetadata("0xabc", "http://rpc");
     expect(meta.decimals).toBe(8);
     expect(meta.description).toBe("ETH / USD");
   });
@@ -113,7 +113,7 @@ describe("readLatestPrice", () => {
       "0xfeaf968c": hexWords(100n, 180000000000n, 1700000000n, 1700000001n, 100n),
     });
 
-    const data = await readLatestPrice("http://rpc", "0xabc");
+    const data = await readLatestPrice("0xabc", "http://rpc");
     expect(data.roundId).toBe(100n);
     expect(data.answer).toBe("1800");
     expect(data.description).toBe("ETH / USD");
@@ -129,7 +129,7 @@ describe("readLatestPriceRaw", () => {
       "0xfeaf968c": hexWords(100n, 180000000000n, 1700000000n, 1700000001n, 100n),
     });
 
-    const data = await readLatestPriceRaw("http://rpc", "0xabc");
+    const data = await readLatestPriceRaw("0xabc", "http://rpc");
     expect(data.roundId).toBe(100n);
     expect(data.answer).toBe(180000000000n);
     expect(data.startedAt).toBe(1700000000n);
@@ -145,9 +145,9 @@ describe("readLatestPriceWithMeta", () => {
     });
 
     const data = await readLatestPriceWithMeta(
-      "http://rpc",
       "0xabc",
-      { decimals: 8, description: "BTC / USD" }
+      { decimals: 8, description: "BTC / USD" },
+      "http://rpc"
     );
 
     expect(data.answer).toBe("42000");
@@ -165,7 +165,7 @@ describe("readPriceAtRound", () => {
       "0x9a6fc8f5": hexWords(50n, 4200000000000n, 1700000000n, 1700000001n, 50n),
     });
 
-    const data = await readPriceAtRound("http://rpc", "0xabc", 50n);
+    const data = await readPriceAtRound("0xabc", 50n, "http://rpc");
     expect(data.roundId).toBe(50n);
     expect(data.answer).toBe("42000");
 
@@ -182,7 +182,7 @@ describe("readPhaseId", () => {
       "0x58303b10": hexWords(5n),
     });
 
-    const phase = await readPhaseId("http://rpc", "0xabc");
+    const phase = await readPhaseId("0xabc", "http://rpc");
     expect(phase).toBe(5n);
   });
 });
@@ -194,7 +194,7 @@ describe("readPhaseAggregator", () => {
       "0xc1597304": "0x000000000000000000000000" + addr.slice(2),
     });
 
-    const aggregator = await readPhaseAggregator("http://rpc", "0xabc", 5n);
+    const aggregator = await readPhaseAggregator("0xabc", 5n, "http://rpc");
     expect(aggregator).toBe(addr);
   });
 });
@@ -206,7 +206,7 @@ describe("readAggregator", () => {
       "0x245a7bfc": "0x000000000000000000000000" + addr.slice(2),
     });
 
-    const aggregator = await readAggregator("http://rpc", "0xabc");
+    const aggregator = await readAggregator("0xabc", "http://rpc");
     expect(aggregator).toBe(addr);
   });
 });
@@ -219,10 +219,10 @@ describe("readPrices", () => {
       "0xfeaf968c": hexWords(1n, 180000000000n, 1700000000n, 1700000001n, 1n),
     });
 
-    const results = await readPrices("http://rpc", {
+    const results = await readPrices({
       "ETH / USD": "0xaaa",
       "BTC / USD": "0xbbb",
-    });
+    }, "http://rpc");
 
     expect(Object.keys(results)).toHaveLength(2);
     expect(results["ETH / USD"]).toBeDefined();
@@ -242,7 +242,7 @@ describe("RPC error handling", () => {
     })) as any;
 
     await expect(
-      readLatestPriceRaw("http://rpc", "0xabc")
+      readLatestPriceRaw("0xabc", "http://rpc")
     ).rejects.toThrow("RPC error: execution reverted");
   });
 });

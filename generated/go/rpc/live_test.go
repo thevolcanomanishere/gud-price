@@ -12,7 +12,7 @@ func TestLiveEthereumETHUSD(t *testing.T) {
 	done := make(chan struct{})
 	go func() {
 		defer close(done)
-		data, err := ReadLatestPrice(RPC("ethereum"), "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419")
+		data, err := ReadLatestPrice("0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419")
 		if err != nil {
 			t.Errorf("ReadLatestPrice: %v", err)
 			return
@@ -39,7 +39,7 @@ func TestLivePolygonBTCUSD(t *testing.T) {
 	done := make(chan struct{})
 	go func() {
 		defer close(done)
-		data, err := ReadLatestPrice(RPC("polygon"), "0xc907E116054Ad103354f2D350FD2514433D57F6f")
+		data, err := ReadLatestPrice("0xc907E116054Ad103354f2D350FD2514433D57F6f")
 		if err != nil {
 			t.Errorf("ReadLatestPrice: %v", err)
 			return
@@ -63,7 +63,7 @@ func TestLiveArbitrumETHUSD(t *testing.T) {
 	done := make(chan struct{})
 	go func() {
 		defer close(done)
-		data, err := ReadLatestPrice(RPC("arbitrum"), "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612")
+		data, err := ReadLatestPrice("0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612")
 		if err != nil {
 			t.Errorf("ReadLatestPrice: %v", err)
 			return
@@ -87,7 +87,7 @@ func TestLiveBaseETHUSD(t *testing.T) {
 	done := make(chan struct{})
 	go func() {
 		defer close(done)
-		data, err := ReadLatestPrice(RPC("base"), "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70")
+		data, err := ReadLatestPrice("0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70")
 		if err != nil {
 			t.Errorf("ReadLatestPrice: %v", err)
 			return
@@ -115,7 +115,7 @@ func TestLiveReadPricesMultiple(t *testing.T) {
 			"ETH / USD": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
 			"BTC / USD": "0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c",
 		}
-		results, err := ReadPrices(RPC("ethereum"), feeds)
+		results, err := ReadPrices(feeds)
 		if err != nil {
 			t.Errorf("ReadPrices: %v", err)
 			return
