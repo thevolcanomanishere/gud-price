@@ -1,8 +1,8 @@
 .{
     .name = .{ "gud-price" },
-    .version = "0.1.6",
+    .version = "0.1.7",
     .fingerprint = 0xa76cd20f193c71a2,
-    .minimum_zig.version = "0.1.6",
+    .minimum_zig.version = "0.1.7",
     .paths = .{
         "build.zig",
         "build.zig.zon",
