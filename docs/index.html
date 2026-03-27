@@ -206,6 +206,7 @@ const SECTIONS = {
     "📈 PCE % Change": {
       chain: "arbitrum", addr: feeds.arbitrum["PCE Price Index — Percent Change (Annual Rate)"],
       note: "Annualized rate of PCE inflation. The Fed targets 2%. When this is high, expect rate hikes; when low, expect cuts.",
+      unit: "%",
     },
     "🏭 Real GDP Level": {
       chain: "arbitrum", addr: feeds.arbitrum["Real GDP — Level"],
@@ -214,6 +215,7 @@ const SECTIONS = {
     "📊 Real GDP % Change": {
       chain: "arbitrum", addr: feeds.arbitrum["Real GDP — Percent Change (Annual Rate)"],
       note: "Quarter-over-quarter GDP growth as an annualized rate. Two consecutive negative readings = recession.",
+      unit: "%",
     },
     "🧾 Real Final Sales Level": {
       chain: "arbitrum", addr: feeds.arbitrum["Real Final Sales to Private Domestic Purchasers — Level"],
@@ -222,6 +224,7 @@ const SECTIONS = {
     "📉 Real Final Sales % Change": {
       chain: "arbitrum", addr: feeds.arbitrum["Real Final Sales to Private Domestic Purchasers — Percent Change (Annual Rate)"],
       note: "Annualized rate of change in private domestic final sales. Strips out volatile inventory swings for a smoother read on underlying demand.",
+      unit: "%",
     },
     "🌐 Crypto Market Cap": {
       chain: "arbitrum", addr: feeds.arbitrum["Total Marketcap USD"],
@@ -313,7 +316,7 @@ for (const [section, items] of Object.entries(SECTIONS)) {
   app.appendChild(sec);
   const grid = sec.querySelector(".grid");
 
-  for (const [name, { chain, flag, note, format }] of Object.entries(items)) {
+  for (const [name, { chain, flag, note, format, unit }] of Object.entries(items)) {
     const card = document.createElement("div");
     card.className = "card loading";
     card.innerHTML = `
@@ -329,6 +332,7 @@ for (const [section, items] of Object.entries(SECTIONS)) {
       priceEl: card.querySelector(".price"),
       metaEl: card.querySelector(".meta"),
       format,
+      unit: unit ?? "$",
     };
   }
 }
@@ -348,7 +352,7 @@ async function fetchAll() {
       promises.push(
         readLatestPrice(addr)
           .then(data => {
-            const { card, priceEl, metaEl, format } = cardEls[name];
+            const { card, priceEl, metaEl, format, unit } = cardEls[name];
             card.classList.remove("loading", "error");
 
             const numPrice = parseFloat(data.answer);
@@ -362,7 +366,7 @@ async function fetchAll() {
             }
             prevPrices[name] = numPrice;
 
-            priceEl.textContent = "$" + formatted;
+            priceEl.textContent = unit === "%" ? formatted + "%" : "$" + formatted;
             const ago = Math.round((Date.now() - data.updatedAt.getTime()) / 60000);
             metaEl.textContent = ago < 1 ? "just now" : `${ago}m ago`;
             ok++;
