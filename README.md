@@ -5,6 +5,10 @@ Free, real-time price data for currencies, stocks, commodities, and crypto -- no
 gud-price reads from [Chainlink](https://chain.link/) price feeds, the same oracle network used to secure billions in DeFi. Available for TypeScript, Go, Rust, Python, and Zig.
 
 [![Tests](https://github.com/thevolcanomanishere/gud-price/actions/workflows/test.yml/badge.svg)](https://github.com/thevolcanomanishere/gud-price/actions/workflows/test.yml)
+[![npm](https://img.shields.io/npm/v/gud-price)](https://www.npmjs.com/package/gud-price)
+[![PyPI](https://img.shields.io/pypi/v/gud-price)](https://pypi.org/project/gud-price/)
+[![Crates.io](https://img.shields.io/crates/v/gud-price)](https://crates.io/crates/gud-price)
+[![Go](https://img.shields.io/github/v/tag/thevolcanomanishere/gud-price?filter=generated/go/*&label=go)](https://pkg.go.dev/github.com/thevolcanomanishere/gud-price/generated/go)
 
 ## What prices are available?
 
