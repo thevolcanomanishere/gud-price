@@ -1,0 +1,200 @@
+//! Chainlink price feed contract addresses.
+
+pub const BNB_USD = "0x0567f2323251f0aab15c8dfb1967e4e8a7d42aee";
+pub const ETH_USD = "0x9ef1b8c0e4f7dc8bf5719ea496883dc6401d5b2e";
+pub const BTC_USD = "0x264990fbd0a4796a3e3d8e37c4d5f87a3aca5ebf";
+pub const BTC_BNB = "0x116eeb23384451c78ed366d4f67d5ad44ee771a0";
+pub const USDT_BNB = "0xd5c40f5144848bd4ef08a9605d860e727b991513";
+pub const USDC_BNB = "0x45f86ca2a8bc9ebd757225b19a1a0d7051be46db";
+pub const ETH_BNB = "0x63d407f32aa72e63c7209ce1c2f5da40b3aae726";
+pub const BCH_USD = "0x43d80f616daf0b0b42a928eed32147dc59027d41";
+pub const XVS_USD = "0xbf63f430a79d4036a5900c19818aff1fa710f206";
+pub const USDC_USD = "0x51597f405303c4377e36123cbc172b13269ea163";
+pub const SXP_USD = "0xe188a9875af525d25334d75f3327863b2b8cd0f1";
+pub const LTC_USD = "0x74e72f37a8c415c8f1a98ed42e78ff997435791d";
+pub const LINK_USD = "0xca236e327f629f9fc2c30a4e95775ebf0b89fac8";
+pub const USDT_USD = "0xb97ad0e74fa7d920791e90258a6e2085088b4320";
+pub const FIL_USD = "0xe5dbfd9003bff9df5feb2f4f445ca00fb121fb83";
+pub const XRP_USD = "0x93a67d414896a280bf8ffb3b389fe3686e014fda";
+pub const DOT_USD = "0xc333eb0086309a16aa7c8308dfd32c8bba0a2592";
+pub const XAU_USD = "0x86896feb19d8a607c3b11f2af50a0f239bd71cd0";
+pub const YFI_USD = "0xd7eaa5bf3013a96e3d515c055dbd98dbdc8c620d";
+pub const XAG_USD = "0x817326922c909b16944817c207562b25c4df16ad";
+pub const TRX_USD = "0xf4c5e535756d11994fcbb12ba8add0192d9b88be";
+pub const XTZ_BNB = "0x8264d6983b219be65c4d62f1c82b3a2999944cf2";
+pub const YFI_BNB = "0xf841761481df19831ccc851a54d8350ae6022583";
+pub const LINA_USD = "0x38393201952f2764e04b290af9df427217d56b41";
+pub const LINK_BNB = "0xb38722f6a608646a538e882ee9972d15c86fc597";
+pub const ADA_BNB = "0x2d5fc41d1365ffe13d03d91e82e04ca878d69f4b";
+pub const BAND_BNB = "0x3334bf7ec892ca03d1378b51769b7782eaf318c4";
+pub const XRP_BNB = "0x798a65d349b2b5e6645695912880b54dffd79074";
+pub const BCH_BNB = "0x2a548935a323bb7329a5e3f1667b979f16bc890b";
+pub const EOS_BNB = "0xed93f3764334788f2f6628b30e505fe1fc5d1d7b";
+pub const DOT_BNB = "0xba8683e9c3b1455be6e18e7768e8cad95eb5ed49";
+pub const LTC_BNB = "0x4e5a43a79f53c0a8e83489648ea7e429278f8b2d";
+pub const UNI_USD = "0xb57f259e7c24e56a1da00f66b55a5640d9f9e7e4";
+pub const JPY_USD = "0x22db8397a6e77e41471de256a7803829fdc8bc57";
+pub const EUR_USD = "0x0bf79f617988c472dca68ff41efe1338955b9a80";
+pub const WOO_USD = "0x02bfe714e78e2ad1bb1c2bee93ec8dc5423b66d4";
+pub const ATOM_USD = "0xb056b7c804297279a9a673289264c17e6dc6055d";
+pub const ALPHA_BNB = "0x7bc032a7c19b1bdcb981d892854d090cfb0f238e";
+pub const CAKE_BNB = "0xcb23da9ea243f53194cbc2380a6d4d9bc046161f";
+pub const TWT_BNB = "0x7e728dfa6bca9023d9abee759fdf56beab8ac7ad";
+pub const DF_USD = "0x1b816f5e122efa230300126f97c018716c4e47f5";
+pub const PAXG_USD = "0x7f8cad4690a38ac28bda3d132ef83db1c17557df";
+pub const YFII_USD = "0xc94580faaf145b2fd0ab5215031833c98d3b77e4";
+pub const AUTO_USD = "0x88e71e6520e5ac75f5338f5f0c9ded9d4f692cda";
+pub const XTZ_USD = "0x9a18137adcf7b05f033ad26968ed5a9cf0bf8e6b";
+pub const DOGE_USD = "0x3ab0a0d137d4f946fbb19eecc6e92e64660231c8";
+pub const EOS_USD = "0xd5508c8ffdb8f15ce336e629fd4ca9adb48f50f0";
+pub const WING_USD = "0xf7e7c0ffcb11dac6eca1434c67fab9ae000e10a7";
+pub const ONT_USD = "0x887f177cbed2cf555a64e7bf125e1825eb69db82";
+pub const CFX_USD = "0xe3ca2f3bad1d8327820f648c759f17162b5383ae";
+pub const COMP_USD = "0x0db8945f9aef5651fa5bd52314c5aae78dfde540";
+pub const SOL_USD = "0x0e8a53dd9c13589df6382f13da6b3ec8f919b323";
+pub const LIT_USD = "0x83766ba8d964feaed3819b145a69c947df9cb035";
+pub const REEF_USD = "0x46f13472a4d4fec9e07e8a00ee52f4fa77810736";
+pub const AAVE_USD = "0xa8357bf572460fc40f4b0acacbb2a6a61c89f475";
+pub const ICP_USD = "0x84210d9013a30c6ab169e28840a6cc54b60fa042";
+pub const MATIC_USD = "0x7ca57b0ca6367191c94c8914d7df09a57655905f";
+pub const XVS_BNB = "0xf369a13e7f2449e58dde8302f008ee9131f8d859";
+pub const BTC_ETH = "0xf1769eb4d1943af02ab1096d7893759f6177d6b8";
+pub const BETH_USD = "0x2a3796273d47c4ed363b361d3aefb7f7e2a13782";
+pub const CHR_USD = "0x1f771b2b1f3c3db6c7a1d5f38961a49cecd116da";
+pub const MASK_USD = "0x4978c0abe6899178c1a74838ee0062280888e2cf";
+pub const ALPACA_USD = "0xe0073b60833249ffd1bb2af809112c2fbf221df6";
+pub const CHF_USD = "0x964261740356cb4aad0c3d2003ce808a4176a46d";
+pub const FET_USD = "0x657e700c66c48c135c4a29c4292908dbda7aa280";
+pub const INJ_USD = "0x63a9133cd7c611d6049761038c16f238fdda71d7";
+pub const TUSD_USD = "0xa3334a9762090e827413a7495afece76f41dfc06";
+pub const CAKE_USD = "0xb6064ed41d4f67e353768aa239ca86f4f73665a1";
+pub const DODO_USD = "0x87701b15c08687341c2a847ca44ecfbc8d7873e1";
+pub const sAVAX_USD = "0x3b37c6f1e3207de5a4664e837072bd9a25269b39";
+pub const KNC_USD = "0xf2f8273f6b9fc22c90891dc802caf60eef805cdf";
+pub const NEAR_USD = "0x0fe4d87883005fcafaf56b81d09473d9a29dcdc3";
+pub const SGD_USD = "0x3065b2369820f76c829b9bbcaf4b90f9f47d6314";
+pub const KLAY_USD = "0xfd07b211044572898cdbcb1435f0a1369fd15726";
+pub const VET_USD = "0x9f1fd2cef7b226d555a747da0411f93c5fe74e13";
+pub const FDUSD_USD = "0x390180e80058a8499930f0c13963ad3e0d86bfc9";
+pub const SPELL_USD = "0x47e01580c537cd47da339ea3a4afb5998ccf037c";
+pub const CRV_USD = "0x2e1c3b6fcae47b20dd343d9354f7b1140a1e6b27";
+pub const AUD_USD = "0x498f912b09b5df618c77fcc9e8da503304df92bf";
+pub const SHIB_USD = "0xa615be6cb0f3f36a641858db6f30b9242d0abed8";
+pub const ONG_USD = "0xcf95796f3016801a1da5c518fc7a59c51dcef793";
+pub const SUSHI_USD = "0xa679c72a97b654cfff58ab704de3ba15cde89b07";
+pub const GBP_USD = "0x8faf16f710003e538189334541f5d4a391da46a0";
+pub const XLM_USD = "0x27cc356a5891a3fe6f84d0457de4d108c6078888";
+pub const BRL_USD = "0x5cb1cb3ea5fb46de1ce1d0f3badb3212e8d8ef48";
+pub const HIGH_USD = "0xdf4dd957a84f798acfadd448badd2d8b9bc99047";
+pub const C98_USD = "0x889158e39628c0397dc54b84f6b1cbe0aaeb7ffc";
+pub const FXS_USD = "0x0e9d55932893fb1308882c7857285b2b0bcc4f4a";
+pub const MXN_USD = "0x16c0c1f971b1780f952572670a9d5ce4123582a1";
+pub const _1INCH_USD = "0x9a177bb9f5b6083e962f9e62bd21d4b5660aeb03";
+pub const BSW_USD = "0x08e70777b982a58d23d05e3d7714f44837c06a21";
+pub const KAVA_USD = "0x12bf0c3f7d5aca9e711930d704da2774358d9210";
+pub const WIN_USD = "0x9e7377e194e41d63795907c92c3eb351a2eb0233";
+pub const RDNT_USD = "0x20123c6ebd45c6496102beea86e1a6616ca547c6";
+pub const USDD_USD = "0x51c78c299c42b058bf11d47fbb74ac437c6a0c8c";
+
+pub const Feed = struct {
+    name: []const u8,
+    address: []const u8,
+};
+
+pub const feeds = [_]Feed{
+    .{ .name = "BNB / USD", .address = "0x0567f2323251f0aab15c8dfb1967e4e8a7d42aee" },
+    .{ .name = "ETH / USD", .address = "0x9ef1b8c0e4f7dc8bf5719ea496883dc6401d5b2e" },
+    .{ .name = "BTC / USD", .address = "0x264990fbd0a4796a3e3d8e37c4d5f87a3aca5ebf" },
+    .{ .name = "BTC / BNB", .address = "0x116eeb23384451c78ed366d4f67d5ad44ee771a0" },
+    .{ .name = "USDT / BNB", .address = "0xd5c40f5144848bd4ef08a9605d860e727b991513" },
+    .{ .name = "USDC / BNB", .address = "0x45f86ca2a8bc9ebd757225b19a1a0d7051be46db" },
+    .{ .name = "ETH / BNB", .address = "0x63d407f32aa72e63c7209ce1c2f5da40b3aae726" },
+    .{ .name = "BCH / USD", .address = "0x43d80f616daf0b0b42a928eed32147dc59027d41" },
+    .{ .name = "XVS / USD", .address = "0xbf63f430a79d4036a5900c19818aff1fa710f206" },
+    .{ .name = "USDC / USD", .address = "0x51597f405303c4377e36123cbc172b13269ea163" },
+    .{ .name = "SXP / USD", .address = "0xe188a9875af525d25334d75f3327863b2b8cd0f1" },
+    .{ .name = "LTC / USD", .address = "0x74e72f37a8c415c8f1a98ed42e78ff997435791d" },
+    .{ .name = "LINK / USD", .address = "0xca236e327f629f9fc2c30a4e95775ebf0b89fac8" },
+    .{ .name = "USDT / USD", .address = "0xb97ad0e74fa7d920791e90258a6e2085088b4320" },
+    .{ .name = "FIL / USD", .address = "0xe5dbfd9003bff9df5feb2f4f445ca00fb121fb83" },
+    .{ .name = "XRP / USD", .address = "0x93a67d414896a280bf8ffb3b389fe3686e014fda" },
+    .{ .name = "DOT / USD", .address = "0xc333eb0086309a16aa7c8308dfd32c8bba0a2592" },
+    .{ .name = "XAU / USD", .address = "0x86896feb19d8a607c3b11f2af50a0f239bd71cd0" },
+    .{ .name = "YFI / USD", .address = "0xd7eaa5bf3013a96e3d515c055dbd98dbdc8c620d" },
+    .{ .name = "XAG / USD", .address = "0x817326922c909b16944817c207562b25c4df16ad" },
+    .{ .name = "TRX / USD", .address = "0xf4c5e535756d11994fcbb12ba8add0192d9b88be" },
+    .{ .name = "XTZ / BNB", .address = "0x8264d6983b219be65c4d62f1c82b3a2999944cf2" },
+    .{ .name = "YFI / BNB", .address = "0xf841761481df19831ccc851a54d8350ae6022583" },
+    .{ .name = "LINA / USD", .address = "0x38393201952f2764e04b290af9df427217d56b41" },
+    .{ .name = "LINK / BNB", .address = "0xb38722f6a608646a538e882ee9972d15c86fc597" },
+    .{ .name = "ADA / BNB", .address = "0x2d5fc41d1365ffe13d03d91e82e04ca878d69f4b" },
+    .{ .name = "BAND / BNB", .address = "0x3334bf7ec892ca03d1378b51769b7782eaf318c4" },
+    .{ .name = "XRP / BNB", .address = "0x798a65d349b2b5e6645695912880b54dffd79074" },
+    .{ .name = "BCH / BNB", .address = "0x2a548935a323bb7329a5e3f1667b979f16bc890b" },
+    .{ .name = "EOS / BNB", .address = "0xed93f3764334788f2f6628b30e505fe1fc5d1d7b" },
+    .{ .name = "DOT / BNB", .address = "0xba8683e9c3b1455be6e18e7768e8cad95eb5ed49" },
+    .{ .name = "LTC / BNB", .address = "0x4e5a43a79f53c0a8e83489648ea7e429278f8b2d" },
+    .{ .name = "UNI / USD", .address = "0xb57f259e7c24e56a1da00f66b55a5640d9f9e7e4" },
+    .{ .name = "JPY / USD", .address = "0x22db8397a6e77e41471de256a7803829fdc8bc57" },
+    .{ .name = "EUR / USD", .address = "0x0bf79f617988c472dca68ff41efe1338955b9a80" },
+    .{ .name = "WOO / USD", .address = "0x02bfe714e78e2ad1bb1c2bee93ec8dc5423b66d4" },
+    .{ .name = "ATOM / USD", .address = "0xb056b7c804297279a9a673289264c17e6dc6055d" },
+    .{ .name = "ALPHA / BNB", .address = "0x7bc032a7c19b1bdcb981d892854d090cfb0f238e" },
+    .{ .name = "CAKE / BNB", .address = "0xcb23da9ea243f53194cbc2380a6d4d9bc046161f" },
+    .{ .name = "TWT / BNB", .address = "0x7e728dfa6bca9023d9abee759fdf56beab8ac7ad" },
+    .{ .name = "DF / USD", .address = "0x1b816f5e122efa230300126f97c018716c4e47f5" },
+    .{ .name = "PAXG / USD", .address = "0x7f8cad4690a38ac28bda3d132ef83db1c17557df" },
+    .{ .name = "YFII / USD", .address = "0xc94580faaf145b2fd0ab5215031833c98d3b77e4" },
+    .{ .name = "AUTO / USD", .address = "0x88e71e6520e5ac75f5338f5f0c9ded9d4f692cda" },
+    .{ .name = "XTZ / USD", .address = "0x9a18137adcf7b05f033ad26968ed5a9cf0bf8e6b" },
+    .{ .name = "DOGE / USD", .address = "0x3ab0a0d137d4f946fbb19eecc6e92e64660231c8" },
+    .{ .name = "EOS / USD", .address = "0xd5508c8ffdb8f15ce336e629fd4ca9adb48f50f0" },
+    .{ .name = "WING / USD", .address = "0xf7e7c0ffcb11dac6eca1434c67fab9ae000e10a7" },
+    .{ .name = "ONT / USD", .address = "0x887f177cbed2cf555a64e7bf125e1825eb69db82" },
+    .{ .name = "CFX / USD", .address = "0xe3ca2f3bad1d8327820f648c759f17162b5383ae" },
+    .{ .name = "COMP / USD", .address = "0x0db8945f9aef5651fa5bd52314c5aae78dfde540" },
+    .{ .name = "SOL / USD", .address = "0x0e8a53dd9c13589df6382f13da6b3ec8f919b323" },
+    .{ .name = "LIT / USD", .address = "0x83766ba8d964feaed3819b145a69c947df9cb035" },
+    .{ .name = "REEF / USD", .address = "0x46f13472a4d4fec9e07e8a00ee52f4fa77810736" },
+    .{ .name = "AAVE / USD", .address = "0xa8357bf572460fc40f4b0acacbb2a6a61c89f475" },
+    .{ .name = "ICP / USD", .address = "0x84210d9013a30c6ab169e28840a6cc54b60fa042" },
+    .{ .name = "MATIC / USD", .address = "0x7ca57b0ca6367191c94c8914d7df09a57655905f" },
+    .{ .name = "XVS / BNB", .address = "0xf369a13e7f2449e58dde8302f008ee9131f8d859" },
+    .{ .name = "BTC / ETH", .address = "0xf1769eb4d1943af02ab1096d7893759f6177d6b8" },
+    .{ .name = "BETH / USD", .address = "0x2a3796273d47c4ed363b361d3aefb7f7e2a13782" },
+    .{ .name = "CHR / USD", .address = "0x1f771b2b1f3c3db6c7a1d5f38961a49cecd116da" },
+    .{ .name = "MASK / USD", .address = "0x4978c0abe6899178c1a74838ee0062280888e2cf" },
+    .{ .name = "ALPACA / USD", .address = "0xe0073b60833249ffd1bb2af809112c2fbf221df6" },
+    .{ .name = "CHF / USD", .address = "0x964261740356cb4aad0c3d2003ce808a4176a46d" },
+    .{ .name = "FET / USD", .address = "0x657e700c66c48c135c4a29c4292908dbda7aa280" },
+    .{ .name = "INJ / USD", .address = "0x63a9133cd7c611d6049761038c16f238fdda71d7" },
+    .{ .name = "TUSD / USD", .address = "0xa3334a9762090e827413a7495afece76f41dfc06" },
+    .{ .name = "CAKE / USD", .address = "0xb6064ed41d4f67e353768aa239ca86f4f73665a1" },
+    .{ .name = "DODO / USD", .address = "0x87701b15c08687341c2a847ca44ecfbc8d7873e1" },
+    .{ .name = "sAVAX / USD", .address = "0x3b37c6f1e3207de5a4664e837072bd9a25269b39" },
+    .{ .name = "KNC / USD", .address = "0xf2f8273f6b9fc22c90891dc802caf60eef805cdf" },
+    .{ .name = "NEAR / USD", .address = "0x0fe4d87883005fcafaf56b81d09473d9a29dcdc3" },
+    .{ .name = "SGD / USD", .address = "0x3065b2369820f76c829b9bbcaf4b90f9f47d6314" },
+    .{ .name = "KLAY / USD", .address = "0xfd07b211044572898cdbcb1435f0a1369fd15726" },
+    .{ .name = "VET / USD", .address = "0x9f1fd2cef7b226d555a747da0411f93c5fe74e13" },
+    .{ .name = "FDUSD / USD", .address = "0x390180e80058a8499930f0c13963ad3e0d86bfc9" },
+    .{ .name = "SPELL / USD", .address = "0x47e01580c537cd47da339ea3a4afb5998ccf037c" },
+    .{ .name = "CRV / USD", .address = "0x2e1c3b6fcae47b20dd343d9354f7b1140a1e6b27" },
+    .{ .name = "AUD / USD", .address = "0x498f912b09b5df618c77fcc9e8da503304df92bf" },
+    .{ .name = "SHIB / USD", .address = "0xa615be6cb0f3f36a641858db6f30b9242d0abed8" },
+    .{ .name = "ONG / USD", .address = "0xcf95796f3016801a1da5c518fc7a59c51dcef793" },
+    .{ .name = "SUSHI / USD", .address = "0xa679c72a97b654cfff58ab704de3ba15cde89b07" },
+    .{ .name = "GBP / USD", .address = "0x8faf16f710003e538189334541f5d4a391da46a0" },
+    .{ .name = "XLM / USD", .address = "0x27cc356a5891a3fe6f84d0457de4d108c6078888" },
+    .{ .name = "BRL / USD", .address = "0x5cb1cb3ea5fb46de1ce1d0f3badb3212e8d8ef48" },
+    .{ .name = "HIGH / USD", .address = "0xdf4dd957a84f798acfadd448badd2d8b9bc99047" },
+    .{ .name = "C98 / USD", .address = "0x889158e39628c0397dc54b84f6b1cbe0aaeb7ffc" },
+    .{ .name = "FXS / USD", .address = "0x0e9d55932893fb1308882c7857285b2b0bcc4f4a" },
+    .{ .name = "MXN / USD", .address = "0x16c0c1f971b1780f952572670a9d5ce4123582a1" },
+    .{ .name = "1INCH / USD", .address = "0x9a177bb9f5b6083e962f9e62bd21d4b5660aeb03" },
+    .{ .name = "BSW / USD", .address = "0x08e70777b982a58d23d05e3d7714f44837c06a21" },
+    .{ .name = "KAVA / USD", .address = "0x12bf0c3f7d5aca9e711930d704da2774358d9210" },
+    .{ .name = "WIN / USD", .address = "0x9e7377e194e41d63795907c92c3eb351a2eb0233" },
+    .{ .name = "RDNT / USD", .address = "0x20123c6ebd45c6496102beea86e1a6616ca547c6" },
+    .{ .name = "USDD / USD", .address = "0x51c78c299c42b058bf11d47fbb74ac437c6a0c8c" },
+};

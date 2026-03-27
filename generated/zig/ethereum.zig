@@ -1,0 +1,316 @@
+//! Chainlink price feed contract addresses.
+
+pub const _1INCH_ETH = "0x72AFAECF99C9d9C8215fF44C77B94B99C28741e8";
+pub const _1INCH_USD = "0xc929ad75B72593967DE83E7F7Cda0493458261D9";
+pub const AAVE_ETH = "0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012";
+pub const AAVE_USD = "0x547a514d5e3769680Ce22B2361c10Ea13619e8a9";
+pub const ALCX_ETH = "0x194a9AaF2e0b67c35915cD01101585A33Fe25CAa";
+pub const AMPL_ETH = "0x492575FDD11a0fCf2C6C719867890a7648d526eB";
+pub const AMPL_USD = "0xe20CA8D7546932360e37E9D72c1a47334af57706";
+pub const ANKR_USD = "0x7eed379bf00005CfeD29feD4009669dE9Bcc21ce";
+pub const APE_ETH = "0xc7de7f4d4C9c991fF62a07D18b3E31e349833A18";
+pub const APE_USD = "0xD10aBbC76679a20055E167BB80A24ac851b37056";
+pub const ARB_USD = "0x31697852a68433DbCc2Ff612c516d69E3D9bd08F";
+pub const ARKB_Reserves = "0x80f8D7b4fB192De43Ed6aE0DD4A42A60f43641b0";
+pub const AUD_USD = "0x77F9710E7d0A19669A13c055F62cd80d313dF022";
+pub const AVAX_USD = "0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7";
+pub const Azuki_Floor_Price_ETH = "0xA8B9A447C73191744D5B79BcE864F343455E1150";
+pub const BADGER_ETH = "0x58921Ac140522867bf50b9E009599Da0CA4A2379";
+pub const BAL_ETH = "0xC1438AA3823A6Ba0C159CfA8D98dF5A994bA120b";
+pub const BAL_USD = "0xdF2917806E30300537aEB49A7663062F4d1F2b5F";
+pub const BAT_ETH = "0x0d16d4528239e9ee52fa531af613AcdB23D88c94";
+pub const BEANZ_Official_Floor_Price = "0xA97477aB5ab6ED2f6A2B5Cbe59D71e88ad334b90";
+pub const BNB_USD = "0x14e613AC84a31f709eadbdF89C6CC390fDc9540A";
+pub const Bored_Ape_Yacht_Club_Floor_Price_ETH = "0x352f2Bc3039429fC2fe62004a1575aE74001CfcE";
+pub const BTC_ETH = "0xdeb288F737066589598e9214E782fa5A8eD689e8";
+pub const BTC_USD = "0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c";
+pub const C3M_EUR = "0xD41390267Afec3fA5b4c0B3aA6c706556CCE75ec";
+pub const CacheGold_PoR_USD = "0x5586bF404C7A22A4a4077401272cE5945f80189C";
+pub const CAD_USD = "0xa34317DB73e77d453b1B8d04550c44D10e981C8e";
+pub const CAKE_USD = "0xEb0adf5C06861d6c07174288ce4D0a8128164003";
+pub const Calculated_XSUSHI_ETH = "0xF05D9B6C08757EAcb1fbec18e36A1B7566a13DEB";
+pub const CBETH_ETH = "0xF017fcB346A1885194689bA23Eff2fE6fA5C483b";
+pub const CHF_USD = "0x449d117117838fFA61263B61dA6301AA2a88B13A";
+pub const CloneX_Floor_Price = "0x021264d59DAbD26E7506Ee7278407891Bb8CDCCc";
+pub const CNY_USD = "0xeF8A4aF35cd47424672E3C590aBD37FBB7A7759a";
+pub const COMP_ETH = "0x1B39Ee86Ec5979ba5C322b826B3ECb8C79991699";
+pub const COMP_USD = "0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5";
+pub const Consumer_Price_Index = "0x9a51192e065ECC6BDEafE5e194ce54702DE4f1f5";
+pub const CoolCats_Floor_Price = "0xF49f8F5b931B0e4B4246E4CcA7cD2083997Aa83d";
+pub const CRV_ETH = "0x8a12Be339B0cD1829b91Adc01977caa5E9ac121e";
+pub const CRV_USD = "0xCd627aA160A6fA45Eb793D19Ef54f5062F20f33f";
+pub const CRVUSD_USD = "0xEEf0C605546958c1f899b6fB336C20671f9cD49F";
+pub const Cryptoadz_Floor_Price = "0xFaA8F6073845DBe5627dAA3208F78A3043F99bcA";
+pub const CryptoPunks_Floor_Price_ETH = "0x01B6710B01cF3dd8Ae64243097d91aFb03728Fdd";
+pub const CSPX_USD = "0xF4E1B57FB228879D057ac5AE33973e8C53e4A0e0";
+pub const CVX_ETH = "0xC9CbF687f43176B302F03f5e58470b77D07c61c6";
+pub const CVX_USD = "0xd962fC30A72A84cE50161031391756Bf2876Af5D";
+pub const DAI_ETH = "0x773616E4d11A78F511299002da57A0a94577F1f4";
+pub const DAI_USD = "0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9";
+pub const Doodles_Floor_Price = "0x027828052840a43Cc2D0187BcfA6e3D6AcE60336";
+pub const DPI_ETH = "0x029849bbc0b1d93b85a8b6190e979fd38F5760E2";
+pub const DPI_USD = "0xD2A593BF7594aCE1faD597adb697b5645d5edDB2";
+pub const ENJ_ETH = "0x24D9aB51950F3d62E9144fdC2f3135DAA6Ce8D1B";
+pub const ENS_USD = "0x5C00128d4d1c2F4f652C267d7bcdD7aC99C16E16";
+pub const ETH_BTC = "0xAc559F25B1619171CbC396a50854A3240b6A4e99";
+pub const ETH_USD = "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419";
+pub const ETHx_ETH = "0xC5f8c4aB091Be1A899214c0C3636ca33DcA0C547";
+pub const EUR_USD = "0xb49f677943BC038e9857d61E7d053CaA2C1734C1";
+pub const EURR_Reserves = "0x652Ac4468688f277fB84b26940e736a20A87Ac2d";
+pub const ezETH_ETH = "0x636A000262F6aA9e1F094ABF0aD8f645C44f641C";
+pub const Fast_Gas_Gwei = "0x169E633A2D1E6c10dD91238Ba11c4A708dfEF37C";
+pub const FDUSD_USD = "0xfAA9147190c2C2cc5B8387B4f49016bDB3380572";
+pub const FIL_ETH = "0x0606Be69451B1C9861Ac6b3626b99093b713E801";
+pub const FRAX_ETH = "0x14d04Fff8D21bd62987a5cE9ce543d2F1edF5D3E";
+pub const FRAX_USD = "0xB9E1E3A9feFf48998E45Fa90847ed4D467E8BcfD";
+pub const FTM_ETH = "0x2DE7E4a9488488e0058B95854CC2f7955B35dC9b";
+pub const FTT_ETH = "0xF0985f7E2CaBFf22CecC5a71282a89582c382EFE";
+pub const FXS_USD = "0x6Ebc52C8C1089be9eB3945C4350B68B8E4C2233f";
+pub const GBP_USD = "0x5c0Ab2d9b5a7ed9f470386e82BB36A3613cDd4b5";
+pub const GBPT_PoR = "0xF6f5b570aB6E39E55558AfD8E1E30c5f20E6527E";
+pub const GHO_USD = "0x3f12643D3f6f874d39C2a4c9f2Cd6f2DbAC877FC";
+pub const GRT_ETH = "0x17D054eCac33D91F7340645341eFB5DE9009F1C1";
+pub const GRT_USD = "0x86cF33a451dE9dc61a2862FD94FF4ad4Bd65A5d2";
+pub const HBTC_PoR = "0x0A8cD0115B1EE87EbA5b8E06A9a15ED93e230f7a";
+pub const HIGH_USD = "0x5C8D8AaB4ffa4652753Df94f299330Bb4479bF85";
+pub const IB01_USD = "0x32d1463EB53b73C095625719Afa544D5426354cB";
+pub const IBTA_USD = "0xd27e6D02b72eB6FCe04Ad5690C419196B4EF2885";
+pub const IMX_USD = "0xBAEbEFc1D023c0feCcc047Bff42E75F15Ff213E6";
+pub const JPY_USD = "0xBcE206caE7f0ec07b545EddE332A47C2F75bbeb3";
+pub const KNC_ETH = "0x656c0544eF4C98A6a98491833A89204Abb045d6b";
+pub const KNC_USD = "0xf8fF43E991A81e6eC886a3D281A2C6cC19aE70Fc";
+pub const KRW_USD = "0x01435677FB11763550905594A16B645847C1d0F3";
+pub const LDO_ETH = "0x4e844125952D32AcdF339BE976c98E22F6F318dB";
+pub const LINK_ETH = "0xDC530D9457755926550b59e8ECcdaE7624181557";
+pub const LINK_USD = "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c";
+pub const LTC_USD = "0x6AF09DF7563C363B5763b9102712EbeD3b9e859B";
+pub const LUSD_USD = "0x3D7aE7E594f2f2091Ad8798313450130d0Aba3a0";
+pub const MANA_ETH = "0x82A44D92D6c329826dc557c5E1Be6ebeC5D5FeB9";
+pub const MATIC_USD = "0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676";
+pub const MAVIA_USD = "0x29d26C008e8f201eD0D864b1Fd9392D29d0C8e96";
+pub const MAYC_Floor_Price = "0x1823C89715Fe3fB96A24d11c917aCA918894A090";
+pub const MIM_USD = "0x7A364e8770418566e3eb2001A96116E6138Eb32F";
+pub const MKR_ETH = "0x24551a8Fb2A7211A25a17B1481f043A8a8adC7f2";
+pub const MKR_USD = "0xec1D1B3b0443256cc3860e24a46F108e699484Aa";
+pub const MLN_ETH = "0xDaeA8386611A157B08829ED4997A8A62B557014C";
+pub const Moonbirds_Floor_Price = "0x9cd36E0E8D3C27d630D00406ACFC3463154951Af";
+pub const Nexus_wETH_Reserves = "0xCc72039A141c6e34a779eF93AEF5eB4C82A893c7";
+pub const NZD_USD = "0x3977CFc9e4f29C184D4675f4EB8e0013236e5f3e";
+pub const OHMv2_ETH = "0x9a72298ae3886221820B1c878d12D872087D3a23";
+pub const Otherdeed_for_Otherside_Floor_Price = "0x6e3A4376B4C8D3ba49602f8542D9D3C4A87ba901";
+pub const PAX_ETH = "0x3a08ebBaB125224b7b6474384Ee39fBb247D2200";
+pub const PAXG_ETH = "0x9B97304EA12EFed0FAd976FBeCAad46016bf269e";
+pub const PERP_ETH = "0x3b41D5571468904D4e53b6a8d93A6BaC43f02dC9";
+pub const Pudgy_Penguins_Floor_Price = "0x9f2ba149c2A0Ee76043d83558C4E79E9F3E5731B";
+pub const PYUSD_USD = "0x8f1dF6D7F2db73eECE86a18b4381F4707b918FB1";
+pub const RDNT_USD = "0x393CC05baD439c9B36489384F11487d9C8410471";
+pub const REN_ETH = "0x3147D7203354Dc06D9fd350c7a2437bcA92387a4";
+pub const RETH_ETH = "0x536218f9E9Eb48863970252233c8F271f554C2d0";
+pub const RPL_USD = "0x4E155eD98aFE9034b7A5962f6C84c86d869daA9d";
+pub const RSETH_ETH = "0x03c68933f7a3F76875C0bc670a58e69294cDFD01";
+pub const RSR_USD = "0x759bBC1be8F90eE6457C44abc7d443842a976d02";
+pub const SAND_USD = "0x35E3f7E558C04cE7eEE1629258EcbbA03B36Ec56";
+pub const SGD_USD = "0xe25277fF4bbF9081C75Ab0EB13B4A13a721f3E13";
+pub const SHIB_ETH = "0x8dD1CD88F43aF196ae478e91b9F5E4Ac69A97C61";
+pub const SHV_USD = "0xc04611C43842220fd941515F86d1DDdB15F04e46";
+pub const SNX_ETH = "0x79291A9d692Df95334B1a0B3B4AE6bC606782f8c";
+pub const SNX_USD = "0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699";
+pub const SOL_USD = "0x4ffC43a60e009B551865A93d232E33Fce9f01507";
+pub const SPELL_USD = "0x8c110B94C5f1d347fAcF5E1E938AB2db60E3c9a8";
+pub const STBT_PoR = "0xad4A9bED9a5E2c1c9a6E43D35Db53c83873dd901";
+pub const STETH_ETH = "0x86392dC19c0b719886221c78AB11eb8Cf5c52812";
+pub const STETH_USD = "0xCfE54B5cD566aB89272946F602D76Ea879CAb4a8";
+pub const STG_USD = "0x7A9f34a0Aa917D438e9b6E630067062B7F8f6f3d";
+pub const SUSD_ETH = "0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757";
+pub const SUSHI_ETH = "0xe572CeF69f43c2E488b33924AF04BDacE19079cf";
+pub const SUSHI_USD = "0xCc70F09A6CC17553b2E31954cD36E4A2d89501f7";
+pub const Swell_ETH_PoR = "0x60cbE8D88EF519cF3C62414D76f50818D211fea1";
+pub const SWETH_ETH = "0xec21B3e882CE09928cb397DcfF31B15cBBD1e1C3";
+pub const SXP_USD = "0xFb0CfD6c19e25DB4a08D8a204a387cEa48Cc138f";
+pub const Total_Marketcap_USD = "0xEC8761a0A73c34329CA5B1D3Dc7eD07F30e836e2";
+pub const TRY_USD = "0xB09fC5fD3f11Cf9eb5E1C5Dba43114e3C9f477b5";
+pub const TUSD_ETH = "0x3886BA987236181D98F2401c507Fb8BeA7871dF2";
+pub const TUSD_USD = "0xec746eCF986E2927Abd291a2A1716c940100f8Ba";
+pub const TUSD_Reserves = "0xBE456fd14720C3aCCc30A2013Bffd782c9Cb75D5";
+pub const UNI_ETH = "0xD6aA3D25116d8dA79Ea0246c4826EB951872e02e";
+pub const UNI_USD = "0x553303d460EE0afB37EdFf9bE42922D8FF63220e";
+pub const USDC_ETH = "0x986b5E1e1755e3C2440e960477f25201B0a8bbD4";
+pub const USDC_USD = "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6";
+pub const USDD_USD = "0x0ed39A19D2a68b722408d84e4d970827f61E6c0A";
+pub const USDP_USD = "0x09023c0DA49Aaf8fc3fA3ADF34C6A7016D38D5e3";
+pub const USDT_ETH = "0xEe9F2375b4bdF6387aa8265dD4FB8F16512A1d46";
+pub const USDT_USD = "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D";
+pub const USDV_USD = "0x925B831EB4c9fFA7e384254fb2cd508c65FAe3FE";
+pub const VeeFriends_Floor_Price = "0x35bf6767577091E7f04707c0290b3f889e968307";
+pub const WBTC_BTC = "0xfdFD9C85aD200c506Cf9e21F1FD8dd01932FBB23";
+pub const WBTC_PoR = "0xa81FE04086865e63E12dD3776978E49DEEa2ea4e";
+pub const WING_USD = "0x134fE0a225Fb8e6683617C13cEB6B3319fB4fb82";
+pub const World_of_Women_Floor_Price = "0xDdf0B85C600DAF9e308AFed9F597ACA212354764";
+pub const XAG_USD = "0x379589227b15F1a12195D3f2d90bBc9F31f95235";
+pub const XAU_USD = "0x214eD9Da11D2fbe465a6fc601a91E62EbEc1a0D6";
+pub const XCN_USD = "0xeb988B77b94C186053282BfcD8B7ED55142D3cAB";
+pub const YFI_ETH = "0x7c5d4F8345e66f68099581Db340cd65B078C41f4";
+pub const YFI_USD = "0xA027702dbb89fbd58938e4324ac03B58d812b0E1";
+pub const ZRX_ETH = "0x2Da4983a622a8498bb1a21FaE9D8F6C664939962";
+pub const ZRX_USD = "0x2885d15b8Af22648b98B122b22FDF4D2a56c6023";
+
+pub const Feed = struct {
+    name: []const u8,
+    address: []const u8,
+};
+
+pub const feeds = [_]Feed{
+    .{ .name = "1INCH / ETH", .address = "0x72AFAECF99C9d9C8215fF44C77B94B99C28741e8" },
+    .{ .name = "1INCH / USD", .address = "0xc929ad75B72593967DE83E7F7Cda0493458261D9" },
+    .{ .name = "AAVE / ETH", .address = "0x6Df09E975c830ECae5bd4eD9d90f3A95a4f88012" },
+    .{ .name = "AAVE / USD", .address = "0x547a514d5e3769680Ce22B2361c10Ea13619e8a9" },
+    .{ .name = "ALCX / ETH", .address = "0x194a9AaF2e0b67c35915cD01101585A33Fe25CAa" },
+    .{ .name = "AMPL / ETH", .address = "0x492575FDD11a0fCf2C6C719867890a7648d526eB" },
+    .{ .name = "AMPL / USD", .address = "0xe20CA8D7546932360e37E9D72c1a47334af57706" },
+    .{ .name = "ANKR / USD", .address = "0x7eed379bf00005CfeD29feD4009669dE9Bcc21ce" },
+    .{ .name = "APE / ETH", .address = "0xc7de7f4d4C9c991fF62a07D18b3E31e349833A18" },
+    .{ .name = "APE / USD", .address = "0xD10aBbC76679a20055E167BB80A24ac851b37056" },
+    .{ .name = "ARB / USD", .address = "0x31697852a68433DbCc2Ff612c516d69E3D9bd08F" },
+    .{ .name = "ARKB Reserves", .address = "0x80f8D7b4fB192De43Ed6aE0DD4A42A60f43641b0" },
+    .{ .name = "AUD / USD", .address = "0x77F9710E7d0A19669A13c055F62cd80d313dF022" },
+    .{ .name = "AVAX / USD", .address = "0xFF3EEb22B5E3dE6e705b44749C2559d704923FD7" },
+    .{ .name = "Azuki Floor Price / ETH", .address = "0xA8B9A447C73191744D5B79BcE864F343455E1150" },
+    .{ .name = "BADGER / ETH", .address = "0x58921Ac140522867bf50b9E009599Da0CA4A2379" },
+    .{ .name = "BAL / ETH", .address = "0xC1438AA3823A6Ba0C159CfA8D98dF5A994bA120b" },
+    .{ .name = "BAL / USD", .address = "0xdF2917806E30300537aEB49A7663062F4d1F2b5F" },
+    .{ .name = "BAT / ETH", .address = "0x0d16d4528239e9ee52fa531af613AcdB23D88c94" },
+    .{ .name = "BEANZ Official Floor Price", .address = "0xA97477aB5ab6ED2f6A2B5Cbe59D71e88ad334b90" },
+    .{ .name = "BNB / USD", .address = "0x14e613AC84a31f709eadbdF89C6CC390fDc9540A" },
+    .{ .name = "Bored Ape Yacht Club Floor Price / ETH", .address = "0x352f2Bc3039429fC2fe62004a1575aE74001CfcE" },
+    .{ .name = "BTC / ETH", .address = "0xdeb288F737066589598e9214E782fa5A8eD689e8" },
+    .{ .name = "BTC / USD", .address = "0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c" },
+    .{ .name = "C3M / EUR", .address = "0xD41390267Afec3fA5b4c0B3aA6c706556CCE75ec" },
+    .{ .name = "CacheGold PoR USD", .address = "0x5586bF404C7A22A4a4077401272cE5945f80189C" },
+    .{ .name = "CAD / USD", .address = "0xa34317DB73e77d453b1B8d04550c44D10e981C8e" },
+    .{ .name = "CAKE / USD", .address = "0xEb0adf5C06861d6c07174288ce4D0a8128164003" },
+    .{ .name = "Calculated XSUSHI / ETH", .address = "0xF05D9B6C08757EAcb1fbec18e36A1B7566a13DEB" },
+    .{ .name = "CBETH / ETH", .address = "0xF017fcB346A1885194689bA23Eff2fE6fA5C483b" },
+    .{ .name = "CHF / USD", .address = "0x449d117117838fFA61263B61dA6301AA2a88B13A" },
+    .{ .name = "CloneX Floor Price", .address = "0x021264d59DAbD26E7506Ee7278407891Bb8CDCCc" },
+    .{ .name = "CNY / USD", .address = "0xeF8A4aF35cd47424672E3C590aBD37FBB7A7759a" },
+    .{ .name = "COMP / ETH", .address = "0x1B39Ee86Ec5979ba5C322b826B3ECb8C79991699" },
+    .{ .name = "COMP / USD", .address = "0xdbd020CAeF83eFd542f4De03e3cF0C28A4428bd5" },
+    .{ .name = "Consumer Price Index", .address = "0x9a51192e065ECC6BDEafE5e194ce54702DE4f1f5" },
+    .{ .name = "CoolCats Floor Price", .address = "0xF49f8F5b931B0e4B4246E4CcA7cD2083997Aa83d" },
+    .{ .name = "CRV / ETH", .address = "0x8a12Be339B0cD1829b91Adc01977caa5E9ac121e" },
+    .{ .name = "CRV / USD", .address = "0xCd627aA160A6fA45Eb793D19Ef54f5062F20f33f" },
+    .{ .name = "CRVUSD / USD", .address = "0xEEf0C605546958c1f899b6fB336C20671f9cD49F" },
+    .{ .name = "Cryptoadz Floor Price", .address = "0xFaA8F6073845DBe5627dAA3208F78A3043F99bcA" },
+    .{ .name = "CryptoPunks Floor Price / ETH", .address = "0x01B6710B01cF3dd8Ae64243097d91aFb03728Fdd" },
+    .{ .name = "CSPX / USD", .address = "0xF4E1B57FB228879D057ac5AE33973e8C53e4A0e0" },
+    .{ .name = "CVX / ETH", .address = "0xC9CbF687f43176B302F03f5e58470b77D07c61c6" },
+    .{ .name = "CVX / USD", .address = "0xd962fC30A72A84cE50161031391756Bf2876Af5D" },
+    .{ .name = "DAI / ETH", .address = "0x773616E4d11A78F511299002da57A0a94577F1f4" },
+    .{ .name = "DAI / USD", .address = "0xAed0c38402a5d19df6E4c03F4E2DceD6e29c1ee9" },
+    .{ .name = "Doodles Floor Price", .address = "0x027828052840a43Cc2D0187BcfA6e3D6AcE60336" },
+    .{ .name = "DPI / ETH", .address = "0x029849bbc0b1d93b85a8b6190e979fd38F5760E2" },
+    .{ .name = "DPI / USD", .address = "0xD2A593BF7594aCE1faD597adb697b5645d5edDB2" },
+    .{ .name = "ENJ / ETH", .address = "0x24D9aB51950F3d62E9144fdC2f3135DAA6Ce8D1B" },
+    .{ .name = "ENS / USD", .address = "0x5C00128d4d1c2F4f652C267d7bcdD7aC99C16E16" },
+    .{ .name = "ETH / BTC", .address = "0xAc559F25B1619171CbC396a50854A3240b6A4e99" },
+    .{ .name = "ETH / USD", .address = "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419" },
+    .{ .name = "ETHx / ETH", .address = "0xC5f8c4aB091Be1A899214c0C3636ca33DcA0C547" },
+    .{ .name = "EUR / USD", .address = "0xb49f677943BC038e9857d61E7d053CaA2C1734C1" },
+    .{ .name = "EURR Reserves", .address = "0x652Ac4468688f277fB84b26940e736a20A87Ac2d" },
+    .{ .name = "ezETH / ETH", .address = "0x636A000262F6aA9e1F094ABF0aD8f645C44f641C" },
+    .{ .name = "Fast Gas / Gwei", .address = "0x169E633A2D1E6c10dD91238Ba11c4A708dfEF37C" },
+    .{ .name = "FDUSD / USD", .address = "0xfAA9147190c2C2cc5B8387B4f49016bDB3380572" },
+    .{ .name = "FIL / ETH", .address = "0x0606Be69451B1C9861Ac6b3626b99093b713E801" },
+    .{ .name = "FRAX / ETH", .address = "0x14d04Fff8D21bd62987a5cE9ce543d2F1edF5D3E" },
+    .{ .name = "FRAX / USD", .address = "0xB9E1E3A9feFf48998E45Fa90847ed4D467E8BcfD" },
+    .{ .name = "FTM / ETH", .address = "0x2DE7E4a9488488e0058B95854CC2f7955B35dC9b" },
+    .{ .name = "FTT / ETH", .address = "0xF0985f7E2CaBFf22CecC5a71282a89582c382EFE" },
+    .{ .name = "FXS / USD", .address = "0x6Ebc52C8C1089be9eB3945C4350B68B8E4C2233f" },
+    .{ .name = "GBP / USD", .address = "0x5c0Ab2d9b5a7ed9f470386e82BB36A3613cDd4b5" },
+    .{ .name = "GBPT PoR", .address = "0xF6f5b570aB6E39E55558AfD8E1E30c5f20E6527E" },
+    .{ .name = "GHO / USD", .address = "0x3f12643D3f6f874d39C2a4c9f2Cd6f2DbAC877FC" },
+    .{ .name = "GRT / ETH", .address = "0x17D054eCac33D91F7340645341eFB5DE9009F1C1" },
+    .{ .name = "GRT / USD", .address = "0x86cF33a451dE9dc61a2862FD94FF4ad4Bd65A5d2" },
+    .{ .name = "HBTC PoR", .address = "0x0A8cD0115B1EE87EbA5b8E06A9a15ED93e230f7a" },
+    .{ .name = "HIGH / USD", .address = "0x5C8D8AaB4ffa4652753Df94f299330Bb4479bF85" },
+    .{ .name = "IB01 / USD", .address = "0x32d1463EB53b73C095625719Afa544D5426354cB" },
+    .{ .name = "IBTA / USD", .address = "0xd27e6D02b72eB6FCe04Ad5690C419196B4EF2885" },
+    .{ .name = "IMX / USD", .address = "0xBAEbEFc1D023c0feCcc047Bff42E75F15Ff213E6" },
+    .{ .name = "JPY / USD", .address = "0xBcE206caE7f0ec07b545EddE332A47C2F75bbeb3" },
+    .{ .name = "KNC / ETH", .address = "0x656c0544eF4C98A6a98491833A89204Abb045d6b" },
+    .{ .name = "KNC / USD", .address = "0xf8fF43E991A81e6eC886a3D281A2C6cC19aE70Fc" },
+    .{ .name = "KRW / USD", .address = "0x01435677FB11763550905594A16B645847C1d0F3" },
+    .{ .name = "LDO / ETH", .address = "0x4e844125952D32AcdF339BE976c98E22F6F318dB" },
+    .{ .name = "LINK / ETH", .address = "0xDC530D9457755926550b59e8ECcdaE7624181557" },
+    .{ .name = "LINK / USD", .address = "0x2c1d072e956AFFC0D435Cb7AC38EF18d24d9127c" },
+    .{ .name = "LTC / USD", .address = "0x6AF09DF7563C363B5763b9102712EbeD3b9e859B" },
+    .{ .name = "LUSD / USD", .address = "0x3D7aE7E594f2f2091Ad8798313450130d0Aba3a0" },
+    .{ .name = "MANA / ETH", .address = "0x82A44D92D6c329826dc557c5E1Be6ebeC5D5FeB9" },
+    .{ .name = "MATIC / USD", .address = "0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676" },
+    .{ .name = "MAVIA / USD", .address = "0x29d26C008e8f201eD0D864b1Fd9392D29d0C8e96" },
+    .{ .name = "MAYC Floor Price", .address = "0x1823C89715Fe3fB96A24d11c917aCA918894A090" },
+    .{ .name = "MIM / USD", .address = "0x7A364e8770418566e3eb2001A96116E6138Eb32F" },
+    .{ .name = "MKR / ETH", .address = "0x24551a8Fb2A7211A25a17B1481f043A8a8adC7f2" },
+    .{ .name = "MKR / USD", .address = "0xec1D1B3b0443256cc3860e24a46F108e699484Aa" },
+    .{ .name = "MLN / ETH", .address = "0xDaeA8386611A157B08829ED4997A8A62B557014C" },
+    .{ .name = "Moonbirds Floor Price", .address = "0x9cd36E0E8D3C27d630D00406ACFC3463154951Af" },
+    .{ .name = "Nexus wETH Reserves", .address = "0xCc72039A141c6e34a779eF93AEF5eB4C82A893c7" },
+    .{ .name = "NZD / USD", .address = "0x3977CFc9e4f29C184D4675f4EB8e0013236e5f3e" },
+    .{ .name = "OHMv2 / ETH", .address = "0x9a72298ae3886221820B1c878d12D872087D3a23" },
+    .{ .name = "Otherdeed for Otherside Floor Price", .address = "0x6e3A4376B4C8D3ba49602f8542D9D3C4A87ba901" },
+    .{ .name = "PAX / ETH", .address = "0x3a08ebBaB125224b7b6474384Ee39fBb247D2200" },
+    .{ .name = "PAXG / ETH", .address = "0x9B97304EA12EFed0FAd976FBeCAad46016bf269e" },
+    .{ .name = "PERP / ETH", .address = "0x3b41D5571468904D4e53b6a8d93A6BaC43f02dC9" },
+    .{ .name = "Pudgy Penguins Floor Price", .address = "0x9f2ba149c2A0Ee76043d83558C4E79E9F3E5731B" },
+    .{ .name = "PYUSD / USD", .address = "0x8f1dF6D7F2db73eECE86a18b4381F4707b918FB1" },
+    .{ .name = "RDNT / USD", .address = "0x393CC05baD439c9B36489384F11487d9C8410471" },
+    .{ .name = "REN / ETH", .address = "0x3147D7203354Dc06D9fd350c7a2437bcA92387a4" },
+    .{ .name = "RETH / ETH", .address = "0x536218f9E9Eb48863970252233c8F271f554C2d0" },
+    .{ .name = "RPL / USD", .address = "0x4E155eD98aFE9034b7A5962f6C84c86d869daA9d" },
+    .{ .name = "RSETH / ETH", .address = "0x03c68933f7a3F76875C0bc670a58e69294cDFD01" },
+    .{ .name = "RSR / USD", .address = "0x759bBC1be8F90eE6457C44abc7d443842a976d02" },
+    .{ .name = "SAND / USD", .address = "0x35E3f7E558C04cE7eEE1629258EcbbA03B36Ec56" },
+    .{ .name = "SGD / USD", .address = "0xe25277fF4bbF9081C75Ab0EB13B4A13a721f3E13" },
+    .{ .name = "SHIB / ETH", .address = "0x8dD1CD88F43aF196ae478e91b9F5E4Ac69A97C61" },
+    .{ .name = "SHV / USD", .address = "0xc04611C43842220fd941515F86d1DDdB15F04e46" },
+    .{ .name = "SNX / ETH", .address = "0x79291A9d692Df95334B1a0B3B4AE6bC606782f8c" },
+    .{ .name = "SNX / USD", .address = "0xDC3EA94CD0AC27d9A86C180091e7f78C683d3699" },
+    .{ .name = "SOL / USD", .address = "0x4ffC43a60e009B551865A93d232E33Fce9f01507" },
+    .{ .name = "SPELL / USD", .address = "0x8c110B94C5f1d347fAcF5E1E938AB2db60E3c9a8" },
+    .{ .name = "STBT PoR", .address = "0xad4A9bED9a5E2c1c9a6E43D35Db53c83873dd901" },
+    .{ .name = "STETH / ETH", .address = "0x86392dC19c0b719886221c78AB11eb8Cf5c52812" },
+    .{ .name = "STETH / USD", .address = "0xCfE54B5cD566aB89272946F602D76Ea879CAb4a8" },
+    .{ .name = "STG / USD", .address = "0x7A9f34a0Aa917D438e9b6E630067062B7F8f6f3d" },
+    .{ .name = "SUSD / ETH", .address = "0x8e0b7e6062272B5eF4524250bFFF8e5Bd3497757" },
+    .{ .name = "SUSHI / ETH", .address = "0xe572CeF69f43c2E488b33924AF04BDacE19079cf" },
+    .{ .name = "SUSHI / USD", .address = "0xCc70F09A6CC17553b2E31954cD36E4A2d89501f7" },
+    .{ .name = "Swell ETH PoR", .address = "0x60cbE8D88EF519cF3C62414D76f50818D211fea1" },
+    .{ .name = "SWETH / ETH", .address = "0xec21B3e882CE09928cb397DcfF31B15cBBD1e1C3" },
+    .{ .name = "SXP / USD", .address = "0xFb0CfD6c19e25DB4a08D8a204a387cEa48Cc138f" },
+    .{ .name = "Total Marketcap / USD", .address = "0xEC8761a0A73c34329CA5B1D3Dc7eD07F30e836e2" },
+    .{ .name = "TRY / USD", .address = "0xB09fC5fD3f11Cf9eb5E1C5Dba43114e3C9f477b5" },
+    .{ .name = "TUSD / ETH", .address = "0x3886BA987236181D98F2401c507Fb8BeA7871dF2" },
+    .{ .name = "TUSD / USD", .address = "0xec746eCF986E2927Abd291a2A1716c940100f8Ba" },
+    .{ .name = "TUSD Reserves", .address = "0xBE456fd14720C3aCCc30A2013Bffd782c9Cb75D5" },
+    .{ .name = "UNI / ETH", .address = "0xD6aA3D25116d8dA79Ea0246c4826EB951872e02e" },
+    .{ .name = "UNI / USD", .address = "0x553303d460EE0afB37EdFf9bE42922D8FF63220e" },
+    .{ .name = "USDC / ETH", .address = "0x986b5E1e1755e3C2440e960477f25201B0a8bbD4" },
+    .{ .name = "USDC / USD", .address = "0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6" },
+    .{ .name = "USDD / USD", .address = "0x0ed39A19D2a68b722408d84e4d970827f61E6c0A" },
+    .{ .name = "USDP / USD", .address = "0x09023c0DA49Aaf8fc3fA3ADF34C6A7016D38D5e3" },
+    .{ .name = "USDT / ETH", .address = "0xEe9F2375b4bdF6387aa8265dD4FB8F16512A1d46" },
+    .{ .name = "USDT / USD", .address = "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D" },
+    .{ .name = "USDV / USD", .address = "0x925B831EB4c9fFA7e384254fb2cd508c65FAe3FE" },
+    .{ .name = "VeeFriends Floor Price", .address = "0x35bf6767577091E7f04707c0290b3f889e968307" },
+    .{ .name = "WBTC / BTC", .address = "0xfdFD9C85aD200c506Cf9e21F1FD8dd01932FBB23" },
+    .{ .name = "WBTC PoR", .address = "0xa81FE04086865e63E12dD3776978E49DEEa2ea4e" },
+    .{ .name = "WING / USD", .address = "0x134fE0a225Fb8e6683617C13cEB6B3319fB4fb82" },
+    .{ .name = "World of Women Floor Price", .address = "0xDdf0B85C600DAF9e308AFed9F597ACA212354764" },
+    .{ .name = "XAG / USD", .address = "0x379589227b15F1a12195D3f2d90bBc9F31f95235" },
+    .{ .name = "XAU / USD", .address = "0x214eD9Da11D2fbe465a6fc601a91E62EbEc1a0D6" },
+    .{ .name = "XCN / USD", .address = "0xeb988B77b94C186053282BfcD8B7ED55142D3cAB" },
+    .{ .name = "YFI / ETH", .address = "0x7c5d4F8345e66f68099581Db340cd65B078C41f4" },
+    .{ .name = "YFI / USD", .address = "0xA027702dbb89fbd58938e4324ac03B58d812b0E1" },
+    .{ .name = "ZRX / ETH", .address = "0x2Da4983a622a8498bb1a21FaE9D8F6C664939962" },
+    .{ .name = "ZRX / USD", .address = "0x2885d15b8Af22648b98B122b22FDF4D2a56c6023" },
+};

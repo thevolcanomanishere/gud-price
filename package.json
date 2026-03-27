@@ -1,5 +1,5 @@
 {
-  "name": "@hypotenuselabs/ts-chainlink-datafeed",
+  "name": "gud-price",
   "license": "MIT",
   "version": "1.0.0",
   "description": "Zero-dependency Typescript library for reading Chainlink price feeds",
@@ -109,6 +109,8 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:live": "vitest run --config vitest.live.config.ts",
+    "generate": "node codegen/generate.js",
+    "generate:ts": "node codegen/generate.js --lang=ts",
     "updateAllFeeds": "tsx ./scraper/playwright.ts && prettier --write ./src/dataFeeds/*.ts",
     "build": "rm -rf dist && tsup --minify --format cjs,esm --dts"
   },
