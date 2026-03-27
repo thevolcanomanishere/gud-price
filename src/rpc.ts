@@ -28,7 +28,8 @@ function decodeString(hex: string): string {
   const charOffset = 2 + offset * 2;
   const length = Number(BigInt("0x" + hex.slice(charOffset, charOffset + 64)));
   const strHex = hex.slice(charOffset + 64, charOffset + 64 + length * 2);
-  return Buffer.from(strHex, "hex").toString("utf8");
+  const bytes = new Uint8Array(strHex.match(/.{2}/g)!.map(b => parseInt(b, 16)));
+  return new TextDecoder().decode(bytes);
 }
 
 /** ABI-encode a uint80 argument (left-padded to 32 bytes). */
