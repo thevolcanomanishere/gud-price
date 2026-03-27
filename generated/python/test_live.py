@@ -2,8 +2,8 @@
 
 import unittest
 import signal
-from rpc import read_latest_price, read_latest_price_raw, read_feed_metadata, read_prices
-from rpcs import rpc
+from gud_price.rpc import read_latest_price, read_latest_price_raw, read_feed_metadata, read_prices
+from gud_price.rpcs import rpc
 
 
 def timeout_handler(signum, frame):

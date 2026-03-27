@@ -1,3 +1,3 @@
-module gudprice
+module github.com/thevolcanomanishere/gud-price/generated/go
 
-go 1.21
+go 1.22

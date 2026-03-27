@@ -272,7 +272,7 @@ const generators = {
   go: { ext: "go", fn: generateGo, dir: "generated/go" },
   rust: { ext: "rs", fn: generateRust, dir: "generated/rust/src" },
   zig: { ext: "zig", fn: generateZig, dir: "generated/zig" },
-  python: { ext: "py", fn: generatePython, dir: "generated/python" },
+  python: { ext: "py", fn: generatePython, dir: "generated/python/gud_price" },
 };
 
 const args = process.argv.slice(2);
@@ -285,7 +285,7 @@ let totalFiles = 0;
 
 const rpcsGenerators = {
   go: { fn: generateRpcsGo, path: "generated/go/rpc/rpcs.go" },
-  python: { fn: generateRpcsPython, path: "generated/python/rpcs.py" },
+  python: { fn: generateRpcsPython, path: "generated/python/gud_price/rpcs.py" },
   rust: { fn: generateRpcsRust, path: "generated/rust/src/rpcs.rs" },
 };
 

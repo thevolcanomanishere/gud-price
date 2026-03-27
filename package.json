@@ -96,9 +96,12 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/hyplabs/ts-chainlink-datafeed.git"
+    "url": "git+https://github.com/thevolcanomanishere/gud-price.git"
   },
   "keywords": [
     "chainlink",
@@ -130,9 +133,9 @@
   },
   "packageManager": "pnpm@10.28.1",
   "bugs": {
-    "url": "https://github.com/hyplabs/ts-chainlink-datafeed/issues"
+    "url": "https://github.com/thevolcanomanishere/gud-price/issues"
   },
-  "homepage": "https://github.com/hyplabs/ts-chainlink-datafeed#readme",
+  "homepage": "https://github.com/thevolcanomanishere/gud-price#readme",
   "directories": {
     "example": "example"
   }

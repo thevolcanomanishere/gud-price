@@ -6,7 +6,7 @@ import unittest
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
-from rpc import (
+from gud_price.rpc import (
     RoundData,
     RoundDataRaw,
     FeedMetadata,
@@ -132,14 +132,14 @@ class TestHexHelpers(unittest.TestCase):
 
 
 class TestEthCall(unittest.TestCase):
-    @patch("rpc.urllib.request.urlopen")
+    @patch("gud_price.rpc.urllib.request.urlopen")
     def test_success(self, mock_urlopen):
         result_hex = "0x" + _pad_word(8)
         mock_urlopen.return_value = _mock_urlopen(_make_rpc_response(result_hex))
         got = eth_call(RPC_URL, FEED_ADDR, SEL_DECIMALS)
         self.assertEqual(got, result_hex)
 
-    @patch("rpc.urllib.request.urlopen")
+    @patch("gud_price.rpc.urllib.request.urlopen")
     def test_rpc_error_raises(self, mock_urlopen):
         error_resp = json.dumps(
             {"jsonrpc": "2.0", "id": 1, "error": {"message": "execution reverted"}}
@@ -154,7 +154,7 @@ class TestEthCall(unittest.TestCase):
 
 
 class TestReadFeedMetadata(unittest.TestCase):
-    @patch("rpc.urllib.request.urlopen")
+    @patch("gud_price.rpc.urllib.request.urlopen")
     def test_read_metadata(self, mock_urlopen):
         # First call: decimals => 8
         dec_hex = "0x" + _pad_word(8)
@@ -190,7 +190,7 @@ _ROUND_HEX = (
 
 
 class TestReadLatestPriceRaw(unittest.TestCase):
-    @patch("rpc.urllib.request.urlopen")
+    @patch("gud_price.rpc.urllib.request.urlopen")
     def test_raw(self, mock_urlopen):
         mock_urlopen.return_value = _mock_urlopen(_make_rpc_response(_ROUND_HEX))
         raw = read_latest_price_raw(RPC_URL, FEED_ADDR)
@@ -203,7 +203,7 @@ class TestReadLatestPriceRaw(unittest.TestCase):
 
 
 class TestReadLatestPrice(unittest.TestCase):
-    @patch("rpc.urllib.request.urlopen")
+    @patch("gud_price.rpc.urllib.request.urlopen")
     def test_latest(self, mock_urlopen):
         dec_hex = "0x" + _pad_word(8)
         text = "ETH / USD"
@@ -225,7 +225,7 @@ class TestReadLatestPrice(unittest.TestCase):
 
 
 class TestReadLatestPriceWithMeta(unittest.TestCase):
-    @patch("rpc.urllib.request.urlopen")
+    @patch("gud_price.rpc.urllib.request.urlopen")
     def test_with_meta(self, mock_urlopen):
         mock_urlopen.return_value = _mock_urlopen(_make_rpc_response(_ROUND_HEX))
         meta = FeedMetadata(decimals=8, description="ETH / USD")
@@ -238,13 +238,13 @@ class TestReadLatestPriceWithMeta(unittest.TestCase):
 
 
 class TestPhaseAndAggregator(unittest.TestCase):
-    @patch("rpc.urllib.request.urlopen")
+    @patch("gud_price.rpc.urllib.request.urlopen")
     def test_read_phase_id(self, mock_urlopen):
         hex_data = "0x" + _pad_word(6)
         mock_urlopen.return_value = _mock_urlopen(_make_rpc_response(hex_data))
         self.assertEqual(read_phase_id(RPC_URL, FEED_ADDR), 6)
 
-    @patch("rpc.urllib.request.urlopen")
+    @patch("gud_price.rpc.urllib.request.urlopen")
     def test_read_aggregator(self, mock_urlopen):
         addr = "abcdef1234567890abcdef1234567890abcdef12"
         hex_data = "0x" + ("0" * 24) + addr
@@ -257,7 +257,7 @@ class TestPhaseAndAggregator(unittest.TestCase):
 
 
 class TestReadPrices(unittest.TestCase):
-    @patch("rpc.urllib.request.urlopen")
+    @patch("gud_price.rpc.urllib.request.urlopen")
     def test_multiple_feeds(self, mock_urlopen):
         dec_hex = "0x" + _pad_word(8)
         text = "ETH / USD"

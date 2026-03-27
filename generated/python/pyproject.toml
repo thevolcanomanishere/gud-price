@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gud-price"
+version = "0.1.0"
+description = "Zero-dependency Chainlink price feed reader for any EVM chain"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "Alex McGonagle" }]
+keywords = ["chainlink", "price-feed", "ethereum", "defi", "evm"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Software Development :: Libraries",
+]
+
+[project.urls]
+Homepage = "https://github.com/thevolcanomanishere/gud-price"
+Repository = "https://github.com/thevolcanomanishere/gud-price"
