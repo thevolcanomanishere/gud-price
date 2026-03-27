@@ -291,8 +291,9 @@ function formatPrice(numPrice, rawAnswer, fmt) {
     if (numPrice >= 1e9)  return (numPrice / 1e9).toLocaleString("en-US",  { maximumFractionDigits: 2 }) + "B";
     if (numPrice >= 1e6)  return (numPrice / 1e6).toLocaleString("en-US",  { maximumFractionDigits: 2 }) + "M";
   }
-  if (numPrice >= 1000) return numPrice.toLocaleString("en-US", { maximumFractionDigits: 2 });
-  if (numPrice >= 1)    return numPrice.toFixed(4);
+  if (numPrice >= 1000) return numPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (numPrice >= 10)   return numPrice.toFixed(2);
+  if (numPrice >= 0.01) return numPrice.toFixed(4);
   return rawAnswer;
 }
 
