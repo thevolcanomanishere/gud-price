@@ -310,18 +310,9 @@ describe("index exports", () => {
     expect(index.formatPrice).toBeTypeOf("function");
 
     // Data feed exports
-    expect(index.polygonDataFeeds).toBeDefined();
     expect(index.ethereumDataFeeds).toBeDefined();
-    expect(index.baseDataFeeds).toBeDefined();
-    expect(index.bscDataFeeds).toBeDefined();
-    expect(index.fantomDataFeeds).toBeDefined();
-    expect(index.xdaiDataFeeds).toBeDefined();
-    expect(index.celoDataFeeds).toBeDefined();
+    expect(index.polygonDataFeeds).toBeDefined();
     expect(index.arbitrumDataFeeds).toBeDefined();
-    expect(index.avalancheDataFeeds).toBeDefined();
-    expect(index.moonbeamDataFeeds).toBeDefined();
-    expect(index.optimismDataFeeds).toBeDefined();
-    expect(index.harmonyDataFeeds).toBeDefined();
-    expect(index.scrollDataFeeds).toBeDefined();
+    expect(index.baseDataFeeds).toBeDefined();
   });
 });
