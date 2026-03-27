@@ -3,129 +3,296 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>gud-price - Live Price Dashboard</title>
+<title>gud-price — Live Price Dashboard</title>
 <style>
-  :root { --bg: #0a0a0a; --card: #141414; --border: #222; --text: #e0e0e0; --dim: #666; --green: #22c55e; --red: #ef4444; }
+  :root {
+    --bg: #f0f2f5;
+    --surface: #ffffff;
+    --border: #e2e5ea;
+    --text: #0f1117;
+    --dim: #6b7280;
+    --dimmer: #9ca3af;
+    --accent: #2563eb;
+    --green: #16a34a;
+    --red: #dc2626;
+    --section-bar: #e2e5ea;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem; }
-  h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.25rem; }
-  .subtitle { color: var(--dim); font-size: 0.85rem; margin-bottom: 2rem; }
-  .subtitle a { color: var(--dim); }
-  .status { display: inline-block; font-size: 0.75rem; color: var(--dim); margin-bottom: 1.5rem; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+  header h1 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  header .tagline {
+    font-size: 0.8rem;
+    color: var(--dim);
+  }
+  header .tagline a { color: var(--accent); text-decoration: none; }
+  header .tagline a:hover { text-decoration: underline; }
+  .status-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0.4rem 2rem;
+    font-size: 0.72rem;
+    color: var(--dimmer);
+  }
+
+  /* ── Layout ── */
+  main { padding: 1.75rem 2rem; max-width: 1400px; margin: 0 auto; }
+
+  /* ── Sections ── */
   .section { margin-bottom: 2rem; }
-  .section h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dim); margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; transition: border-color 0.2s; }
-  .card:hover { border-color: #333; }
-  .card .name { font-size: 0.8rem; color: var(--dim); margin-bottom: 0.25rem; }
-  .card .price { font-size: 1.35rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-  .card .meta { font-size: 0.7rem; color: var(--dim); margin-top: 0.35rem; }
-  .card .chain { font-size: 0.65rem; color: #444; margin-top: 0.2rem; }
-  .card.loading .price { color: var(--dim); }
-  .card.error .price { color: var(--red); font-size: 0.85rem; }
-  .note { font-size: 0.68rem; color: var(--dim); margin-top: 0.6rem; line-height: 1.4; border-top: 1px solid var(--border); padding-top: 0.5rem; }
-  .flash-green { animation: flashG 0.6s; }
-  .flash-red { animation: flashR 0.6s; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.875rem;
+  }
+  .section-header h2 {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--dim);
+  }
+  .section-header::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--section-bar);
+  }
+
+  /* ── Grid ── */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.625rem; }
+  .macro-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.875rem 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: box-shadow 0.15s, border-color 0.15s;
+  }
+  .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.09); border-color: #c9cdd4; }
+  .card .label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--dim);
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .card .flag { font-size: 0.95rem; line-height: 1; }
+  .card .price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+  .card .meta { font-size: 0.67rem; color: var(--dimmer); margin-top: 0.25rem; }
+  .card .chain-badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: var(--dimmer);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1rem 0.35rem;
+    margin-top: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .card.loading .price { color: var(--dimmer); }
+  .card.error .price { color: var(--red); font-size: 0.85rem; font-weight: 500; }
+  .card.error .meta { color: var(--red); opacity: 0.7; }
+
+  /* ── Macro note ── */
+  .note {
+    font-size: 0.67rem;
+    color: var(--dim);
+    margin-top: 0.6rem;
+    line-height: 1.5;
+    border-top: 1px solid var(--border);
+    padding-top: 0.5rem;
+  }
+
+  /* ── Flash animations ── */
+  .flash-green { animation: flashG 0.8s ease-out; }
+  .flash-red   { animation: flashR 0.8s ease-out; }
   @keyframes flashG { 0% { color: var(--green); } 100% { color: var(--text); } }
-  @keyframes flashR { 0% { color: var(--red); } 100% { color: var(--text); } }
-  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--dim); }
-  footer a { color: var(--dim); }
+  @keyframes flashR { 0% { color: var(--red);   } 100% { color: var(--text); } }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 1rem 2rem;
+    font-size: 0.72rem;
+    color: var(--dimmer);
+    margin-top: 2rem;
+  }
+  footer a { color: var(--dim); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
 
-<h1>gud-price</h1>
-<p class="subtitle">Live prices from <a href="https://chain.link">Chainlink</a> oracles. Powered by <a href="https://github.com/thevolcanomanishere/gud-price">gud-price</a>.</p>
-<div class="status" id="status">Loading...</div>
+<header>
+  <h1>gud-price</h1>
+  <span class="tagline">
+    Live prices from <a href="https://chain.link">Chainlink</a> oracles &middot;
+    <a href="https://github.com/thevolcanomanishere/gud-price">GitHub</a>
+  </span>
+</header>
+<div class="status-bar" id="status">Loading…</div>
 
-<div id="app"></div>
+<main id="app"></main>
 
 <footer>
-  Data from Chainlink decentralized oracle network via public RPC endpoints. Prices may be delayed.
-  <br>
-  <a href="https://github.com/thevolcanomanishere/gud-price">GitHub</a> &middot; <a href="https://www.npmjs.com/package/gud-price">npm</a> &middot; <a href="https://pypi.org/project/gud-price/">PyPI</a> &middot; <a href="https://crates.io/crates/gud-price">crates.io</a>
+  Data sourced from the Chainlink decentralized oracle network via public RPC endpoints. Prices may be delayed. &nbsp;
+  <a href="https://www.npmjs.com/package/gud-price">npm</a> &middot;
+  <a href="https://pypi.org/project/gud-price/">PyPI</a> &middot;
+  <a href="https://crates.io/crates/gud-price">crates.io</a>
 </footer>
 
 <script src="demo.js"></script>
 <script>
 const { readLatestPrice, feeds } = window.gudPrice;
 
-// Feeds to display, grouped by category.
-// Arbitrum is used wherever available — L2 feeds update more frequently than mainnet.
 const SECTIONS = {
-  "Forex": {
-    "EUR / USD": { chain: "arbitrum", addr: feeds.arbitrum["EUR / USD"] },
-    "GBP / USD": { chain: "arbitrum", addr: feeds.arbitrum["GBP / USD"] },
-    "JPY / USD": { chain: "arbitrum", addr: feeds.arbitrum["JPY / USD"] },
-    "AUD / USD": { chain: "arbitrum", addr: feeds.arbitrum["AUD / USD"] },
-    "CAD / USD": { chain: "arbitrum", addr: feeds.arbitrum["CAD / USD"] },
-    "CHF / USD": { chain: "arbitrum", addr: feeds.arbitrum["CHF / USD"] },
-    "CNY / USD": { chain: "arbitrum", addr: feeds.arbitrum["CNY / USD"] },
-    "SGD / USD": { chain: "arbitrum", addr: feeds.arbitrum["SGD / USD"] },
-    "BRL / USD": { chain: "arbitrum", addr: feeds.arbitrum["BRL / USD"] },
-    "TRY / USD": { chain: "arbitrum", addr: feeds.arbitrum["TRY / USD"] },
-    "ARS / USD": { chain: "ethereum", addr: feeds.ethereum["ARS / USD"] },
-  },
-  "Equities": {
-    "AAPL / USD": { chain: "arbitrum", addr: feeds.arbitrum["AAPL / USD"] },
-    "MSFT / USD": { chain: "arbitrum", addr: feeds.arbitrum["MSFT / USD"] },
-    "AMZN / USD": { chain: "arbitrum", addr: feeds.arbitrum["AMZN / USD"] },
-    "NVDA / USD": { chain: "arbitrum", addr: feeds.arbitrum["NVDA / USD"] },
-    "GOOGL / USD": { chain: "arbitrum", addr: feeds.arbitrum["GOOGL / USD"] },
-    "META / USD": { chain: "arbitrum", addr: feeds.arbitrum["META / USD"] },
-    "TSLA / USD": { chain: "arbitrum", addr: feeds.arbitrum["TSLA / USD"] },
-    "COIN / USD": { chain: "arbitrum", addr: feeds.arbitrum["COIN / USD"] },
-    "SPY / USD": { chain: "arbitrum", addr: feeds.arbitrum["SPY / USD"] },
-  },
-  "Commodities": {
-    "Gold (XAU)": { chain: "arbitrum", addr: feeds.arbitrum["XAU / USD"] },
-    "Silver (XAG)": { chain: "arbitrum", addr: feeds.arbitrum["XAG / USD"] },
-    "Oil (WTI)": { chain: "arbitrum", addr: feeds.arbitrum["WTI / USD"] },
+  // Macro first — the weird/interesting stuff
+  "Macro & Unusual": {
+    "CPI": {
+      chain: "ethereum", addr: feeds.ethereum["Consumer Price Index"],
+      note: "US Consumer Price Index — measures inflation by tracking a basket of goods and services. Updated quarterly by the BLS.",
+    },
+    "Real GDP Level": {
+      chain: "arbitrum", addr: feeds.arbitrum["Real GDP — Level"],
+      note: "Real US GDP in chained dollars — total value of all goods and services produced, adjusted for inflation. Updated quarterly.",
+    },
+    "Real GDP % Change": {
+      chain: "arbitrum", addr: feeds.arbitrum["Real GDP — Percent Change (Annual Rate)"],
+      note: "Quarter-over-quarter GDP growth as an annualized rate. Two consecutive negative readings = recession.",
+    },
+    "Real Final Sales": {
+      chain: "arbitrum", addr: feeds.arbitrum["Real Final Sales to Private Domestic Purchasers — Level"],
+      note: "GDP minus government spending and exports — a cleaner signal for private-sector demand in the US economy.",
+    },
+    "Crypto Market Cap": {
+      chain: "arbitrum", addr: feeds.arbitrum["Total Marketcap USD"],
+      note: "Aggregate USD market cap of all crypto assets tracked by Chainlink, updated on-chain in real time.",
+      format: "compact",
+    },
+    "IB01 (T-Bills ETF)": {
+      chain: "ethereum", addr: feeds.ethereum["IB01 / USD"],
+      note: "iShares $ Treasury Bond 0–1yr ETF — tracks short-dated US government debt. Moves inversely to short-term rate expectations.",
+    },
+    "T-Bonds ETF (IBTA)": {
+      chain: "ethereum", addr: feeds.ethereum["IBTA / USD"],
+      note: "iShares $ Treasury Bond 1–3yr ETF — tracks short-to-medium US Treasuries. More rate-sensitive; falls when the Fed hikes.",
+    },
   },
   "Crypto": {
-    "BTC / USD": { chain: "arbitrum", addr: feeds.arbitrum["BTC / USD"] },
-    "ETH / USD": { chain: "arbitrum", addr: feeds.arbitrum["ETH / USD"] },
-    "SOL / USD": { chain: "arbitrum", addr: feeds.arbitrum["SOL / USD"] },
-    "XRP / USD": { chain: "arbitrum", addr: feeds.arbitrum["XRP / USD"] },
-    "AVAX / USD": { chain: "arbitrum", addr: feeds.arbitrum["AVAX / USD"] },
-    "DOGE / USD": { chain: "arbitrum", addr: feeds.arbitrum["DOGE / USD"] },
-    "ADA / USD": { chain: "arbitrum", addr: feeds.arbitrum["ADA / USD"] },
-    "DOT / USD": { chain: "arbitrum", addr: feeds.arbitrum["DOT / USD"] },
-    "LINK / USD": { chain: "arbitrum", addr: feeds.arbitrum["LINK / USD"] },
+    "BTC":  { chain: "arbitrum", addr: feeds.arbitrum["BTC / USD"] },
+    "ETH":  { chain: "arbitrum", addr: feeds.arbitrum["ETH / USD"] },
+    "SOL":  { chain: "arbitrum", addr: feeds.arbitrum["SOL / USD"] },
+    "XRP":  { chain: "arbitrum", addr: feeds.arbitrum["XRP / USD"] },
+    "AVAX": { chain: "arbitrum", addr: feeds.arbitrum["AVAX / USD"] },
+    "DOGE": { chain: "arbitrum", addr: feeds.arbitrum["DOGE / USD"] },
+    "ADA":  { chain: "arbitrum", addr: feeds.arbitrum["ADA / USD"] },
+    "DOT":  { chain: "arbitrum", addr: feeds.arbitrum["DOT / USD"] },
+    "LINK": { chain: "arbitrum", addr: feeds.arbitrum["LINK / USD"] },
   },
-  // On-chain macroeconomic data — actual US economic indicators published on-chain.
-  // GDP/CPI are updated quarterly; ETF prices update on trading days.
-  "Macro / Unusual": {
-    "CPI": { chain: "ethereum", addr: feeds.ethereum["Consumer Price Index"], note: "US Consumer Price Index — measures inflation by tracking a basket of goods and services. Updated quarterly by the BLS." },
-    "Real GDP Level": { chain: "arbitrum", addr: feeds.arbitrum["Real GDP — Level"], note: "Real US GDP in chained dollars — the total value of all goods and services produced, adjusted for inflation. Updated quarterly." },
-    "Real GDP % Change": { chain: "arbitrum", addr: feeds.arbitrum["Real GDP — Percent Change (Annual Rate)"], note: "Quarter-over-quarter GDP growth expressed as an annualized rate. Negative for two straight quarters = recession." },
-    "Real Final Sales": { chain: "arbitrum", addr: feeds.arbitrum["Real Final Sales to Private Domestic Purchasers — Level"], note: "GDP minus government spending and exports — a cleaner read on private-sector demand in the US economy." },
-    "Total Crypto Market Cap": { chain: "arbitrum", addr: feeds.arbitrum["Total Marketcap USD"], note: "Aggregate USD market cap of all crypto assets tracked by Chainlink, updated on-chain in real time." },
-    "IB01 (T-Bills ETF)": { chain: "ethereum", addr: feeds.ethereum["IB01 / USD"], note: "iShares $ Treasury Bond 0-1yr ETF — tracks short-dated US government debt (T-bills). Price moves inversely with short-term interest rate expectations." },
-    "T-Bonds ETF (IBTA)": { chain: "ethereum", addr: feeds.ethereum["IBTA / USD"], note: "iShares $ Treasury Bond 1-3yr ETF — tracks short-to-medium US Treasuries. More rate-sensitive than T-bills; falls when the Fed hikes." },
+  "Forex": {
+    "EUR": { chain: "arbitrum", addr: feeds.arbitrum["EUR / USD"], flag: "🇪🇺" },
+    "GBP": { chain: "arbitrum", addr: feeds.arbitrum["GBP / USD"], flag: "🇬🇧" },
+    "JPY": { chain: "arbitrum", addr: feeds.arbitrum["JPY / USD"], flag: "🇯🇵" },
+    "AUD": { chain: "arbitrum", addr: feeds.arbitrum["AUD / USD"], flag: "🇦🇺" },
+    "CAD": { chain: "arbitrum", addr: feeds.arbitrum["CAD / USD"], flag: "🇨🇦" },
+    "CHF": { chain: "arbitrum", addr: feeds.arbitrum["CHF / USD"], flag: "🇨🇭" },
+    "CNY": { chain: "arbitrum", addr: feeds.arbitrum["CNY / USD"], flag: "🇨🇳" },
+    "SGD": { chain: "arbitrum", addr: feeds.arbitrum["SGD / USD"], flag: "🇸🇬" },
+    "BRL": { chain: "arbitrum", addr: feeds.arbitrum["BRL / USD"], flag: "🇧🇷" },
+    "TRY": { chain: "arbitrum", addr: feeds.arbitrum["TRY / USD"], flag: "🇹🇷" },
+    "ARS": { chain: "ethereum", addr: feeds.ethereum["ARS / USD"],  flag: "🇦🇷" },
+  },
+  "Equities": {
+    "AAPL":  { chain: "arbitrum", addr: feeds.arbitrum["AAPL / USD"] },
+    "MSFT":  { chain: "arbitrum", addr: feeds.arbitrum["MSFT / USD"] },
+    "AMZN":  { chain: "arbitrum", addr: feeds.arbitrum["AMZN / USD"] },
+    "NVDA":  { chain: "arbitrum", addr: feeds.arbitrum["NVDA / USD"] },
+    "GOOGL": { chain: "arbitrum", addr: feeds.arbitrum["GOOGL / USD"] },
+    "META":  { chain: "arbitrum", addr: feeds.arbitrum["META / USD"] },
+    "TSLA":  { chain: "arbitrum", addr: feeds.arbitrum["TSLA / USD"] },
+    "COIN":  { chain: "arbitrum", addr: feeds.arbitrum["COIN / USD"] },
+    "SPY":   { chain: "arbitrum", addr: feeds.arbitrum["SPY / USD"] },
+  },
+  "Commodities": {
+    "Gold (XAU)":  { chain: "arbitrum", addr: feeds.arbitrum["XAU / USD"] },
+    "Silver (XAG)":{ chain: "arbitrum", addr: feeds.arbitrum["XAG / USD"] },
+    "Oil (WTI)":   { chain: "arbitrum", addr: feeds.arbitrum["WTI / USD"] },
   },
 };
 
-// Build DOM
+// ── Format price ──────────────────────────────────────────────────────────────
+
+function formatPrice(numPrice, rawAnswer, fmt) {
+  if (fmt === "compact") {
+    if (numPrice >= 1e12) return (numPrice / 1e12).toLocaleString("en-US", { maximumFractionDigits: 2 }) + "T";
+    if (numPrice >= 1e9)  return (numPrice / 1e9).toLocaleString("en-US",  { maximumFractionDigits: 2 }) + "B";
+    if (numPrice >= 1e6)  return (numPrice / 1e6).toLocaleString("en-US",  { maximumFractionDigits: 2 }) + "M";
+  }
+  if (numPrice >= 1000) return numPrice.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  if (numPrice >= 1)    return numPrice.toFixed(4);
+  return rawAnswer;
+}
+
+// ── Build DOM ────────────────────────────────────────────────────────────────
+
 const app = document.getElementById("app");
 const cardEls = {};
 
 for (const [section, items] of Object.entries(SECTIONS)) {
-  const div = document.createElement("div");
-  div.className = "section";
-  div.innerHTML = `<h2>${section}</h2><div class="grid"></div>`;
-  app.appendChild(div);
-  const grid = div.querySelector(".grid");
+  const isMacro = section.startsWith("Macro");
+  const sec = document.createElement("div");
+  sec.className = "section";
+  sec.innerHTML = `
+    <div class="section-header"><h2>${section}</h2></div>
+    <div class="grid${isMacro ? " macro-grid" : ""}"></div>
+  `;
+  app.appendChild(sec);
+  const grid = sec.querySelector(".grid");
 
-  for (const [name, { chain, note }] of Object.entries(items)) {
-    const display = name.replace(" / USD", "");
+  for (const [name, { chain, flag, note, format }] of Object.entries(items)) {
     const card = document.createElement("div");
     card.className = "card loading";
     card.innerHTML = `
-      <div class="name">${display}</div>
-      <div class="price">--</div>
+      <div class="label">${flag ? `<span class="flag">${flag}</span>` : ""}<span>${name}</span></div>
+      <div class="price">—</div>
       <div class="meta"></div>
-      <div class="chain">${chain}</div>
+      <div><span class="chain-badge">${chain}</span></div>
       ${note ? `<div class="note">${note}</div>` : ""}
     `;
     grid.appendChild(card);
@@ -133,11 +300,13 @@ for (const [section, items] of Object.entries(SECTIONS)) {
       card,
       priceEl: card.querySelector(".price"),
       metaEl: card.querySelector(".meta"),
+      format,
     };
   }
 }
 
-// Fetch prices using the actual library
+// ── Fetch ────────────────────────────────────────────────────────────────────
+
 const prevPrices = {};
 
 async function fetchAll() {
@@ -146,20 +315,16 @@ async function fetchAll() {
   let ok = 0, fail = 0;
 
   const promises = [];
-  for (const [section, items] of Object.entries(SECTIONS)) {
+  for (const items of Object.values(SECTIONS)) {
     for (const [name, { addr }] of Object.entries(items)) {
       promises.push(
         readLatestPrice(addr)
           .then(data => {
-            const { card, priceEl, metaEl } = cardEls[name];
+            const { card, priceEl, metaEl, format } = cardEls[name];
             card.classList.remove("loading", "error");
 
             const numPrice = parseFloat(data.answer);
-            const formatted = numPrice >= 1000
-              ? numPrice.toLocaleString("en-US", { maximumFractionDigits: 2 })
-              : numPrice >= 1
-              ? numPrice.toFixed(4)
-              : data.answer;
+            const formatted = formatPrice(numPrice, data.answer, format);
 
             const prev = prevPrices[name];
             if (prev !== undefined && prev !== numPrice) {
@@ -188,8 +353,7 @@ async function fetchAll() {
 
   await Promise.allSettled(promises);
   const elapsed = ((Date.now() - start) / 1000).toFixed(1);
-  const time = new Date().toLocaleTimeString();
-  statusEl.textContent = `${ok} feeds loaded in ${elapsed}s${fail ? `, ${fail} failed` : ""} \u2014 last update ${time}`;
+  statusEl.textContent = `${ok} feeds · ${elapsed}s · updated ${new Date().toLocaleTimeString()}${fail ? ` · ${fail} failed` : ""}`;
 }
 
 fetchAll();
