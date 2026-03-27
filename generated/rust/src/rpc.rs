@@ -554,4 +554,58 @@ mod tests {
         assert_eq!(raw.updated_at, 0);
         assert_eq!(raw.answered_in_round, 0);
     }
+
+    // ── Live RPC tests (run with: cargo test -- --ignored) ──────
+
+    #[test]
+    #[ignore]
+    fn test_live_ethereum_eth_usd() {
+        let data = read_latest_price(
+            crate::rpcs::rpc("ethereum"),
+            "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+        ).expect("RPC call failed");
+        assert_eq!(data.description, "ETH / USD");
+        let price: f64 = data.answer.parse().unwrap();
+        assert!(price > 0.0, "price should be positive, got {}", price);
+        println!("Ethereum ETH/USD: {}", data.answer);
+    }
+
+    #[test]
+    #[ignore]
+    fn test_live_polygon_btc_usd() {
+        let data = read_latest_price(
+            crate::rpcs::rpc("polygon"),
+            "0xc907E116054Ad103354f2D350FD2514433D57F6f",
+        ).expect("RPC call failed");
+        assert_eq!(data.description, "BTC / USD");
+        let price: f64 = data.answer.parse().unwrap();
+        assert!(price > 0.0);
+        println!("Polygon BTC/USD: {}", data.answer);
+    }
+
+    #[test]
+    #[ignore]
+    fn test_live_arbitrum_eth_usd() {
+        let data = read_latest_price(
+            crate::rpcs::rpc("arbitrum"),
+            "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612",
+        ).expect("RPC call failed");
+        assert_eq!(data.description, "ETH / USD");
+        let price: f64 = data.answer.parse().unwrap();
+        assert!(price > 0.0);
+        println!("Arbitrum ETH/USD: {}", data.answer);
+    }
+
+    #[test]
+    #[ignore]
+    fn test_live_base_eth_usd() {
+        let data = read_latest_price(
+            crate::rpcs::rpc("base"),
+            "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70",
+        ).expect("RPC call failed");
+        assert_eq!(data.description, "ETH / USD");
+        let price: f64 = data.answer.parse().unwrap();
+        assert!(price > 0.0);
+        println!("Base ETH/USD: {}", data.answer);
+    }
 }

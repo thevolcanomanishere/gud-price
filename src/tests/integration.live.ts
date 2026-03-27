@@ -13,16 +13,18 @@ import { ethereumDataFeeds } from "../dataFeeds/ethereum.js";
 import { arbitrumDataFeeds } from "../dataFeeds/arbitrum.js";
 import { baseDataFeeds } from "../dataFeeds/base.js";
 
-// ─── Public RPCs ─────────────────────────────────────────────────────────────
+import { rpc } from "../rpcs.js";
 
-const POLYGON_RPC = "https://polygon-bor.publicnode.com";
-const ETHEREUM_RPC = "https://ethereum-rpc.publicnode.com";
-const ARBITRUM_RPC = "https://arbitrum-one-rpc.publicnode.com";
-const BASE_RPC = "https://base-rpc.publicnode.com";
+// ─── Public RPCs (from built-in defaults) ────────────────────────────────────
+
+const POLYGON_RPC = rpc("polygon");
+const ETHEREUM_RPC = rpc("ethereum");
+const ARBITRUM_RPC = rpc("arbitrum");
+const BASE_RPC = rpc("base");
 
 // ─── Polygon ─────────────────────────────────────────────────────────────────
 
-describe("Polygon - live RPC", { timeout: 30000 }, () => {
+describe("Polygon - live RPC", { timeout: 15000 }, () => {
   test("ETH / USD feed returns valid data", async () => {
     const data = await readLatestPrice(POLYGON_RPC, polygonDataFeeds["ETH / USD"]);
     console.log("Polygon ETH/USD:", data);
@@ -84,7 +86,7 @@ describe("Polygon - live RPC", { timeout: 30000 }, () => {
 
 // ─── Ethereum ────────────────────────────────────────────────────────────────
 
-describe("Ethereum - live RPC", { timeout: 30000 }, () => {
+describe("Ethereum - live RPC", { timeout: 15000 }, () => {
   test("ETH / USD feed", async () => {
     const data = await readLatestPrice(ETHEREUM_RPC, ethereumDataFeeds["ETH / USD"]);
     console.log("Ethereum ETH/USD:", data);
@@ -102,7 +104,7 @@ describe("Ethereum - live RPC", { timeout: 30000 }, () => {
 
 // ─── Arbitrum ────────────────────────────────────────────────────────────────
 
-describe("Arbitrum - live RPC", { timeout: 30000 }, () => {
+describe("Arbitrum - live RPC", { timeout: 15000 }, () => {
   test("ETH / USD feed", async () => {
     const data = await readLatestPrice(ARBITRUM_RPC, arbitrumDataFeeds["ETH / USD"]);
     console.log("Arbitrum ETH/USD:", data);
@@ -113,7 +115,7 @@ describe("Arbitrum - live RPC", { timeout: 30000 }, () => {
 
 // ─── Base ────────────────────────────────────────────────────────────────────
 
-describe("Base - live RPC", { timeout: 30000 }, () => {
+describe("Base - live RPC", { timeout: 15000 }, () => {
   test("ETH / USD feed", async () => {
     const data = await readLatestPrice(BASE_RPC, baseDataFeeds["ETH / USD"]);
     console.log("Base ETH/USD:", data);
