@@ -3,3 +3,7 @@ dist
 .env
 .DS_Store
 build
+__pycache__/
+*.pyc
+.ruff_cache/
+generated/rust/target/

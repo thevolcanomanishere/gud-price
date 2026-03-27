@@ -1,70 +1,88 @@
 {
-  "name": "@hypotenuselabs/ts-chainlink-datafeed",
+  "name": "gud-price",
   "license": "MIT",
-  "version": "0.0.11",
-  "description": "Typescript library for interacting with Chainlink datafeeds",
+  "version": "1.0.0",
+  "description": "Zero-dependency Typescript library for reading Chainlink price feeds",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.cts",
   "sideEffects": false,
   "exports": {
-    "require": {
-      "types": "./dist/index.d.cts",
-      "default": "./dist/index.cjs"
+    ".": {
+      "require": { "types": "./dist/index.d.cts", "default": "./dist/index.cjs" },
+      "import": { "types": "./dist/index.d.ts", "default": "./dist/index.js" }
     },
-    "import": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+    "./rpc": {
+      "require": { "types": "./dist/rpc.d.cts", "default": "./dist/rpc.cjs" },
+      "import": { "types": "./dist/rpc.d.ts", "default": "./dist/rpc.js" }
+    },
+    "./rpcs": {
+      "require": { "types": "./dist/rpcs.d.cts", "default": "./dist/rpcs.cjs" },
+      "import": { "types": "./dist/rpcs.d.ts", "default": "./dist/rpcs.js" }
+    },
+    "./feeds/arbitrum": {
+      "require": { "types": "./dist/dataFeeds/arbitrum.d.cts", "default": "./dist/dataFeeds/arbitrum.cjs" },
+      "import": { "types": "./dist/dataFeeds/arbitrum.d.ts", "default": "./dist/dataFeeds/arbitrum.js" }
+    },
+    "./feeds/base": {
+      "require": { "types": "./dist/dataFeeds/base.d.cts", "default": "./dist/dataFeeds/base.cjs" },
+      "import": { "types": "./dist/dataFeeds/base.d.ts", "default": "./dist/dataFeeds/base.js" }
+    },
+    "./feeds/ethereum": {
+      "require": { "types": "./dist/dataFeeds/ethereum.d.cts", "default": "./dist/dataFeeds/ethereum.cjs" },
+      "import": { "types": "./dist/dataFeeds/ethereum.d.ts", "default": "./dist/dataFeeds/ethereum.js" }
+    },
+    "./feeds/polygon": {
+      "require": { "types": "./dist/dataFeeds/polygon.d.cts", "default": "./dist/dataFeeds/polygon.cjs" },
+      "import": { "types": "./dist/dataFeeds/polygon.d.ts", "default": "./dist/dataFeeds/polygon.js" }
     }
   },
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/hyplabs/ts-chainlink-datafeed.git"
+    "url": "git+https://github.com/thevolcanomanishere/gud-price.git"
   },
   "keywords": [
     "chainlink",
     "datafeed",
-    "viem",
+    "price-feed",
     "typescript",
-    "ethers"
+    "zero-dependency"
   ],
   "author": "Alex McGonagle",
   "type": "module",
   "scripts": {
-    "example": "tsx example/index.ts",
-    "arbitrum": "tsx example/arbitrum.ts",
     "test": "vitest",
-    "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:live": "vitest run --config vitest.live.config.ts",
+    "lint": "tsc --noEmit",
+    "format": "prettier --write 'src/**/*.ts' 'example/**/*.ts'",
+    "format:check": "prettier --check 'src/**/*.ts' 'example/**/*.ts'",
+    "update:rpcs": "node codegen/update-rpcs.js",
+    "generate": "node codegen/generate.js",
+    "generate:ts": "node codegen/generate.js --lang=ts",
     "updateAllFeeds": "tsx ./scraper/playwright.ts && prettier --write ./src/dataFeeds/*.ts",
-    "build": "rm -rf dist && tsup src/index.ts --minify --format cjs,esm --dts"
+    "build": "rm -rf dist && tsup --minify --format cjs,esm --dts"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
-    "@types/react": "^19.2.14",
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "~5.8.0",
-    "viem": ">=2.47.6",
     "vitest": "^4.1.2"
   },
-  "peerDependencies": {
-    "@ponder/utils": "^0.1.1",
-    "viem": ">=2.0.0"
-  },
-  "optionalDependencies": {
-    "react": "^19.2.4"
-  },
+  "packageManager": "pnpm@10.28.1",
   "bugs": {
-    "url": "https://github.com/hyplabs/ts-chainlink-datafeed/issues"
+    "url": "https://github.com/thevolcanomanishere/gud-price/issues"
   },
-  "homepage": "https://github.com/hyplabs/ts-chainlink-datafeed#readme",
+  "homepage": "https://github.com/thevolcanomanishere/gud-price#readme",
   "directories": {
     "example": "example"
   }

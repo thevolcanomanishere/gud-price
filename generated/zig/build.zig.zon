@@ -1,0 +1,14 @@
+.{
+    .name = .{ "gud-price" },
+    .version = "0.1.0",
+    .fingerprint = 0xa76cd20f193c71a2,
+    .minimum_zig_version = "0.13.0",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "arbitrum.zig",
+        "base.zig",
+        "ethereum.zig",
+        "polygon.zig",
+    },
+}

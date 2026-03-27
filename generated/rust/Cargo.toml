@@ -1,0 +1,15 @@
+[package]
+name = "gud-price"
+version = "0.1.0"
+edition = "2021"
+description = "Zero-dependency Chainlink price feed reader for any EVM chain"
+license = "MIT"
+repository = "https://github.com/thevolcanomanishere/gud-price"
+homepage = "https://github.com/thevolcanomanishere/gud-price"
+readme = "README.md"
+keywords = ["chainlink", "price-feed", "ethereum", "defi", "evm"]
+categories = ["api-bindings", "web-programming"]
+
+[dependencies]
+phf = { version = "0.13", features = ["macros"] }
+ureq = "3"

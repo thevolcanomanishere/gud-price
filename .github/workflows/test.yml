@@ -1,0 +1,176 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  unit:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── TypeScript ────────────────────────────────────────────────
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm tsc --noEmit
+      - run: pnpm test:run
+      - run: pnpm build
+
+      # ── Go ────────────────────────────────────────────────────────
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+      - run: go test -short ./rpc/
+        working-directory: generated/go
+
+      # ── Python ────────────────────────────────────────────────────
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m unittest test_rpc test_feeds -v
+        working-directory: generated/python
+
+      # ── Rust ──────────────────────────────────────────────────────
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test
+        working-directory: generated/rust
+
+  live:
+    name: Live RPC Tests
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── TypeScript live ───────────────────────────────────────────
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: TypeScript live tests
+        id: ts
+        timeout-minutes: 2
+        run: pnpm test:live 2>&1 | tee /tmp/ts-live.log
+
+      # ── Go live ───────────────────────────────────────────────────
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+      - name: Go live tests
+        id: go
+        timeout-minutes: 2
+        run: go test -v -timeout 60s -run TestLive ./rpc/ 2>&1 | tee /tmp/go-live.log
+        working-directory: generated/go
+
+      # ── Python live ───────────────────────────────────────────────
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Python live tests
+        id: python
+        timeout-minutes: 2
+        run: python -m unittest test_live -v 2>&1 | tee /tmp/python-live.log
+        working-directory: generated/python
+
+      # ── Rust live ─────────────────────────────────────────────────
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Rust live tests
+        id: rust
+        timeout-minutes: 2
+        run: cargo test live -- --ignored --nocapture 2>&1 | tee /tmp/rust-live.log
+        working-directory: generated/rust
+
+      # ── Post prices to PR ─────────────────────────────────────────
+      - name: Collect prices and comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            function extractPrices(log) {
+              const prices = [];
+              const patterns = [
+                // TypeScript: "Polygon ETH/USD: { answer: '1800.5', ... }"
+                /(\w+ \w+\/\w+):.*?answer:\s*'([^']+)'/g,
+                // Go/Rust: "Ethereum ETH/USD: 1800.5"
+                /(\w+ \w+\/\w+): ([\d.]+)/g,
+                // Python: "Ethereum ETH/USD: 1800.5"
+                /(\w+ \w+\/\w+): ([\d.]+)/g,
+              ];
+              for (const pattern of patterns) {
+                let m;
+                while ((m = pattern.exec(log)) !== null) {
+                  prices.push({ feed: m[1], price: m[2] });
+                }
+              }
+              // Deduplicate
+              const seen = new Set();
+              return prices.filter(p => {
+                const key = `${p.feed}:${p.price}`;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+              });
+            }
+
+            const logs = {};
+            for (const [lang, path] of [['TypeScript', '/tmp/ts-live.log'], ['Go', '/tmp/go-live.log'], ['Python', '/tmp/python-live.log'], ['Rust', '/tmp/rust-live.log']]) {
+              try {
+                logs[lang] = fs.readFileSync(path, 'utf8');
+              } catch { logs[lang] = ''; }
+            }
+
+            let body = '## Live RPC Test Results\n\n';
+            body += `> Prices fetched at ${new Date().toISOString()}\n\n`;
+            body += '| Chain | Feed | Price | Language |\n';
+            body += '|---|---|---|---|\n';
+
+            for (const [lang, log] of Object.entries(logs)) {
+              const prices = extractPrices(log);
+              for (const { feed, price } of prices) {
+                body += `| ${feed.split(' ')[0]} | ${feed} | $${price} | ${lang} |\n`;
+              }
+            }
+
+            if (!body.includes('$')) {
+              body += '\n_No prices extracted from test output._\n';
+            }
+
+            // Find existing comment to update
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c => c.body.includes('## Live RPC Test Results'));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }

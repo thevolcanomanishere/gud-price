@@ -1,160 +1,96 @@
 import { describe, expect, test } from "vitest";
 import {
-  ChainLinkDataFeed,
-  polygonDataFeeds,
-  ethereumDataFeeds,
-  arbitrumDataFeeds,
-  baseDataFeeds,
-} from "../index.js";
-import { polygon, mainnet, arbitrum, base } from "viem/chains";
-import { createPublicClient, fallback, http } from "viem";
-
-// ─── Public RPC clients ─────────────────────────────────────────────────────
-
-const polygonClient = createPublicClient({
-  transport: fallback([
-    http("https://polygon-bor.publicnode.com"),
-    http("https://polygon-rpc.com"),
-  ]),
-  chain: polygon,
-  batch: { multicall: true },
-});
-
-const ethereumClient = createPublicClient({
-  transport: fallback([
-    http("https://ethereum-rpc.publicnode.com"),
-    http("https://eth.llamarpc.com"),
-  ]),
-  chain: mainnet,
-  batch: { multicall: true },
-});
-
-const arbitrumClient = createPublicClient({
-  transport: fallback([
-    http("https://arbitrum-one-rpc.publicnode.com"),
-    http("https://arb1.arbitrum.io/rpc"),
-  ]),
-  chain: arbitrum,
-  batch: { multicall: true },
-});
-
-const baseClient = createPublicClient({
-  transport: fallback([
-    http("https://base-rpc.publicnode.com"),
-    http("https://mainnet.base.org"),
-  ]),
-  chain: base,
-  batch: { multicall: true },
-});
+  readLatestPrice,
+  readLatestPriceRaw,
+  readLatestPriceWithMeta,
+  readFeedMetadata,
+  readPhaseId,
+  readAggregator,
+  readPrices,
+} from "../rpc.js";
+import { polygonDataFeeds } from "../dataFeeds/polygon.js";
+import { ethereumDataFeeds } from "../dataFeeds/ethereum.js";
+import { arbitrumDataFeeds } from "../dataFeeds/arbitrum.js";
+import { baseDataFeeds } from "../dataFeeds/base.js";
 
 // ─── Polygon ─────────────────────────────────────────────────────────────────
 
-describe("Polygon - live RPC", { timeout: 30000 }, () => {
+describe("Polygon - live RPC", { timeout: 15000 }, () => {
   test("ETH / USD feed returns valid data", async () => {
-    const feed = new ChainLinkDataFeed({
-      contractAddress: polygonDataFeeds["ETH / USD"],
-      viemClient: polygonClient,
-    });
-
-    const data = await feed.getLatestRoundData(true);
+    const data = await readLatestPrice(polygonDataFeeds["ETH / USD"]);
     console.log("Polygon ETH/USD:", data);
 
-    expect(data).toBeDefined();
     expect(data.description).toBe("ETH / USD");
     expect(data.roundId).toBeTypeOf("bigint");
-    expect(data.answer).toBeTypeOf("string");
     expect(Number(data.answer)).toBeGreaterThan(0);
-    expect(data.time).toBeInstanceOf(Date);
+    expect(data.startedAt).toBeInstanceOf(Date);
   });
 
   test("BTC / USD feed returns valid data", async () => {
-    const feed = new ChainLinkDataFeed({
-      contractAddress: polygonDataFeeds["BTC / USD"],
-      viemClient: polygonClient,
-    });
-
-    const data = await feed.getLatestRoundData(true);
+    const data = await readLatestPrice(polygonDataFeeds["BTC / USD"]);
     console.log("Polygon BTC/USD:", data);
 
     expect(data.description).toBe("BTC / USD");
     expect(Number(data.answer)).toBeGreaterThan(0);
   });
 
-  test("MATIC / USD feed returns valid data", async () => {
-    const feed = new ChainLinkDataFeed({
-      contractAddress: polygonDataFeeds["MATIC / USD"],
-      viemClient: polygonClient,
-    });
+  test("raw data returns bigints", async () => {
+    const data = await readLatestPriceRaw(polygonDataFeeds["ETH / USD"]);
 
-    const data = await feed.getLatestRoundData(true);
-    console.log("Polygon MATIC/USD:", data);
+    expect(data.roundId).toBeTypeOf("bigint");
+    expect(data.answer).toBeTypeOf("bigint");
+    expect(data.answer).toBeGreaterThan(0n);
+  });
 
-    expect(data.description).toBe("MATIC / USD");
+  test("metadata + separate round fetch", async () => {
+    const meta = await readFeedMetadata(polygonDataFeeds["ETH / USD"]);
+    expect(meta.decimals).toBe(8);
+    expect(meta.description).toBe("ETH / USD");
+
+    const data = await readLatestPriceWithMeta(
+      polygonDataFeeds["ETH / USD"],
+      meta,
+    );
     expect(Number(data.answer)).toBeGreaterThan(0);
   });
 
-  test("raw (unformatted) data returns tuple", async () => {
-    const feed = new ChainLinkDataFeed({
-      contractAddress: polygonDataFeeds["ETH / USD"],
-      viemClient: polygonClient,
-    });
-
-    const data = await feed.getLatestRoundData(false);
-
-    expect(data).toHaveLength(5);
-    expect(data[0]).toBeTypeOf("bigint"); // roundId
-    expect(data[1]).toBeTypeOf("bigint"); // answer
-    expect(data[1]).toBeGreaterThan(0n);
-  });
-
-  test("getCurrentPhase returns a bigint", async () => {
-    const feed = new ChainLinkDataFeed({
-      contractAddress: polygonDataFeeds["ETH / USD"],
-      viemClient: polygonClient,
-    });
-
-    const phase = await feed.getCurrentPhase();
-    console.log("Polygon ETH/USD phase:", phase);
+  test("readPhaseId returns a bigint", async () => {
+    const phase = await readPhaseId(polygonDataFeeds["ETH / USD"]);
     expect(phase).toBeTypeOf("bigint");
+    expect(phase).toBeGreaterThan(0n);
   });
 
-  test("getPhaseAggregator returns a valid address", async () => {
-    const feed = new ChainLinkDataFeed({
-      contractAddress: polygonDataFeeds["ETH / USD"],
-      viemClient: polygonClient,
+  test("readAggregator returns a valid address", async () => {
+    const agg = await readAggregator(polygonDataFeeds["ETH / USD"]);
+    expect(agg).toMatch(/^0x[a-fA-F0-9]{40}$/);
+  });
+
+  test("readPrices fetches multiple feeds", async () => {
+    const results = await readPrices({
+      "ETH / USD": polygonDataFeeds["ETH / USD"],
+      "BTC / USD": polygonDataFeeds["BTC / USD"],
     });
 
-    const aggregator = await feed.getPhaseAggregator();
-    console.log("Polygon ETH/USD aggregator:", aggregator);
-    expect(aggregator).toMatch(/^0x[a-fA-F0-9]{40}$/);
+    expect(results["ETH / USD"].description).toBe("ETH / USD");
+    expect(results["BTC / USD"].description).toBe("BTC / USD");
+    expect(Number(results["ETH / USD"].answer)).toBeGreaterThan(0);
+    expect(Number(results["BTC / USD"].answer)).toBeGreaterThan(0);
   });
 });
 
 // ─── Ethereum ────────────────────────────────────────────────────────────────
 
-describe("Ethereum - live RPC", { timeout: 30000 }, () => {
-  test("ETH / USD feed returns valid data", async () => {
-    const feed = new ChainLinkDataFeed({
-      contractAddress: ethereumDataFeeds["ETH / USD"],
-      viemClient: ethereumClient,
-    });
-
-    const data = await feed.getLatestRoundData(true);
+describe("Ethereum - live RPC", { timeout: 15000 }, () => {
+  test("ETH / USD feed", async () => {
+    const data = await readLatestPrice(ethereumDataFeeds["ETH / USD"]);
     console.log("Ethereum ETH/USD:", data);
-
     expect(data.description).toBe("ETH / USD");
     expect(Number(data.answer)).toBeGreaterThan(0);
   });
 
-  test("BTC / USD feed returns valid data", async () => {
-    const feed = new ChainLinkDataFeed({
-      contractAddress: ethereumDataFeeds["BTC / USD"],
-      viemClient: ethereumClient,
-    });
-
-    const data = await feed.getLatestRoundData(true);
+  test("BTC / USD feed", async () => {
+    const data = await readLatestPrice(ethereumDataFeeds["BTC / USD"]);
     console.log("Ethereum BTC/USD:", data);
-
     expect(data.description).toBe("BTC / USD");
     expect(Number(data.answer)).toBeGreaterThan(0);
   });
@@ -162,16 +98,10 @@ describe("Ethereum - live RPC", { timeout: 30000 }, () => {
 
 // ─── Arbitrum ────────────────────────────────────────────────────────────────
 
-describe("Arbitrum - live RPC", { timeout: 30000 }, () => {
-  test("ETH / USD feed returns valid data", async () => {
-    const feed = new ChainLinkDataFeed({
-      contractAddress: arbitrumDataFeeds["ETH / USD"],
-      viemClient: arbitrumClient,
-    });
-
-    const data = await feed.getLatestRoundData(true);
+describe("Arbitrum - live RPC", { timeout: 15000 }, () => {
+  test("ETH / USD feed", async () => {
+    const data = await readLatestPrice(arbitrumDataFeeds["ETH / USD"]);
     console.log("Arbitrum ETH/USD:", data);
-
     expect(data.description).toBe("ETH / USD");
     expect(Number(data.answer)).toBeGreaterThan(0);
   });
@@ -179,16 +109,10 @@ describe("Arbitrum - live RPC", { timeout: 30000 }, () => {
 
 // ─── Base ────────────────────────────────────────────────────────────────────
 
-describe("Base - live RPC", { timeout: 30000 }, () => {
-  test("ETH / USD feed returns valid data", async () => {
-    const feed = new ChainLinkDataFeed({
-      contractAddress: baseDataFeeds["ETH / USD"],
-      viemClient: baseClient,
-    });
-
-    const data = await feed.getLatestRoundData(true);
+describe("Base - live RPC", { timeout: 15000 }, () => {
+  test("ETH / USD feed", async () => {
+    const data = await readLatestPrice(baseDataFeeds["ETH / USD"]);
     console.log("Base ETH/USD:", data);
-
     expect(data.description).toBe("ETH / USD");
     expect(Number(data.answer)).toBeGreaterThan(0);
   });
