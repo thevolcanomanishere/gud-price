@@ -194,65 +194,65 @@ const { readLatestPrice, feeds } = window.gudPrice;
 
 const SECTIONS = {
   // Macro first — the weird/interesting stuff
-  "Macro & Unusual": {
-    "CPI": {
+  "🔮 Macro & Unusual": {
+    "🛒 CPI": {
       chain: "ethereum", addr: feeds.ethereum["Consumer Price Index"],
       note: "US Consumer Price Index — measures inflation by tracking a basket of goods and services. Updated quarterly by the BLS.",
     },
-    "PCE Level": {
+    "🏦 PCE Level": {
       chain: "arbitrum", addr: feeds.arbitrum["PCE Price Index — Level"],
       note: "Personal Consumption Expenditures price index — the Fed's preferred inflation gauge. Broader than CPI; covers what people actually spend, not just a fixed basket.",
     },
-    "PCE % Change": {
+    "📈 PCE % Change": {
       chain: "arbitrum", addr: feeds.arbitrum["PCE Price Index — Percent Change (Annual Rate)"],
       note: "Annualized rate of PCE inflation. The Fed targets 2%. When this is high, expect rate hikes; when low, expect cuts.",
     },
-    "Real GDP Level": {
+    "🏭 Real GDP Level": {
       chain: "arbitrum", addr: feeds.arbitrum["Real GDP — Level"],
       note: "Real US GDP in chained dollars — total value of all goods and services produced, adjusted for inflation. Updated quarterly.",
     },
-    "Real GDP % Change": {
+    "📊 Real GDP % Change": {
       chain: "arbitrum", addr: feeds.arbitrum["Real GDP — Percent Change (Annual Rate)"],
       note: "Quarter-over-quarter GDP growth as an annualized rate. Two consecutive negative readings = recession.",
     },
-    "Real Final Sales Level": {
+    "🧾 Real Final Sales Level": {
       chain: "arbitrum", addr: feeds.arbitrum["Real Final Sales to Private Domestic Purchasers — Level"],
       note: "GDP minus government spending and exports — a cleaner signal for private-sector demand in the US economy.",
     },
-    "Real Final Sales % Change": {
+    "📉 Real Final Sales % Change": {
       chain: "arbitrum", addr: feeds.arbitrum["Real Final Sales to Private Domestic Purchasers — Percent Change (Annual Rate)"],
       note: "Annualized rate of change in private domestic final sales. Strips out volatile inventory swings for a smoother read on underlying demand.",
     },
-    "Crypto Market Cap": {
+    "🌐 Crypto Market Cap": {
       chain: "arbitrum", addr: feeds.arbitrum["Total Marketcap USD"],
       note: "Aggregate USD market cap of all crypto assets tracked by Chainlink, updated on-chain in real time.",
       format: "compact",
     },
-    "IB01 (T-Bills ETF)": {
+    "🏛️ IB01 (T-Bills ETF)": {
       chain: "ethereum", addr: feeds.ethereum["IB01 / USD"],
       note: "iShares $ Treasury Bond 0–1yr ETF — tracks short-dated US government debt. Moves inversely to short-term rate expectations.",
     },
-    "T-Bonds ETF (IBTA)": {
+    "📜 T-Bonds ETF (IBTA)": {
       chain: "ethereum", addr: feeds.ethereum["IBTA / USD"],
       note: "iShares $ Treasury Bond 1–3yr ETF — tracks short-to-medium US Treasuries. More rate-sensitive; falls when the Fed hikes.",
     },
-    "QQQ (Nasdaq-100)": {
+    "💹 QQQ (Nasdaq-100)": {
       chain: "ethereum", addr: feeds.ethereum["QQQ-USD (24/5)"],
       note: "Invesco QQQ ETF tracking the Nasdaq-100 — the top 100 non-financial Nasdaq stocks, heavily weighted toward mega-cap tech.",
     },
   },
-  "Crypto": {
-    "BTC":  { chain: "arbitrum", addr: feeds.arbitrum["BTC / USD"] },
-    "ETH":  { chain: "arbitrum", addr: feeds.arbitrum["ETH / USD"] },
-    "SOL":  { chain: "arbitrum", addr: feeds.arbitrum["SOL / USD"] },
-    "XRP":  { chain: "arbitrum", addr: feeds.arbitrum["XRP / USD"] },
-    "AVAX": { chain: "arbitrum", addr: feeds.arbitrum["AVAX / USD"] },
-    "DOGE": { chain: "arbitrum", addr: feeds.arbitrum["DOGE / USD"] },
-    "ADA":  { chain: "arbitrum", addr: feeds.arbitrum["ADA / USD"] },
-    "DOT":  { chain: "arbitrum", addr: feeds.arbitrum["DOT / USD"] },
-    "LINK": { chain: "arbitrum", addr: feeds.arbitrum["LINK / USD"] },
+  "🪙 Crypto": {
+    "₿ BTC":  { chain: "arbitrum", addr: feeds.arbitrum["BTC / USD"] },
+    "⟠ ETH":  { chain: "arbitrum", addr: feeds.arbitrum["ETH / USD"] },
+    "◎ SOL":  { chain: "arbitrum", addr: feeds.arbitrum["SOL / USD"] },
+    "✕ XRP":  { chain: "arbitrum", addr: feeds.arbitrum["XRP / USD"] },
+    "🔺 AVAX": { chain: "arbitrum", addr: feeds.arbitrum["AVAX / USD"] },
+    "🐕 DOGE": { chain: "arbitrum", addr: feeds.arbitrum["DOGE / USD"] },
+    "🔵 ADA":  { chain: "arbitrum", addr: feeds.arbitrum["ADA / USD"] },
+    "⬡ DOT":  { chain: "arbitrum", addr: feeds.arbitrum["DOT / USD"] },
+    "🔗 LINK": { chain: "arbitrum", addr: feeds.arbitrum["LINK / USD"] },
   },
-  "Forex": {
+  "💱 Forex": {
     "EUR": { chain: "arbitrum", addr: feeds.arbitrum["EUR / USD"], flag: "🇪🇺" },
     "GBP": { chain: "arbitrum", addr: feeds.arbitrum["GBP / USD"], flag: "🇬🇧" },
     "JPY": { chain: "arbitrum", addr: feeds.arbitrum["JPY / USD"], flag: "🇯🇵" },
@@ -265,21 +265,21 @@ const SECTIONS = {
     "TRY": { chain: "arbitrum", addr: feeds.arbitrum["TRY / USD"], flag: "🇹🇷" },
     "ARS": { chain: "ethereum", addr: feeds.ethereum["ARS / USD"],  flag: "🇦🇷" },
   },
-  "Equities": {
-    "AAPL":  { chain: "arbitrum", addr: feeds.arbitrum["AAPL / USD"] },
-    "MSFT":  { chain: "arbitrum", addr: feeds.arbitrum["MSFT / USD"] },
-    "AMZN":  { chain: "arbitrum", addr: feeds.arbitrum["AMZN / USD"] },
-    "NVDA":  { chain: "arbitrum", addr: feeds.arbitrum["NVDA / USD"] },
-    "GOOGL": { chain: "arbitrum", addr: feeds.arbitrum["GOOGL / USD"] },
-    "META":  { chain: "arbitrum", addr: feeds.arbitrum["META / USD"] },
-    "TSLA":  { chain: "arbitrum", addr: feeds.arbitrum["TSLA / USD"] },
-    "COIN":  { chain: "arbitrum", addr: feeds.arbitrum["COIN / USD"] },
-    "SPY":   { chain: "arbitrum", addr: feeds.arbitrum["SPY / USD"] },
+  "📈 Equities": {
+    "🍎 AAPL":  { chain: "arbitrum", addr: feeds.arbitrum["AAPL / USD"] },
+    "🪟 MSFT":  { chain: "arbitrum", addr: feeds.arbitrum["MSFT / USD"] },
+    "📦 AMZN":  { chain: "arbitrum", addr: feeds.arbitrum["AMZN / USD"] },
+    "🟢 NVDA":  { chain: "arbitrum", addr: feeds.arbitrum["NVDA / USD"] },
+    "🔍 GOOGL": { chain: "arbitrum", addr: feeds.arbitrum["GOOGL / USD"] },
+    "👤 META":  { chain: "arbitrum", addr: feeds.arbitrum["META / USD"] },
+    "⚡ TSLA":  { chain: "arbitrum", addr: feeds.arbitrum["TSLA / USD"] },
+    "🪙 COIN":  { chain: "arbitrum", addr: feeds.arbitrum["COIN / USD"] },
+    "🕵️ SPY":   { chain: "arbitrum", addr: feeds.arbitrum["SPY / USD"] },
   },
-  "Commodities": {
-    "Gold (XAU)":  { chain: "arbitrum", addr: feeds.arbitrum["XAU / USD"] },
-    "Silver (XAG)":{ chain: "arbitrum", addr: feeds.arbitrum["XAG / USD"] },
-    "Oil (WTI)":   { chain: "arbitrum", addr: feeds.arbitrum["WTI / USD"] },
+  "⛏️ Commodities": {
+    "🥇 Gold (XAU)":   { chain: "arbitrum", addr: feeds.arbitrum["XAU / USD"] },
+    "🥈 Silver (XAG)": { chain: "arbitrum", addr: feeds.arbitrum["XAG / USD"] },
+    "🛢️ Oil (WTI)":    { chain: "arbitrum", addr: feeds.arbitrum["WTI / USD"] },
   },
 };
 
