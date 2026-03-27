@@ -28,9 +28,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm build
-      - run: pnpm publish --no-git-checks --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ""
+      - run: npm publish --access public --provenance
 
   publish-crates:
     name: Publish to crates.io
