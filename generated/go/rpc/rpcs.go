@@ -4,8 +4,8 @@ package rpc
 // The first endpoint in each slice is the primary/official one.
 var DefaultRPCs = map[string][]string{
 	"ethereum": {
-		"https://cloudflare-eth.com",
 		"https://ethereum-rpc.publicnode.com",
+		"https://cloudflare-eth.com",
 		"https://eth.drpc.org",
 	},
 	"polygon": {
@@ -14,8 +14,8 @@ var DefaultRPCs = map[string][]string{
 		"https://polygon.drpc.org",
 	},
 	"arbitrum": {
-		"https://arb1.arbitrum.io/rpc",
 		"https://arbitrum-one-rpc.publicnode.com",
+		"https://arb1.arbitrum.io/rpc",
 		"https://arbitrum.drpc.org",
 	},
 	"base": {

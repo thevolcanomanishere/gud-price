@@ -3,9 +3,9 @@
 /// Get the primary public RPC endpoint for a chain.
 pub fn rpc(chain: &str) -> &'static str {
     match chain {
-        "ethereum" => "https://cloudflare-eth.com",
+        "ethereum" => "https://ethereum-rpc.publicnode.com",
         "polygon" => "https://polygon-rpc.com",
-        "arbitrum" => "https://arb1.arbitrum.io/rpc",
+        "arbitrum" => "https://arbitrum-one-rpc.publicnode.com",
         "base" => "https://mainnet.base.org",
         "optimism" => "https://mainnet.optimism.io",
         "avalanche" => "https://api.avax.network/ext/bc/C/rpc",
@@ -28,9 +28,9 @@ pub fn rpc(chain: &str) -> &'static str {
 /// Get all public RPC endpoints for a chain.
 pub fn rpcs(chain: &str) -> &'static [&'static str] {
     match chain {
-        "ethereum" => &["https://cloudflare-eth.com", "https://ethereum-rpc.publicnode.com", "https://eth.drpc.org"],
+        "ethereum" => &["https://ethereum-rpc.publicnode.com", "https://cloudflare-eth.com", "https://eth.drpc.org"],
         "polygon" => &["https://polygon-rpc.com", "https://polygon-bor-rpc.publicnode.com", "https://polygon.drpc.org"],
-        "arbitrum" => &["https://arb1.arbitrum.io/rpc", "https://arbitrum-one-rpc.publicnode.com", "https://arbitrum.drpc.org"],
+        "arbitrum" => &["https://arbitrum-one-rpc.publicnode.com", "https://arb1.arbitrum.io/rpc", "https://arbitrum.drpc.org"],
         "base" => &["https://mainnet.base.org", "https://base-rpc.publicnode.com", "https://base.drpc.org"],
         "optimism" => &["https://mainnet.optimism.io", "https://optimism-rpc.publicnode.com", "https://optimism.drpc.org"],
         "avalanche" => &["https://api.avax.network/ext/bc/C/rpc", "https://avalanche-c-chain-rpc.publicnode.com", "https://avalanche.drpc.org"],

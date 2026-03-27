@@ -2,8 +2,8 @@
 
 rpcs: dict[str, list[str]] = {
     "ethereum": [
-        "https://cloudflare-eth.com",
         "https://ethereum-rpc.publicnode.com",
+        "https://cloudflare-eth.com",
         "https://eth.drpc.org",
     ],
     "polygon": [
@@ -12,8 +12,8 @@ rpcs: dict[str, list[str]] = {
         "https://polygon.drpc.org",
     ],
     "arbitrum": [
-        "https://arb1.arbitrum.io/rpc",
         "https://arbitrum-one-rpc.publicnode.com",
+        "https://arb1.arbitrum.io/rpc",
         "https://arbitrum.drpc.org",
     ],
     "base": [

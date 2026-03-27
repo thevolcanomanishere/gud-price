@@ -1,8 +1,8 @@
 /** Default public RPC endpoints per chain. First entry is primary. */
 export const rpcs = {
   ethereum: [
-    "https://cloudflare-eth.com",
     "https://ethereum-rpc.publicnode.com",
+    "https://cloudflare-eth.com",
     "https://eth.drpc.org",
   ],
   polygon: [
@@ -11,8 +11,8 @@ export const rpcs = {
     "https://polygon.drpc.org",
   ],
   arbitrum: [
-    "https://arb1.arbitrum.io/rpc",
     "https://arbitrum-one-rpc.publicnode.com",
+    "https://arb1.arbitrum.io/rpc",
     "https://arbitrum.drpc.org",
   ],
   base: [

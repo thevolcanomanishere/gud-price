@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -134,11 +135,20 @@ def eth_call(rpc_url: str, to: str, data: str) -> str:
         headers={"Content-Type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(req) as resp:
-        body = json.loads(resp.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f"RPC HTTP error {e.code}: {e.read().decode('utf-8', errors='replace')}")
+    except urllib.error.URLError as e:
+        raise RuntimeError(f"RPC connection error: {e.reason}")
 
     if "error" in body and body["error"]:
-        msg = body["error"].get("message", str(body["error"]))
+        err = body["error"]
+        if isinstance(err, dict):
+            msg = err.get("message", str(err))
+        else:
+            msg = str(err)
         raise RuntimeError(f"RPC error: {msg}")
     return body["result"]
 
