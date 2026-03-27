@@ -1,6 +1,6 @@
 [package]
 name = "gud-price"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 description = "Zero-dependency Chainlink price feed reader for any EVM chain"
 license = "MIT"
