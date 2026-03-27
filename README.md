@@ -120,13 +120,12 @@ cargo add gud-price
 ```
 
 ```rust
-use gud_price::rpc;
-use gud_price::ethereum;
+use gud_price::rpc::read_latest_price;
+use gud_price::ethereum::EUR_USD;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let data = rpc::read_latest_price(ethereum::EUR_USD, None)?;
+fn main() {
+    let data = read_latest_price(EUR_USD, None).unwrap();
     println!("EUR/USD: {}", data.answer);
-    Ok(())
 }
 ```
 
