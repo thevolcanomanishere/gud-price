@@ -144,9 +144,7 @@ def _resolve_urls(address: str, rpc_url: Optional[str]) -> list[str]:
 
     chain = feed_chain(address)
     if chain is None:
-        raise RuntimeError(
-            f"Unknown feed address: {address}. Pass an RPC URL as the second argument."
-        )
+        raise RuntimeError(f"Unknown feed address: {address}. Pass an RPC URL as the second argument.")
     urls = rpcs.get(chain, [])
     if not urls:
         raise RuntimeError(f"No RPC endpoints for chain: {chain}")
@@ -254,9 +252,7 @@ def read_latest_price(address: str, rpc_url: Optional[str] = None) -> RoundData:
     return _format_round(_parse_round_data_raw(hex_data), meta.decimals, meta.description)
 
 
-def read_latest_price_with_meta(
-    address: str, meta: FeedMetadata, rpc_url: Optional[str] = None
-) -> RoundData:
+def read_latest_price_with_meta(address: str, meta: FeedMetadata, rpc_url: Optional[str] = None) -> RoundData:
     """Read the latest price using pre-fetched metadata (saves 2 RPC calls)."""
     hex_data = _eth_call_fallback(address, SEL_LATEST_ROUND_DATA, rpc_url)
     return _format_round(_parse_round_data_raw(hex_data), meta.decimals, meta.description)
@@ -271,9 +267,7 @@ def read_latest_price_raw(address: str, rpc_url: Optional[str] = None) -> RoundD
 def read_price_at_round(address: str, round_id: int, rpc_url: Optional[str] = None) -> RoundData:
     """Read the price at a specific Chainlink round ID."""
     meta = read_feed_metadata(address, rpc_url)
-    hex_data = _eth_call_fallback(
-        address, SEL_GET_ROUND_DATA + encode_uint(round_id), rpc_url
-    )
+    hex_data = _eth_call_fallback(address, SEL_GET_ROUND_DATA + encode_uint(round_id), rpc_url)
     return _format_round(_parse_round_data_raw(hex_data), meta.decimals, meta.description)
 
 
@@ -291,15 +285,11 @@ def read_aggregator(address: str, rpc_url: Optional[str] = None) -> str:
 
 def read_phase_aggregator(address: str, phase_id: int, rpc_url: Optional[str] = None) -> str:
     """Read the aggregator contract address for a specific phase."""
-    hex_data = _eth_call_fallback(
-        address, SEL_PHASE_AGGREGATORS + encode_uint(phase_id), rpc_url
-    )
+    hex_data = _eth_call_fallback(address, SEL_PHASE_AGGREGATORS + encode_uint(phase_id), rpc_url)
     return "0x" + hex_data[26:66]
 
 
-def read_prices(
-    feeds: Dict[str, str], rpc_url: Optional[str] = None
-) -> Dict[str, RoundData]:
+def read_prices(feeds: Dict[str, str], rpc_url: Optional[str] = None) -> Dict[str, RoundData]:
     """Read latest prices from multiple Chainlink feeds."""
     result: Dict[str, RoundData] = {}
     for name, address in feeds.items():

@@ -18,11 +18,7 @@ export {
   formatPrice,
 } from "./rpc.js";
 
-export type {
-  RoundData,
-  RoundDataRaw,
-  FeedMetadata,
-} from "./rpc.js";
+export type { RoundData, RoundDataRaw, FeedMetadata } from "./rpc.js";
 
 // Default public RPC endpoints per chain
 export { rpcs, rpc } from "./rpcs.js";

@@ -95,7 +95,7 @@ function mockFetch(responses: Record<string, string>) {
 describe("readFeedMetadata", () => {
   test("returns decimals and description", async () => {
     mockFetch({
-      "0x313ce567": hexWords(8n),           // decimals
+      "0x313ce567": hexWords(8n), // decimals
       "0x7284e416": hexString("ETH / USD"), // description
     });
 
@@ -110,7 +110,13 @@ describe("readLatestPrice", () => {
     mockFetch({
       "0x313ce567": hexWords(8n),
       "0x7284e416": hexString("ETH / USD"),
-      "0xfeaf968c": hexWords(100n, 180000000000n, 1700000000n, 1700000001n, 100n),
+      "0xfeaf968c": hexWords(
+        100n,
+        180000000000n,
+        1700000000n,
+        1700000001n,
+        100n,
+      ),
     });
 
     const data = await readLatestPrice("0xabc", "http://rpc");
@@ -126,7 +132,13 @@ describe("readLatestPrice", () => {
 describe("readLatestPriceRaw", () => {
   test("returns raw bigint values", async () => {
     mockFetch({
-      "0xfeaf968c": hexWords(100n, 180000000000n, 1700000000n, 1700000001n, 100n),
+      "0xfeaf968c": hexWords(
+        100n,
+        180000000000n,
+        1700000000n,
+        1700000001n,
+        100n,
+      ),
     });
 
     const data = await readLatestPriceRaw("0xabc", "http://rpc");
@@ -141,13 +153,19 @@ describe("readLatestPriceRaw", () => {
 describe("readLatestPriceWithMeta", () => {
   test("uses provided metadata instead of fetching", async () => {
     const calls = mockFetch({
-      "0xfeaf968c": hexWords(50n, 4200000000000n, 1700000000n, 1700000001n, 50n),
+      "0xfeaf968c": hexWords(
+        50n,
+        4200000000000n,
+        1700000000n,
+        1700000001n,
+        50n,
+      ),
     });
 
     const data = await readLatestPriceWithMeta(
       "0xabc",
       { decimals: 8, description: "BTC / USD" },
-      "http://rpc"
+      "http://rpc",
     );
 
     expect(data.answer).toBe("42000");
@@ -162,7 +180,13 @@ describe("readPriceAtRound", () => {
     const calls = mockFetch({
       "0x313ce567": hexWords(8n),
       "0x7284e416": hexString("BTC / USD"),
-      "0x9a6fc8f5": hexWords(50n, 4200000000000n, 1700000000n, 1700000001n, 50n),
+      "0x9a6fc8f5": hexWords(
+        50n,
+        4200000000000n,
+        1700000000n,
+        1700000001n,
+        50n,
+      ),
     });
 
     const data = await readPriceAtRound("0xabc", 50n, "http://rpc");
@@ -219,10 +243,13 @@ describe("readPrices", () => {
       "0xfeaf968c": hexWords(1n, 180000000000n, 1700000000n, 1700000001n, 1n),
     });
 
-    const results = await readPrices({
-      "ETH / USD": "0xaaa",
-      "BTC / USD": "0xbbb",
-    }, "http://rpc");
+    const results = await readPrices(
+      {
+        "ETH / USD": "0xaaa",
+        "BTC / USD": "0xbbb",
+      },
+      "http://rpc",
+    );
 
     expect(Object.keys(results)).toHaveLength(2);
     expect(results["ETH / USD"]).toBeDefined();
@@ -241,9 +268,9 @@ describe("RPC error handling", () => {
       }),
     })) as any;
 
-    await expect(
-      readLatestPriceRaw("0xabc", "http://rpc")
-    ).rejects.toThrow("RPC error: execution reverted");
+    await expect(readLatestPriceRaw("0xabc", "http://rpc")).rejects.toThrow(
+      "RPC error: execution reverted",
+    );
   });
 });
 

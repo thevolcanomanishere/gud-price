@@ -1,20 +1,15 @@
 """Tests for the Chainlink RPC client (rpc.py)."""
 
-import io
 import json
 import unittest
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 from gud_price.rpc import (
+    SEL_DECIMALS,
+    FeedMetadata,
     RoundData,
     RoundDataRaw,
-    FeedMetadata,
-    SEL_DECIMALS,
-    SEL_DESCRIPTION,
-    SEL_LATEST_ROUND_DATA,
-    SEL_AGGREGATOR,
-    SEL_PHASE_ID,
     decode_string,
     encode_uint,
     eth_call,
@@ -26,8 +21,8 @@ from gud_price.rpc import (
     read_latest_price_with_meta,
     read_phase_id,
     read_prices,
-    read_word,
     read_signed_word,
+    read_word,
 )
 
 RPC_URL = "https://rpc.example.com"
@@ -141,9 +136,7 @@ class TestEthCall(unittest.TestCase):
 
     @patch("gud_price.rpc.urllib.request.urlopen")
     def test_rpc_error_raises(self, mock_urlopen):
-        error_resp = json.dumps(
-            {"jsonrpc": "2.0", "id": 1, "error": {"message": "execution reverted"}}
-        ).encode()
+        error_resp = json.dumps({"jsonrpc": "2.0", "id": 1, "error": {"message": "execution reverted"}}).encode()
         mock_urlopen.return_value = _mock_urlopen(error_resp)
         with self.assertRaises(RuntimeError) as ctx:
             eth_call(RPC_URL, FEED_ADDR, SEL_DECIMALS)
@@ -179,14 +172,7 @@ class TestReadFeedMetadata(unittest.TestCase):
 # Build a latestRoundData response:
 #   roundId=100, answer=350000000000 (3500.00 with 8 dec),
 #   startedAt=1700000000, updatedAt=1700000100, answeredInRound=100
-_ROUND_HEX = (
-    "0x"
-    + _pad_word(100)
-    + _pad_word(350000000000)
-    + _pad_word(1700000000)
-    + _pad_word(1700000100)
-    + _pad_word(100)
-)
+_ROUND_HEX = "0x" + _pad_word(100) + _pad_word(350000000000) + _pad_word(1700000000) + _pad_word(1700000100) + _pad_word(100)
 
 
 class TestReadLatestPriceRaw(unittest.TestCase):

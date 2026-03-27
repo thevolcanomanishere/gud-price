@@ -20,3 +20,10 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/thevolcanomanishere/gud-price"
 Repository = "https://github.com/thevolcanomanishere/gud-price"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 140
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

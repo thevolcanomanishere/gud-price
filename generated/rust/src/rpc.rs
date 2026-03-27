@@ -114,11 +114,7 @@ pub fn format_price(raw: i128, decimals: u8) -> String {
     let d = decimals as usize;
 
     if d == 0 {
-        return if negative {
-            format!("-{}", s)
-        } else {
-            s
-        };
+        return if negative { format!("-{}", s) } else { s };
     }
 
     // Pad so that we have at least decimals+1 digits.
@@ -189,8 +185,12 @@ fn sort_by_health(urls: &[&str]) -> Vec<String> {
     if let Some(map) = guard.as_ref() {
         let now = Instant::now();
         sorted.sort_by(|a, b| {
-            let a_healthy = map.get(a).map_or(true, |t| now.duration_since(*t).as_secs() > COOLDOWN_SECS);
-            let b_healthy = map.get(b).map_or(true, |t| now.duration_since(*t).as_secs() > COOLDOWN_SECS);
+            let a_healthy = map
+                .get(a)
+                .is_none_or(|t| now.duration_since(*t).as_secs() > COOLDOWN_SECS);
+            let b_healthy = map
+                .get(b)
+                .is_none_or(|t| now.duration_since(*t).as_secs() > COOLDOWN_SECS);
             b_healthy.cmp(&a_healthy)
         });
     }
@@ -199,12 +199,19 @@ fn sort_by_health(urls: &[&str]) -> Vec<String> {
 
 // ---- URL resolution -----------------------------------------------------------
 
-fn resolve_urls<'a>(contract_address: &str, rpc_url: Option<&'a str>) -> Result<Vec<&'a str>, String> {
+fn resolve_urls<'a>(
+    contract_address: &str,
+    rpc_url: Option<&'a str>,
+) -> Result<Vec<&'a str>, String> {
     if let Some(url) = rpc_url {
         return Ok(vec![url]);
     }
-    let chain = crate::feed_chains::feed_chain(contract_address)
-        .ok_or_else(|| format!("Unknown feed address: {}. Pass an RPC URL.", contract_address))?;
+    let chain = crate::feed_chains::feed_chain(contract_address).ok_or_else(|| {
+        format!(
+            "Unknown feed address: {}. Pass an RPC URL.",
+            contract_address
+        )
+    })?;
     let urls = crate::rpcs::rpcs(chain);
     if urls.is_empty() {
         return Err(format!("No RPC endpoints for chain: {}", chain));
@@ -247,9 +254,13 @@ pub fn eth_call(rpc_url: &str, to: &str, data: &str) -> Result<String, String> {
 }
 
 /// Perform an `eth_call` with fallback across multiple URLs.
-fn eth_call_fallback(contract_address: &str, data: &str, rpc_url: Option<&str>) -> Result<String, String> {
+fn eth_call_fallback(
+    contract_address: &str,
+    data: &str,
+    rpc_url: Option<&str>,
+) -> Result<String, String> {
     let urls = resolve_urls(contract_address, rpc_url)?;
-    let sorted = sort_by_health(&urls.iter().map(|s| *s).collect::<Vec<_>>());
+    let sorted = sort_by_health(&urls);
     let mut last_err = String::new();
     for url in &sorted {
         match eth_call(url, contract_address, data) {
@@ -266,7 +277,10 @@ fn eth_call_fallback(contract_address: &str, data: &str, rpc_url: Option<&str>) 
 // ---- Public API ---------------------------------------------------------------
 
 /// Read the decimals and description from a Chainlink price feed contract.
-pub fn read_feed_metadata(contract_address: &str, rpc_url: Option<&str>) -> Result<FeedMetadata, String> {
+pub fn read_feed_metadata(
+    contract_address: &str,
+    rpc_url: Option<&str>,
+) -> Result<FeedMetadata, String> {
     let dec_hex = eth_call_fallback(contract_address, SEL_DECIMALS, rpc_url)?;
     let desc_hex = eth_call_fallback(contract_address, SEL_DESCRIPTION, rpc_url)?;
     Ok(parse_feed_metadata(&dec_hex, &desc_hex))
@@ -574,10 +588,7 @@ mod tests {
     #[test]
     fn test_format_price_one_wei() {
         // 1 with 18 decimals => 0.000000000000000001
-        assert_eq!(
-            format_price(1, 18),
-            "0.000000000000000001"
-        );
+        assert_eq!(format_price(1, 18), "0.000000000000000001");
     }
 
     #[test]
@@ -618,10 +629,8 @@ mod tests {
     #[test]
     #[ignore]
     fn test_live_ethereum_eth_usd() {
-        let data = read_latest_price(
-            "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
-            None,
-        ).expect("RPC call failed");
+        let data = read_latest_price("0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", None)
+            .expect("RPC call failed");
         assert_eq!(data.description, "ETH / USD");
         let price: f64 = data.answer.parse().unwrap();
         assert!(price > 0.0, "price should be positive, got {}", price);
@@ -631,10 +640,8 @@ mod tests {
     #[test]
     #[ignore]
     fn test_live_polygon_btc_usd() {
-        let data = read_latest_price(
-            "0xc907E116054Ad103354f2D350FD2514433D57F6f",
-            None,
-        ).expect("RPC call failed");
+        let data = read_latest_price("0xc907E116054Ad103354f2D350FD2514433D57F6f", None)
+            .expect("RPC call failed");
         assert_eq!(data.description, "BTC / USD");
         let price: f64 = data.answer.parse().unwrap();
         assert!(price > 0.0);
@@ -644,10 +651,8 @@ mod tests {
     #[test]
     #[ignore]
     fn test_live_arbitrum_eth_usd() {
-        let data = read_latest_price(
-            "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612",
-            None,
-        ).expect("RPC call failed");
+        let data = read_latest_price("0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612", None)
+            .expect("RPC call failed");
         assert_eq!(data.description, "ETH / USD");
         let price: f64 = data.answer.parse().unwrap();
         assert!(price > 0.0);
@@ -657,10 +662,8 @@ mod tests {
     #[test]
     #[ignore]
     fn test_live_base_eth_usd() {
-        let data = read_latest_price(
-            "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70",
-            None,
-        ).expect("RPC call failed");
+        let data = read_latest_price("0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70", None)
+            .expect("RPC call failed");
         assert_eq!(data.description, "ETH / USD");
         let price: f64 = data.answer.parse().unwrap();
         assert!(price > 0.0);

@@ -1,8 +1,9 @@
 """Live RPC integration tests — require network access."""
 
-import unittest
 import signal
-from gud_price.rpc import read_latest_price, read_latest_price_raw, read_feed_metadata, read_prices
+import unittest
+
+from gud_price.rpc import read_feed_metadata, read_latest_price, read_latest_price_raw, read_prices
 
 
 def timeout_handler(signum, frame):

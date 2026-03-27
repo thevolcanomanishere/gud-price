@@ -3,9 +3,7 @@
 import re
 import unittest
 
-from gud_price import ethereum
-from gud_price import polygon
-
+from gud_price import ethereum, polygon
 
 HEX_ADDR_RE = re.compile(r"^0x[0-9a-fA-F]{40}$")
 
