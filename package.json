@@ -113,6 +113,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:live": "vitest run --config vitest.live.config.ts",
+    "update:rpcs": "node codegen/update-rpcs.js",
     "generate": "node codegen/generate.js",
     "generate:ts": "node codegen/generate.js --lang=ts",
     "updateAllFeeds": "tsx ./scraper/playwright.ts && prettier --write ./src/dataFeeds/*.ts",

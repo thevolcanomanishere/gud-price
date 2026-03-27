@@ -13,14 +13,14 @@ import { ethereumDataFeeds } from "../dataFeeds/ethereum.js";
 import { arbitrumDataFeeds } from "../dataFeeds/arbitrum.js";
 import { baseDataFeeds } from "../dataFeeds/base.js";
 
-import { rpc } from "../rpcs.js";
+import { rpcs } from "../rpcs.js";
 
-// ─── Public RPCs (from built-in defaults) ────────────────────────────────────
+// ─── Public RPCs (full fallback lists) ───────────────────────────────────────
 
-const POLYGON_RPC = rpc("polygon");
-const ETHEREUM_RPC = rpc("ethereum");
-const ARBITRUM_RPC = rpc("arbitrum");
-const BASE_RPC = rpc("base");
+const POLYGON_RPC = [...rpcs.polygon];
+const ETHEREUM_RPC = [...rpcs.ethereum];
+const ARBITRUM_RPC = [...rpcs.arbitrum];
+const BASE_RPC = [...rpcs.base];
 
 // ─── Polygon ─────────────────────────────────────────────────────────────────
 
