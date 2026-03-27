@@ -92,7 +92,8 @@ release:
 	sed -i '' "s/^version = .*/version = \"$(VERSION)\"/" generated/rust/Cargo.toml
 	sed -i '' "s/^version = .*/version = \"$(VERSION)\"/" generated/python/pyproject.toml
 	sed -i '' "s/.version = \".*\"/.version = \"$(VERSION)\"/" generated/zig/build.zig.zon
-	git add package.json generated/rust/Cargo.toml generated/python/pyproject.toml generated/zig/build.zig.zon
+	cd generated/rust && cargo update --package gud-price
+	git add package.json generated/rust/Cargo.toml generated/rust/Cargo.lock generated/python/pyproject.toml generated/zig/build.zig.zon
 	git commit -m "chore: release v$(VERSION)"
 	git tag v$(VERSION)
 	git push
