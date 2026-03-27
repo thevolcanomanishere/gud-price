@@ -25,6 +25,9 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org
 
+      - name: Upgrade npm for OIDC support (requires >= 11.5.1)
+        run: npm install -g npm@latest
+
       - name: Remove injected auth from npmrc so OIDC can authenticate
         run: sed -i '/_authToken/d' "$NPM_CONFIG_USERCONFIG"
 
@@ -32,6 +35,8 @@ jobs:
 
       - run: pnpm build
       - run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ""
 
   publish-crates:
     name: Publish to crates.io
