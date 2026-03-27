@@ -1,4 +1,4 @@
-.PHONY: all test lint format build generate clean
+.PHONY: all test lint format build generate clean release
 
 all: lint test build
 
@@ -81,3 +81,20 @@ build:
 clean:
 	rm -rf dist
 	cd generated/rust && cargo clean
+
+# ── Release ──────────────────────────────────────────────────────────────────
+# Usage: make release VERSION=1.2.3
+
+release:
+	@test -n "$(VERSION)" || (echo "Usage: make release VERSION=x.y.z" && exit 1)
+	@echo "Releasing v$(VERSION)..."
+	pnpm version $(VERSION) --no-git-tag-version
+	sed -i '' "s/^version = .*/version = \"$(VERSION)\"/" generated/rust/Cargo.toml
+	sed -i '' "s/^version = .*/version = \"$(VERSION)\"/" generated/python/pyproject.toml
+	sed -i '' "s/.version = \".*\"/.version = \"$(VERSION)\"/" generated/zig/build.zig.zon
+	git add package.json generated/rust/Cargo.toml generated/python/pyproject.toml generated/zig/build.zig.zon
+	git commit -m "chore: release v$(VERSION)"
+	git tag v$(VERSION)
+	git push
+	git push origin v$(VERSION)
+	@echo "Released v$(VERSION) — CI is now publishing to all registries."
