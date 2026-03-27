@@ -71,81 +71,29 @@ All implementations are zero-dependency (or minimal-dependency) and use raw JSON
 npm install gud-price
 ```
 
-### Forex rates
-
 ```typescript
 import { readLatestPrice } from "gud-price/rpc";
-import { EUR_USD, GBP_USD, JPY_USD } from "gud-price/feeds/ethereum";
+import { EUR_USD, BTC_USD } from "gud-price/feeds/ethereum";
+import { AAPL_USD, TSLA_USD } from "gud-price/feeds/arbitrum";
 
-const eur = await readLatestPrice(EUR_USD);
-const gbp = await readLatestPrice(GBP_USD);
-const jpy = await readLatestPrice(JPY_USD);
+const [eur, btc, aapl, tsla] = await Promise.all([
+  readLatestPrice(EUR_USD),
+  readLatestPrice(BTC_USD),
+  readLatestPrice(AAPL_USD),
+  readLatestPrice(TSLA_USD),
+]);
 
-console.log(`EUR/USD: ${eur.answer}`); // "1.0847"
-console.log(`GBP/USD: ${gbp.answer}`); // "1.2634"
-console.log(`JPY/USD: ${jpy.answer}`); // "0.0067"
-```
-
-### Stock prices
-
-```typescript
-import { readPrices } from "gud-price/rpc";
-import { AAPL_USD, TSLA_USD, AMZN_USD, GOOGL_USD } from "gud-price/feeds/arbitrum";
-
-const prices = await readPrices({
-  "Apple": AAPL_USD,
-  "Tesla": TSLA_USD,
-  "Amazon": AMZN_USD,
-  "Google": GOOGL_USD,
-});
-
-for (const [name, data] of Object.entries(prices)) {
-  console.log(`${name}: $${data.answer}`);
-}
-```
-
-### Crypto prices
-
-```typescript
-import { readLatestPrice } from "gud-price/rpc";
-import { ETH_USD, BTC_USD } from "gud-price/feeds/ethereum";
-
-const eth = await readLatestPrice(ETH_USD);
-console.log(`ETH/USD: $${eth.answer}`);
-```
-
-### Reuse metadata for polling
-
-```typescript
-import { readFeedMetadata, readLatestPriceWithMeta } from "gud-price/rpc";
-import { EUR_USD } from "gud-price/feeds/polygon";
-
-const meta = await readFeedMetadata(EUR_USD);
-
-// Each call is now 1 RPC request instead of 3
-setInterval(async () => {
-  const data = await readLatestPriceWithMeta(EUR_USD, meta);
-  console.log(`EUR/USD: ${data.answer}`);
-}, 5000);
-```
-
-### Tree-shaking
-
-```typescript
-// Single address -- 67 bytes bundled
-import { EUR_USD } from "gud-price/feeds/ethereum";
-
-// RPC client only -- ~1.4 KB
-import { readLatestPrice } from "gud-price/rpc";
-
-// Full chain map
-import { ethereumDataFeeds } from "gud-price/feeds/ethereum";
-
-// Barrel import (all chains + RPC)
-import { readLatestPrice, ethereumDataFeeds } from "gud-price";
+console.log(`EUR/USD: ${eur.answer}`);
+console.log(`BTC/USD: $${btc.answer}`);
+console.log(`AAPL:    $${aapl.answer}`);
+console.log(`TSLA:    $${tsla.answer}`);
 ```
 
 ## Go
+
+```bash
+go get github.com/thevolcanomanishere/gud-price/generated/go
+```
 
 ```go
 package main
@@ -167,6 +115,10 @@ func main() {
 
 ## Rust
 
+```bash
+cargo add gud-price
+```
+
 ```rust
 use gud_price::rpc;
 use gud_price::ethereum;
@@ -180,12 +132,33 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Python
 
+```bash
+pip install gud-price
+```
+
 ```python
 from gud_price.rpc import read_latest_price
 from gud_price.ethereum import EUR_USD
 
 data = read_latest_price(EUR_USD)
 print(f"EUR/USD: {data.answer}")
+```
+
+## Zig
+
+Add to `build.zig.zon`:
+
+```bash
+zig fetch --save https://github.com/thevolcanomanishere/gud-price/archive/refs/tags/v0.1.0.tar.gz
+```
+
+```zig
+const gud_price = @import("gud-price");
+
+pub fn main() !void {
+    const price = try gud_price.readLatestPrice(gud_price.ethereum.EUR_USD, null);
+    std.debug.print("EUR/USD: {s}\n", .{price.answer});
+}
 ```
 
 ## API (all languages)
