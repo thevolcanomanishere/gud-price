@@ -2,8 +2,7 @@ export const _1INCH_USD = "0x443C5116CdF663Eb387e72C688D276e702135C87" as const;
 export const AAPL_USD = "0x7E7B45b08F68EC69A99AAb12e42FcCB078e10094" as const;
 export const AAVE_ETH = "0xbE23a3AA13038CfC28aFd0ECe4FdE379fE7fBfc4" as const;
 export const AAVE_USD = "0x72484B12719E23115761D5DA1646945632979bB6" as const;
-export const AAVE_Network_Emergency_Count_Polygon =
-  "0xDAFA1989A504c48Ee20a582f2891eeB25E2fA23F" as const;
+export const AAVE_Network_Emergency_Count_Polygon = "0xDAFA1989A504c48Ee20a582f2891eeB25E2fA23F" as const;
 export const ADA_USD = "0x882554df528115a743c4537828DA8D5B58e52544" as const;
 export const ALGO_USD = "0x03Bc6D9EFed65708D35fDaEfb25E87631a0a3437" as const;
 export const AMZN_USD = "0xf9184b8E5da48C19fA4E06f83f77742e748cca96" as const;
@@ -14,34 +13,26 @@ export const AXS_USD = "0x9c371aE34509590E10aB98205d2dF5936A1aD875" as const;
 export const BAL_ETH = "0x03CD157746c61F44597dD54C6f6702105258C722" as const;
 export const BAL_USD = "0xD106B538F2A868c28Ca1Ec7E298C3325E0251d66" as const;
 export const BAT_USD = "0x2346Ce62bd732c62618944E51cbFa09D985d86D2" as const;
-export const bC3M_Reserves =
-  "0x648E0fF6A36D58F6FCE5927cB77601b73cAdc2Af" as const;
+export const bC3M_Reserves = "0x648E0fF6A36D58F6FCE5927cB77601b73cAdc2Af" as const;
 export const BCH_USD = "0x327d9822e9932996f55b39F557AEC838313da8b7" as const;
-export const bCSPX_Reserves =
-  "0x55e75d35c44A9EE1A5b05416640965EbcA4a8D33" as const;
-export const bIB01_Reserves =
-  "0xad4395fc414Fc1575A7a38C20B0Bfdbdb09ee41A" as const;
-export const bIBTA_Reserves =
-  "0x4517002fCD31062Ea38680dF9Ee37f29528C2707" as const;
+export const bCSPX_Reserves = "0x55e75d35c44A9EE1A5b05416640965EbcA4a8D33" as const;
+export const bIB01_Reserves = "0xad4395fc414Fc1575A7a38C20B0Bfdbdb09ee41A" as const;
+export const bIBTA_Reserves = "0x4517002fCD31062Ea38680dF9Ee37f29528C2707" as const;
 export const BNB_USD = "0x82a6c4AF830caa6c97bb504425f6A66165C2c26e" as const;
-export const bNVDA_Reserves_Proof_of_Reserves =
-  "0x0fB2beD999da86Cb1Fdd97E746600A96141EeA09" as const;
+export const bNVDA_Reserves_Proof_of_Reserves = "0x0fB2beD999da86Cb1Fdd97E746600A96141EeA09" as const;
 export const BRL_USD = "0xB90DA3ff54C3ED09115abf6FbA0Ff4645586af2c" as const;
 export const BTC_ETH = "0x19b0F0833C78c0848109E3842D34d2fDF2cA69BA" as const;
 export const BTC_USD = "0xc907E116054Ad103354f2D350FD2514433D57F6f" as const;
 export const CAD_USD = "0xACA44ABb8B04D07D883202F99FA5E3c53ed57Fb5" as const;
-export const Calculated_MaticX_USD =
-  "0x5d37E4b374E6907de8Fc7fb33EE3b0af403C7403" as const;
-export const Calculated_stMATIC_USD =
-  "0x97371dF4492605486e23Da797fA68e55Fc38a13f" as const;
+export const Calculated_MaticX_USD = "0x5d37E4b374E6907de8Fc7fb33EE3b0af403C7403" as const;
+export const Calculated_stMATIC_USD = "0x97371dF4492605486e23Da797fA68e55Fc38a13f" as const;
 export const CBETH_ETH = "0x0a6a03CdF7d0b48d4e4BA8e362A4FfC3aAC4f3c0" as const;
 export const CHF_USD = "0xc76f762CedF0F78a439727861628E0fdfE1e70c2" as const;
 export const CHZ_USD = "0x2409987e514Ad8B0973C2b90ee1D95051DF0ECB9" as const;
 export const CNY_USD = "0x04bB437Aa63E098236FA47365f0268547f6EAB32" as const;
 export const COMP_USD = "0x2A8758b7257102461BC958279054e372C2b1bDE6" as const;
 export const COP_USD = "0xfAA9147190c2C2cc5B8387B4f49016bDB3380572" as const;
-export const COPW_Reserves =
-  "0x1d22c334621364F16f050076eE15Acd5eb8225Ce" as const;
+export const COPW_Reserves = "0x1d22c334621364F16f050076eE15Acd5eb8225Ce" as const;
 export const CRV_ETH = "0x1CF68C76803c9A415bE301f50E82e44c64B7F1D4" as const;
 export const CRV_USD = "0x336584C8E6Dc19637A5b36206B1c79923111b405" as const;
 export const CVX_USD = "0x5ec151834040B4D453A1eA46aA634C1773b36084" as const;
@@ -63,8 +54,7 @@ export const GHST_USD = "0xDD229Ce42f11D8Ee7fFf29bDB71C7b81352e11be" as const;
 export const GOOGL_USD = "0x1b32682C033b2DD7EFdC615FA82d353e254F39b5" as const;
 export const GRT_USD = "0x3FabBfb300B1e2D7c9B84512fe9D30aeDF24C410" as const;
 export const HBAR_USD = "0xC5878bDf8a89FA3bF0DC8389ae8EE6DE601D01bC" as const;
-export const ibBTC_PricePerShare =
-  "0xc3E676E68dB28c9Fb2199f25B60560723237cc76" as const;
+export const ibBTC_PricePerShare = "0xc3E676E68dB28c9Fb2199f25B60560723237cc76" as const;
 export const ICP_USD = "0x84227A76a04289473057BEF706646199D7C58c34" as const;
 export const IDR_USD = "0x80a5cb83ce268Ed11a6EFC4bBF0beC39dF35Db21" as const;
 export const ILS_USD = "0x8d5eB34C509261533235b91350d359EdcB969D33" as const;
@@ -89,8 +79,7 @@ export const QNT_USD = "0xF7F291042F6Cbc4deC0Ad75c17786511a530dbe8" as const;
 export const rcUSD_NAV = "0x9199b9dF4519a435b4F515E8B43B5C2df4DD0b8c" as const;
 export const RDNT_USD = "0x70c69A2756AB7911EbD15DF88E1D4989BC4109d7" as const;
 export const RYT_NAV = "0xdefcBDC0a5f5fBBdF520dC97be8d6d025B18da05" as const;
-export const RYT_Polygon_Proof_of_Reserves =
-  "0x6b20c92A1D73A9232383DEcD698Ff559eFa0c31A" as const;
+export const RYT_Polygon_Proof_of_Reserves = "0x6b20c92A1D73A9232383DEcD698Ff559eFa0c31A" as const;
 export const SAND_USD = "0x3D49406EDd4D52Fb7FFd25485f32E073b529C924" as const;
 export const SEK_USD = "0xbd92B4919ae82be8473859295dEF0e778A626302" as const;
 export const SGD_USD = "0x8CE3cAc0E6635ce04783709ca3CC4F5fc5304299" as const;
@@ -100,14 +89,12 @@ export const SNX_USD = "0xbF90A5D9B6EE9019028dbFc2a9E50056d5252894" as const;
 export const SOL_USD = "0x10C8264C0935b3B9870013e057f330Ff3e9C56dC" as const;
 export const STORJ_USD = "0x0F1d5Bd7be9B30Fc09E110cd6504Bd450e53cb0E" as const;
 export const sUSDe_USD = "0xe71A04ACe06e2667c7e1c802E998CBf44A6bf53C" as const;
-export const sUSDe_USDe_Exchange_Rate =
-  "0xd1d85Bf11c28F878EE75BdC39387a2a15E0390b7" as const;
+export const sUSDe_USDe_Exchange_Rate = "0xd1d85Bf11c28F878EE75BdC39387a2a15E0390b7" as const;
 export const SUSHI_ETH = "0x17414Eb5159A082e8d41D243C1601c2944401431" as const;
 export const SUSHI_USD = "0x49B0c695039243BBfEb8EcD054EB70061fd54aa0" as const;
 export const THB_USD = "0x5164Ad28fb12a5e55946090Ec3eE1B748AFb3785" as const;
 export const THETA_USD = "0x38611b09F8f2D520c14eA973765C225Bf57B9Eac" as const;
-export const TRUMATIC_MATIC_Exchange_Rate =
-  "0xed7051d55eeaF85E36053D6b0f2C51E59625B047" as const;
+export const TRUMATIC_MATIC_Exchange_Rate = "0xed7051d55eeaF85E36053D6b0f2C51E59625B047" as const;
 export const TRX_USD = "0x307cCF7cBD17b69A487b9C3dbe483931Cf3E1833" as const;
 export const TRY_USD = "0xd78325DcA0F90F0FFe53cCeA1B02Bb12E1bf8FdB" as const;
 export const TSLA_USD = "0x567E67f456c7453c583B6eFA6F18452cDee1F5a8" as const;
@@ -124,10 +111,8 @@ export const WBTC_ETH = "0xA338e0492B2F944E9F8C0653D3AD1484f2657a37" as const;
 export const WBTC_USD = "0xDE31F8bFBD8c84b5360CFACCa3539B938dd78ae6" as const;
 export const WOO_USD = "0x6a99EC84819FB7007dd5D032068742604E755c56" as const;
 export const WSTETH_ETH = "0x10f964234cae09cB6a9854B56FF7D4F38Cda5E6a" as const;
-export const wstETH_stETH_Exchange_Rate =
-  "0x3Ea1eC855fBda8bA0396975eC260AD2e9B2Bc01c" as const;
-export const wstPOL_POL_Exchange_Rate =
-  "0x2A5e28b4F9Ecb01807CeEC25F7b0fcCafF3F6721" as const;
+export const wstETH_stETH_Exchange_Rate = "0x3Ea1eC855fBda8bA0396975eC260AD2e9B2Bc01c" as const;
+export const wstPOL_POL_Exchange_Rate = "0x2A5e28b4F9Ecb01807CeEC25F7b0fcCafF3F6721" as const;
 export const XAG_USD = "0x461c7B8D370a240DdB46B402748381C3210136b3" as const;
 export const XAU_USD = "0x0C466540B2ee1a31b441671eac0ca886e051E410" as const;
 export const XLM_USD = "0x692AE5510cA9070095A496dbcFBCDA99D4024Cd9" as const;
@@ -135,10 +120,8 @@ export const XMR_USD = "0xBE6FB0AB6302B693368D0E9001fAF77ecc6571db" as const;
 export const XPT_USD = "0x76631863c2ae7367aF8f37Cd10d251DA7f1DE186" as const;
 export const XRP_USD = "0x785ba89291f676b5386652eB12b30cF361020694" as const;
 export const XTZ_USD = "0x691e26AB58ff05800E028b0876A41B720b26FC65" as const;
-export const YBTC_BTC_Exchange_Rate =
-  "0xAc4193Cf0F28937f54BaB591e5FBdeB5c5D05a2f" as const;
-export const YETH_ETH_Exchange_Rate =
-  "0x718Bc433B74C591EBAfC13703CD9bDfcffD5B2A9" as const;
+export const YBTC_BTC_Exchange_Rate = "0xAc4193Cf0F28937f54BaB591e5FBdeB5c5D05a2f" as const;
+export const YETH_ETH_Exchange_Rate = "0x718Bc433B74C591EBAfC13703CD9bDfcffD5B2A9" as const;
 export const YFI_ETH = "0x9896A1eA7A00F5f32Ab131eBbeE07487B0af31D0" as const;
 export const YFI_USD = "0x9d3A43c111E7b2C6601705D9fcF7a70c95b1dc55" as const;
 export const ZAR_USD = "0xd4a120c26d57B910C56c910CdD13EeBFA3135502" as const;
@@ -149,8 +132,7 @@ export const polygonDataFeeds = {
   "AAPL / USD": AAPL_USD,
   "AAVE / ETH": AAVE_ETH,
   "AAVE / USD": AAVE_USD,
-  "AAVE Network Emergency Count (Polygon)":
-    AAVE_Network_Emergency_Count_Polygon,
+  "AAVE Network Emergency Count (Polygon)": AAVE_Network_Emergency_Count_Polygon,
   "ADA / USD": ADA_USD,
   "ALGO / USD": ALGO_USD,
   "AMZN / USD": AMZN_USD,

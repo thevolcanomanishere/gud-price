@@ -8,17 +8,20 @@ gud-price reads from [Chainlink](https://chain.link/) price feeds, the same orac
 
 ## What prices are available?
 
-**691 feeds** across 4 chains. Here are some examples:
+**691 feeds** across 4 chains (Ethereum, Arbitrum, Base, Polygon). Here are some highlights:
 
-| Category | Examples |
-|----------|----------|
-| Forex | EUR/USD, GBP/USD, JPY/USD, AUD/USD, CAD/USD, CHF/USD, BRL/USD, NZD/USD, SGD/USD |
-| Equities | AAPL/USD, TSLA/USD, AMZN/USD, GOOGL/USD, MSFT/USD, NVDA/USD, META/USD, SPY/USD |
-| Crypto | BTC/USD, ETH/USD, SOL/USD, LINK/USD, ARB/USD, AVAX/USD, and hundreds more |
-| Stablecoin rates | USDC/USD, USDT/USD, DAI/USD, EURC/USD |
-| Cross rates | BTC/ETH, ETH/BTC, and various token/ETH pairs |
+| Category | Feeds | Chains |
+|----------|-------|--------|
+| **Forex** | EUR/USD, GBP/USD, JPY/USD, AUD/USD, CAD/USD, CHF/USD, CNY/USD, KRW/USD, INR/USD, MXN/USD, ZAR/USD, and 15 more currency pairs | 26 fiat currencies across all 4 chains |
+| **Equities** | AAPL, TSLA, AMZN, GOOGL, MSFT, NVDA, META, SPY | Arbitrum and Polygon |
+| **Commodities** | XAU (Gold), XAG (Silver), XPT (Platinum), WTI (Crude Oil) | Gold and silver on all 4 chains |
+| **Crypto** | BTC, ETH, SOL, LINK, ARB, UNI, AAVE, and hundreds more | All chains |
+| **Stablecoins** | USDC/USD, USDT/USD, DAI/USD, EURC/USD | All chains |
+| **Market indices** | Total Crypto Market Cap, SPY/USD | Ethereum and Arbitrum |
 
-See [FEEDS.md](FEEDS.md) for the complete list of all feeds and addresses.
+All prices are denominated in USD. Data is sourced from Chainlink's decentralized oracle network, the same infrastructure securing billions in DeFi.
+
+See [FEEDS.md](FEEDS.md) for the complete list of all 691 feeds and their contract addresses.
 
 ## Quick start
 

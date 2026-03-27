@@ -176,12 +176,12 @@ function generateGo(chain, feeds) {
   lines.push(")");
   lines.push("");
 
-  // Also generate a map
+  // Generate a map that references the consts (no address duplication)
   const mapName = chain.charAt(0).toUpperCase() + chain.slice(1) + "Feeds";
   lines.push(`// ${mapName} maps feed pair names to contract addresses.`);
   lines.push(`var ${mapName} = map[string]string{`);
-  for (const [name, address] of Object.entries(feeds)) {
-    lines.push(`\t"${name}": "${address}",`);
+  for (const [name] of Object.entries(feeds)) {
+    lines.push(`\t"${name}": ${sanitizeName(name)},`);
   }
   lines.push("}");
   lines.push("");
