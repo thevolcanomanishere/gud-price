@@ -1,0 +1,8 @@
+[package]
+name = "gud-price"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+phf = { version = "0.13", features = ["macros"] }
+ureq = "3"
