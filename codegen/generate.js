@@ -20,6 +20,7 @@ const FEEDS_DIR = path.join(ROOT, "feeds");
 
 function sanitizeName(key) {
   let name = key
+    .replace(/\+\+/g, "pp")
     .replace(/ \/ /g, "_")
     .replace(/[^a-zA-Z0-9]/g, "_")
     .replace(/_+/g, "_")
@@ -33,7 +34,17 @@ function loadFeeds() {
   for (const file of fs.readdirSync(FEEDS_DIR).sort()) {
     if (!file.endsWith(".json") || file === "rpcs.json") continue;
     const chain = file.replace(".json", "");
-    chains[chain] = JSON.parse(fs.readFileSync(path.join(FEEDS_DIR, file), "utf8"));
+    const raw = JSON.parse(fs.readFileSync(path.join(FEEDS_DIR, file), "utf8"));
+    // Deduplicate: skip feeds whose sanitized name collides with an earlier entry
+    const seen = new Set();
+    const deduped = {};
+    for (const [name, address] of Object.entries(raw)) {
+      const key = sanitizeName(name).toUpperCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      deduped[name] = address;
+    }
+    chains[chain] = deduped;
   }
   return chains;
 }

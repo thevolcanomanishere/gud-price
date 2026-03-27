@@ -282,7 +282,7 @@ describe("data feed exports", () => {
   test("polygon feeds include common pairs", () => {
     expect(polygonDataFeeds).toHaveProperty("ETH / USD");
     expect(polygonDataFeeds).toHaveProperty("BTC / USD");
-    expect(polygonDataFeeds).toHaveProperty("MATIC / USD");
+    expect(polygonDataFeeds).toHaveProperty("LINK / USD");
   });
 
   test("ethereum feeds include common pairs", () => {
