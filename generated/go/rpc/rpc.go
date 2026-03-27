@@ -145,10 +145,8 @@ type rpcRequest struct {
 }
 
 type rpcResponse struct {
-	Result string `json:"result"`
-	Error  *struct {
-		Message string `json:"message"`
-	} `json:"error"`
+	Result string          `json:"result"`
+	Error  json.RawMessage `json:"error"`
 }
 
 // ethCall performs a JSON-RPC eth_call against the given RPC URL.
@@ -185,8 +183,13 @@ func ethCall(rpcUrl, to, data string) (string, error) {
 		return "", fmt.Errorf("unmarshal response: %w", err)
 	}
 
-	if rpcResp.Error != nil {
-		return "", fmt.Errorf("RPC error: %s", rpcResp.Error.Message)
+	if len(rpcResp.Error) > 0 && string(rpcResp.Error) != "null" {
+		// Try as {"message": "..."} first, fall back to raw string
+		var errObj struct{ Message string }
+		if json.Unmarshal(rpcResp.Error, &errObj) == nil && errObj.Message != "" {
+			return "", fmt.Errorf("RPC error: %s", errObj.Message)
+		}
+		return "", fmt.Errorf("RPC error: %s", string(rpcResp.Error))
 	}
 
 	return rpcResp.Result, nil
