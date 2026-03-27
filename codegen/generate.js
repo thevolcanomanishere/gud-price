@@ -31,11 +31,99 @@ function sanitizeName(key) {
 function loadFeeds() {
   const chains = {};
   for (const file of fs.readdirSync(FEEDS_DIR).sort()) {
-    if (!file.endsWith(".json")) continue;
+    if (!file.endsWith(".json") || file === "rpcs.json") continue;
     const chain = file.replace(".json", "");
     chains[chain] = JSON.parse(fs.readFileSync(path.join(FEEDS_DIR, file), "utf8"));
   }
   return chains;
+}
+
+function loadRpcs() {
+  return JSON.parse(fs.readFileSync(path.join(FEEDS_DIR, "rpcs.json"), "utf8"));
+}
+
+// ─── RPC endpoint generators ────────────────────────────────────────────────
+
+function generateRpcsGo(rpcs) {
+  const lines = [];
+  lines.push("package rpc");
+  lines.push("");
+  lines.push("// DefaultRPCs maps chain names to their public RPC endpoints.");
+  lines.push("// The first endpoint in each slice is the primary/official one.");
+  lines.push("var DefaultRPCs = map[string][]string{");
+  for (const [chain, urls] of Object.entries(rpcs)) {
+    lines.push(`\t"${chain}": {`);
+    for (const url of urls) {
+      lines.push(`\t\t"${url}",`);
+    }
+    lines.push("\t},");
+  }
+  lines.push("}");
+  lines.push("");
+  lines.push("// RPC returns the primary public RPC endpoint for the given chain.");
+  lines.push("func RPC(chain string) string {");
+  lines.push("\turls, ok := DefaultRPCs[chain]");
+  lines.push("\tif !ok || len(urls) == 0 {");
+  lines.push(`\t\treturn ""`);
+  lines.push("\t}");
+  lines.push("\treturn urls[0]");
+  lines.push("}");
+  lines.push("");
+  return lines.join("\n");
+}
+
+function generateRpcsPython(rpcs) {
+  const lines = [];
+  lines.push('"""Default public RPC endpoints for all supported chains."""');
+  lines.push("");
+  lines.push("rpcs: dict[str, list[str]] = {");
+  for (const [chain, urls] of Object.entries(rpcs)) {
+    lines.push(`    "${chain}": [`);
+    for (const url of urls) {
+      lines.push(`        "${url}",`);
+    }
+    lines.push("    ],");
+  }
+  lines.push("}");
+  lines.push("");
+  lines.push("");
+  lines.push("def rpc(chain: str) -> str:");
+  lines.push('    """Get the primary public RPC endpoint for a chain."""');
+  lines.push("    urls = rpcs.get(chain, [])");
+  lines.push('    return urls[0] if urls else ""');
+  lines.push("");
+  return lines.join("\n");
+}
+
+function generateRpcsRust(rpcs) {
+  const lines = [];
+  lines.push("//! Default public RPC endpoints for all supported chains.");
+  lines.push("");
+  lines.push("/// Get the primary public RPC endpoint for a chain.");
+  lines.push("pub fn rpc(chain: &str) -> &'static str {");
+  lines.push("    match chain {");
+  // Deduplicate: bsc and bnb share the same RPCs, just pick the first URL for each
+  const seen = new Set();
+  for (const [chain, urls] of Object.entries(rpcs)) {
+    if (seen.has(chain)) continue;
+    seen.add(chain);
+    lines.push(`        "${chain}" => "${urls[0]}",`);
+  }
+  lines.push('        _ => "",');
+  lines.push("    }");
+  lines.push("}");
+  lines.push("");
+  lines.push("/// Get all public RPC endpoints for a chain.");
+  lines.push("pub fn rpcs(chain: &str) -> &'static [&'static str] {");
+  lines.push("    match chain {");
+  for (const [chain, urls] of Object.entries(rpcs)) {
+    lines.push(`        "${chain}" => &[${urls.map((u) => `"${u}"`).join(", ")}],`);
+  }
+  lines.push("        _ => &[],");
+  lines.push("    }");
+  lines.push("}");
+  lines.push("");
+  return lines.join("\n");
 }
 
 // ─── TypeScript ──────────────────────────────────────────────────────────────
@@ -181,7 +269,14 @@ const langArg = args.find((a) => a.startsWith("--lang="))?.split("=")[1] || "all
 const langs = langArg === "all" ? Object.keys(generators) : langArg.split(",");
 
 const chains = loadFeeds();
+const rpcsData = loadRpcs();
 let totalFiles = 0;
+
+const rpcsGenerators = {
+  go: { fn: generateRpcsGo, path: "generated/go/rpc/rpcs.go" },
+  python: { fn: generateRpcsPython, path: "generated/python/rpcs.py" },
+  rust: { fn: generateRpcsRust, path: "generated/rust/src/rpcs.rs" },
+};
 
 for (const lang of langs) {
   const gen = generators[lang];
@@ -200,7 +295,17 @@ for (const lang of langs) {
     totalFiles++;
   }
 
-  console.log(`${lang}: ${Object.keys(chains).length} files → ${gen.dir}/`);
+  // Generate RPCs file for this language
+  if (rpcsGenerators[lang]) {
+    const rpcsGen = rpcsGenerators[lang];
+    const rpcsPath = path.join(ROOT, rpcsGen.path);
+    fs.mkdirSync(path.dirname(rpcsPath), { recursive: true });
+    fs.writeFileSync(rpcsPath, rpcsGen.fn(rpcsData));
+    totalFiles++;
+    console.log(`${lang}: rpcs → ${rpcsGen.path}`);
+  }
+
+  console.log(`${lang}: ${Object.keys(chains).length} feeds → ${gen.dir}/`);
 }
 
 console.log(`\nGenerated ${totalFiles} files across ${langs.length} language(s).`);

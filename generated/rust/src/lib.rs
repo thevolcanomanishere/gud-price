@@ -1,4 +1,5 @@
 pub mod rpc;
+pub mod rpcs;
 pub mod arbitrum;
 pub mod avalanche;
 pub mod base;
