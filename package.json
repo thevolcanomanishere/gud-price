@@ -67,7 +67,8 @@
     "generate": "node codegen/generate.js",
     "generate:ts": "node codegen/generate.js --lang=ts",
     "updateAllFeeds": "tsx ./scraper/playwright.ts && prettier --write ./src/dataFeeds/*.ts",
-    "build": "rm -rf dist && tsup --minify --format cjs,esm --dts"
+    "build": "rm -rf dist && tsup --minify --format cjs,esm --dts",
+    "build:demo": "npx esbuild docs/demo.ts --bundle --minify --format=iife --outfile=docs/demo.js"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
