@@ -29,6 +29,8 @@ jobs:
 
       - run: pnpm build
       - run: pnpm publish --no-git-checks --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ""
 
   publish-crates:
     name: Publish to crates.io
