@@ -1,6 +1,7 @@
 // Chainlink price feed reader — zero dependencies, just fetch()
 
 import { rpcs } from "./rpcs.js";
+import type { Chain } from "./rpcs.js";
 import { feedChain } from "./feedChains.js";
 
 // ─── Function selectors ──────────────────────────────────────────────────────
@@ -399,7 +400,7 @@ export async function readPrices(
   if (rpcUrl !== undefined) {
     groups.push({ feedEntries: entries, groupRpc: rpcUrl });
   } else {
-    const byChain = new Map<string, [string, string][]>();
+    const byChain = new Map<Chain, [string, string][]>();
     for (const [name, address] of entries) {
       const chain = feedChain(address);
       if (!chain) {
