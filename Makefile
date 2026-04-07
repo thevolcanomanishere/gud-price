@@ -9,7 +9,7 @@ generate:
 
 # ── Test ─────────────────────────────────────────────────────────────────────
 
-test: test-ts test-go test-rust test-python
+test: test-ts test-go test-rust test-python test-zig
 
 test-ts:
 	pnpm test:run
@@ -22,6 +22,9 @@ test-rust:
 
 test-python:
 	cd generated/python && python -m unittest test_rpc test_feeds -v
+
+test-zig:
+	cd generated/zig && zig build test
 
 # ── Lint ─────────────────────────────────────────────────────────────────────
 

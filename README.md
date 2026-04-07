@@ -174,11 +174,33 @@ zig fetch --save https://github.com/thevolcanomanishere/gud-price/archive/refs/t
 ```
 
 ```zig
-const gud_price = @import("gud-price");
+const std = @import("std");
+const rpc = @import("rpc.zig");
+const ethereum = @import("ethereum.zig");
+
+const ETH_RPC = "https://ethereum-rpc.publicnode.com";
 
 pub fn main() !void {
-    const price = try gud_price.readLatestPrice(gud_price.ethereum.EUR_USD, null);
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const alloc = gpa.allocator();
+
+    // Single price — 3 eth_calls (decimals + description + latestRoundData)
+    const price = try rpc.readLatestPrice(alloc, ethereum.EUR_USD, ETH_RPC);
+    defer price.deinit(alloc);
     std.debug.print("EUR/USD: {s}\n", .{price.answer});
+
+    // Multiple prices — 1 RPC call via Multicall3
+    const feeds = [_]rpc.Feed{
+        .{ .name = "EUR/USD", .address = ethereum.EUR_USD },
+        .{ .name = "BTC/USD", .address = ethereum.BTC_USD },
+    };
+    const prices = try rpc.readPrices(alloc, &feeds, ETH_RPC);
+    defer {
+        for (prices) |p| p.round.deinit(alloc);
+        alloc.free(prices);
+    }
+    std.debug.print("BTC/USD: ${s}\n", .{prices[1].round.answer});
 }
 ```
 

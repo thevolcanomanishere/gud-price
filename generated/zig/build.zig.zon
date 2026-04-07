@@ -10,5 +10,6 @@
         "base.zig",
         "ethereum.zig",
         "polygon.zig",
+        "rpc.zig",
     },
 }
