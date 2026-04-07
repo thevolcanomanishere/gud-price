@@ -15,6 +15,10 @@ pub const SEL_PHASE_ID: &str = "0x58303b10";
 pub const SEL_PHASE_AGGREGATORS: &str = "0xc1597304";
 pub const SEL_AGGREGATOR: &str = "0x245a7bfc";
 
+/// Multicall3 is deployed at the same address on all supported chains.
+pub const MULTICALL3: &str = "0xcA11bde05977b3631167028862bE2a173976CA11";
+pub const SEL_AGGREGATE3: &str = "0x82ad56cb";
+
 // ---- Types --------------------------------------------------------------------
 
 /// Formatted round data with a human-readable price string.
@@ -43,6 +47,22 @@ pub struct RoundDataRaw {
 pub struct FeedMetadata {
     pub decimals: u8,
     pub description: String,
+}
+
+// ---- Multicall3 types ---------------------------------------------------------
+
+/// A single call for Multicall3.aggregate3.
+#[derive(Debug, Clone)]
+pub struct Multicall3Call {
+    pub target: String,
+    pub call_data: String,
+}
+
+/// The result of a single Multicall3.aggregate3 sub-call.
+#[derive(Debug, Clone)]
+pub struct Multicall3Result {
+    pub success: bool,
+    pub data: String,
 }
 
 // ---- Hex / ABI helpers --------------------------------------------------------
@@ -166,6 +186,133 @@ pub fn parse_feed_metadata(decimals_hex: &str, description_hex: &str) -> FeedMet
         decimals: read_word(decimals_hex, 0) as u8,
         description: decode_string(description_hex),
     }
+}
+
+fn encode_aggregate3(calls: &[Multicall3Call]) -> String {
+    let n = calls.len();
+
+    // Compute per-element sizes (in bytes) for offset calculation
+    let sizes: Vec<usize> = calls
+        .iter()
+        .map(|c| {
+            let data_hex = if c.call_data.starts_with("0x") || c.call_data.starts_with("0X") {
+                &c.call_data[2..]
+            } else {
+                &c.call_data
+            };
+            let data_byte_len = data_hex.len() / 2;
+            let padded_len = ((data_byte_len + 31) / 32) * 32;
+            128 + padded_len
+        })
+        .collect();
+
+    let mut hex = String::new();
+
+    // selector (without 0x)
+    hex.push_str(&SEL_AGGREGATE3[2..]);
+
+    // param offset = 32
+    hex.push_str(&format!("{:064x}", 32usize));
+
+    // array length = N
+    hex.push_str(&format!("{:064x}", n));
+
+    // element offsets from array content start (right after length word)
+    let mut cumulative = 0usize;
+    for i in 0..n {
+        let offset = n * 32 + cumulative;
+        hex.push_str(&format!("{:064x}", offset));
+        cumulative += sizes[i];
+    }
+
+    // element bodies
+    for call in calls {
+        let target = if call.target.starts_with("0x") || call.target.starts_with("0X") {
+            &call.target[2..]
+        } else {
+            &call.target
+        };
+        let data_hex = if call.call_data.starts_with("0x") || call.call_data.starts_with("0X") {
+            &call.call_data[2..]
+        } else {
+            &call.call_data
+        };
+        let data_byte_len = data_hex.len() / 2;
+        let padded_len = ((data_byte_len + 31) / 32) * 32;
+
+        // target: 12 zero bytes + 20-byte address
+        hex.push_str("000000000000000000000000");
+        hex.push_str(&target.to_lowercase());
+        // allowFailure = true
+        hex.push_str(&format!("{:064x}", 1usize));
+        // bytes ptr = 96
+        hex.push_str(&format!("{:064x}", 96usize));
+        // bytes length
+        hex.push_str(&format!("{:064x}", data_byte_len));
+        // calldata right-padded to padded_len*2 hex chars
+        hex.push_str(data_hex);
+        let padding = padded_len * 2 - data_hex.len();
+        for _ in 0..padding {
+            hex.push('0');
+        }
+    }
+
+    format!("0x{}", hex)
+}
+
+fn decode_aggregate3_results(hex: &str, n: usize) -> Vec<Multicall3Result> {
+    let read_at = |byte_pos: usize| -> usize {
+        let start = 2 + byte_pos * 2;
+        usize::from_str_radix(&hex[start..start + 64], 16).unwrap_or(0)
+    };
+
+    let array_byte_offset = read_at(0); // = 32
+    let array_content_start = array_byte_offset + 32; // skip the length word itself
+
+    let mut results = Vec::with_capacity(n);
+    for i in 0..n {
+        let elem_rel_offset = read_at(array_content_start + i * 32);
+        let elem_start = array_content_start + elem_rel_offset;
+
+        let success = read_at(elem_start) != 0;
+
+        let bytes_rel_offset = read_at(elem_start + 32);
+        let bytes_start = elem_start + bytes_rel_offset;
+        let bytes_len = read_at(bytes_start);
+
+        let data = if bytes_len > 0 {
+            let hex_start = 2 + (bytes_start + 32) * 2;
+            let hex_end = hex_start + bytes_len * 2;
+            format!("0x{}", &hex[hex_start..hex_end])
+        } else {
+            "0x".to_string()
+        };
+
+        results.push(Multicall3Result { success, data });
+    }
+    results
+}
+
+fn do_multicall(calls: &[Multicall3Call], urls: &[&str]) -> Result<Vec<Multicall3Result>, String> {
+    let sorted = sort_by_health(urls);
+    let mut last_err = String::new();
+    let calldata = encode_aggregate3(calls); // encode once, reuse across retries
+    for url in &sorted {
+        match eth_call(url, MULTICALL3, &calldata) {
+            Ok(hex) => return Ok(decode_aggregate3_results(&hex, calls.len())),
+            Err(e) => {
+                mark_failed(url);
+                last_err = e;
+            }
+        }
+    }
+    Err(last_err)
+}
+
+/// Execute a batch of calls via Multicall3.aggregate3 in a single RPC request.
+/// Uses allowFailure=true per call; check `success` on each result.
+pub fn multicall(calls: &[Multicall3Call], rpc_url: &str) -> Result<Vec<Multicall3Result>, String> {
+    do_multicall(calls, &[rpc_url])
 }
 
 // ---- Circuit breaker ----------------------------------------------------------
@@ -353,15 +500,65 @@ pub fn read_phase_aggregator(
     Ok(format!("0x{}", &hex[26..66]))
 }
 
-/// Read latest prices from multiple Chainlink feeds.
+/// Read latest prices from multiple Chainlink feeds using Multicall3.
 pub fn read_prices(
     feeds: &HashMap<String, String>,
     rpc_url: Option<&str>,
 ) -> Result<HashMap<String, RoundData>, String> {
+    if feeds.is_empty() {
+        return Ok(HashMap::new());
+    }
+    // Group by chain or single group if rpc_url given
+    let groups: Vec<(Vec<(String, String)>, Vec<String>)>;
+    if let Some(url) = rpc_url {
+        let entries: Vec<_> = feeds.iter().map(|(n, a)| (n.clone(), a.clone())).collect();
+        groups = vec![(entries, vec![url.to_string()])];
+    } else {
+        let mut by_chain: HashMap<&str, Vec<(String, String)>> = HashMap::new();
+        for (name, address) in feeds {
+            let chain = crate::feed_chains::feed_chain(address)
+                .ok_or_else(|| format!("Unknown feed address: {}", address))?;
+            by_chain.entry(chain).or_default().push((name.clone(), address.clone()));
+        }
+        groups = by_chain
+            .into_iter()
+            .map(|(chain, entries)| {
+                let urls: Vec<String> =
+                    crate::rpcs::rpcs(chain).iter().map(|s| s.to_string()).collect();
+                (entries, urls)
+            })
+            .collect();
+    }
     let mut out = HashMap::new();
-    for (name, address) in feeds {
-        let round = read_latest_price(address, rpc_url)?;
-        out.insert(name.clone(), round);
+    for (group_entries, group_urls) in &groups {
+        let url_refs: Vec<&str> = group_urls.iter().map(|s| s.as_str()).collect();
+        let calls: Vec<Multicall3Call> = group_entries
+            .iter()
+            .flat_map(|(_, addr)| {
+                [
+                    Multicall3Call { target: addr.clone(), call_data: SEL_DECIMALS.to_string() },
+                    Multicall3Call {
+                        target: addr.clone(),
+                        call_data: SEL_DESCRIPTION.to_string(),
+                    },
+                    Multicall3Call {
+                        target: addr.clone(),
+                        call_data: SEL_LATEST_ROUND_DATA.to_string(),
+                    },
+                ]
+            })
+            .collect();
+        let mc = do_multicall(&calls, &url_refs)?;
+        for (i, (name, address)) in group_entries.iter().enumerate() {
+            let (dec, desc, round) = (&mc[i * 3], &mc[i * 3 + 1], &mc[i * 3 + 2]);
+            if !dec.success || !desc.success || !round.success {
+                return Err(format!("Multicall sub-call failed for feed: {}", address));
+            }
+            let decimals = read_word(&dec.data, 0) as u8;
+            let description = decode_string(&desc.data);
+            let raw = parse_round_data_raw(&round.data);
+            out.insert(name.clone(), format_round(&raw, decimals, &description));
+        }
     }
     Ok(out)
 }

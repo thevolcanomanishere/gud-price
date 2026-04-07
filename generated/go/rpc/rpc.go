@@ -28,6 +28,12 @@ const (
 	SelAggregator       = "0x245a7bfc"
 )
 
+// Multicall3 is deployed at the same address on all supported chains.
+const (
+	Multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11"
+	SelAggregate3     = "0x82ad56cb"
+)
+
 // rpcID is a global counter for JSON-RPC request IDs.
 var rpcID uint64
 
@@ -291,6 +297,126 @@ func formatRound(raw RoundDataRaw, decimals int, description string) RoundData {
 	}
 }
 
+// ── Multicall3 ───────────────────────────────────────────────────────────────
+
+// Multicall3Call represents a single call in a Multicall3 aggregate3 batch.
+type Multicall3Call struct {
+	Target   string
+	CallData string
+}
+
+// Multicall3Result holds the success flag and return data for one Multicall3 call.
+type Multicall3Result struct {
+	Success bool
+	Data    string
+}
+
+// encodeAggregate3 ABI-encodes an aggregate3(Call3[]) call.
+// Each Call3 is (address target, bool allowFailure, bytes callData) with allowFailure=true.
+func encodeAggregate3(calls []Multicall3Call) string {
+	n := len(calls)
+
+	// Compute per-element encoded sizes (in bytes).
+	// Each element: 32 (address) + 32 (allowFailure) + 32 (bytes ptr) + 32 (bytes length) + padded(callData)
+	sizes := make([]int, n)
+	for i, call := range calls {
+		cd := strings.TrimPrefix(call.CallData, "0x")
+		cdBytes := len(cd) / 2
+		padded := ((cdBytes + 31) / 32) * 32
+		sizes[i] = 128 + padded
+	}
+
+	var b strings.Builder
+	// selector (no 0x)
+	b.WriteString(strings.TrimPrefix(SelAggregate3, "0x"))
+	// param offset = 32
+	b.WriteString(fmt.Sprintf("%064x", 32))
+	// array length
+	b.WriteString(fmt.Sprintf("%064x", n))
+	// element offsets (relative to array content start, which begins after the length word)
+	// array content = [N offset words] + [element bodies]
+	accumulated := 0
+	for i := 0; i < n; i++ {
+		offset := n*32 + accumulated
+		b.WriteString(fmt.Sprintf("%064x", offset))
+		accumulated += sizes[i]
+	}
+	// element bodies
+	for _, call := range calls {
+		addr := strings.ToLower(strings.TrimPrefix(call.Target, "0x"))
+		cd := strings.TrimPrefix(call.CallData, "0x")
+		cdBytes := len(cd) / 2
+		padded := ((cdBytes + 31) / 32) * 32
+
+		// address (padded to 32 bytes)
+		b.WriteString(fmt.Sprintf("%024x", 0))
+		b.WriteString(addr)
+		// allowFailure = 1
+		b.WriteString(fmt.Sprintf("%064x", 1))
+		// bytes ptr = 96
+		b.WriteString(fmt.Sprintf("%064x", 96))
+		// bytes length
+		b.WriteString(fmt.Sprintf("%064x", cdBytes))
+		// bytes data, right-padded to next 32-byte boundary
+		b.WriteString(cd)
+		if padded > cdBytes {
+			b.WriteString(strings.Repeat("0", (padded-cdBytes)*2))
+		}
+	}
+	return "0x" + b.String()
+}
+
+// decodeAggregate3Results decodes the hex return value of aggregate3 into a slice of results.
+func decodeAggregate3Results(hexStr string, n int) ([]Multicall3Result, error) {
+	readAt := func(bytePos int) int64 {
+		start := 2 + bytePos*2
+		end := start + 64
+		if end > len(hexStr) {
+			return 0
+		}
+		val := new(big.Int)
+		val.SetString(hexStr[start:end], 16)
+		return val.Int64()
+	}
+
+	arrayOffset := readAt(0)
+	arrayContentStart := int(arrayOffset) + 32
+
+	results := make([]Multicall3Result, n)
+	for i := 0; i < n; i++ {
+		elemRelOffset := readAt(arrayContentStart + i*32)
+		elemStart := arrayContentStart + int(elemRelOffset)
+
+		success := readAt(elemStart) != 0
+		bytesRelOffset := readAt(elemStart + 32)
+		bytesStart := elemStart + int(bytesRelOffset)
+		bytesLen := int(readAt(bytesStart))
+
+		var data string
+		if bytesLen == 0 {
+			data = "0x"
+		} else {
+			dataStart := 2 + (bytesStart+32)*2
+			dataEnd := dataStart + bytesLen*2
+			if dataEnd > len(hexStr) {
+				return nil, fmt.Errorf("decodeAggregate3Results: data out of bounds at element %d", i)
+			}
+			data = "0x" + hexStr[dataStart:dataEnd]
+		}
+		results[i] = Multicall3Result{Success: success, Data: data}
+	}
+	return results, nil
+}
+
+// Multicall executes a batch of calls via the Multicall3 aggregate3 function.
+func Multicall(calls []Multicall3Call, rpcUrls ...string) ([]Multicall3Result, error) {
+	result, err := ethCall(Multicall3Address, encodeAggregate3(calls), rpcUrls)
+	if err != nil {
+		return nil, err
+	}
+	return decodeAggregate3Results(result, len(calls))
+}
+
 // ── Public API ──────────────────────────────────────────────────────────────
 
 // ReadFeedMetadata reads the decimals and description from a Chainlink feed.
@@ -389,36 +515,81 @@ func ReadPhaseAggregator(address string, phaseId *big.Int, rpcUrls ...string) (s
 	return "0x" + hexStr[26:66], nil
 }
 
-// ReadPrices reads the latest prices from multiple Chainlink feeds concurrently.
+// ReadPrices reads the latest prices from multiple Chainlink feeds using Multicall3.
 func ReadPrices(feeds map[string]string, rpcUrls ...string) (map[string]RoundData, error) {
-	type result struct {
-		name string
-		data RoundData
+	if len(feeds) == 0 {
+		return map[string]RoundData{}, nil
+	}
+	// Group by chain when no rpcUrls given, or single group otherwise.
+	type group struct {
+		entries [][2]string // [name, address]
+		urls    []string
+	}
+	var groups []group
+	if len(rpcUrls) > 0 {
+		entries := make([][2]string, 0, len(feeds))
+		for name, addr := range feeds {
+			entries = append(entries, [2]string{name, addr})
+		}
+		groups = []group{{entries, rpcUrls}}
+	} else {
+		byChain := map[string][][2]string{}
+		for name, addr := range feeds {
+			chain := FeedChain(addr)
+			if chain == "" {
+				return nil, fmt.Errorf("unknown feed address: %s — pass an RPC URL", addr)
+			}
+			byChain[chain] = append(byChain[chain], [2]string{name, addr})
+		}
+		for chain, entries := range byChain {
+			groups = append(groups, group{entries, DefaultRPCs[chain]})
+		}
+	}
+	// Run each group concurrently.
+	type groupResult struct {
+		data map[string]RoundData
 		err  error
 	}
-
-	var wg sync.WaitGroup
-	ch := make(chan result, len(feeds))
-
-	for name, address := range feeds {
-		wg.Add(1)
-		go func(n, a string) {
-			defer wg.Done()
-			d, err := ReadLatestPrice(a, rpcUrls...)
-			ch <- result{n, d, err}
-		}(name, address)
+	ch := make(chan groupResult, len(groups))
+	for _, g := range groups {
+		go func(g group) {
+			calls := make([]Multicall3Call, 0, len(g.entries)*3)
+			for _, e := range g.entries {
+				calls = append(calls,
+					Multicall3Call{e[1], SelDecimals},
+					Multicall3Call{e[1], SelDescription},
+					Multicall3Call{e[1], SelLatestRoundData},
+				)
+			}
+			mc, err := Multicall(calls, g.urls...)
+			if err != nil {
+				ch <- groupResult{err: err}
+				return
+			}
+			out := make(map[string]RoundData, len(g.entries))
+			for i, e := range g.entries {
+				dec, desc, round := mc[i*3], mc[i*3+1], mc[i*3+2]
+				if !dec.Success || !desc.Success || !round.Success {
+					ch <- groupResult{err: fmt.Errorf("multicall sub-call failed for feed: %s", e[1])}
+					return
+				}
+				decimals := int(ReadWord(dec.Data, 0).Int64())
+				description := DecodeString(desc.Data)
+				raw := parseRoundDataRaw(round.Data)
+				out[e[0]] = formatRound(raw, decimals, description)
+			}
+			ch <- groupResult{data: out}
+		}(g)
 	}
-
-	wg.Wait()
-	close(ch)
-
 	out := make(map[string]RoundData, len(feeds))
-	for r := range ch {
+	for range groups {
+		r := <-ch
 		if r.err != nil {
-			return nil, fmt.Errorf("feed %s: %w", r.name, r.err)
+			return nil, r.err
 		}
-		out[r.name] = r.data
+		for k, v := range r.data {
+			out[k] = v
+		}
 	}
-
 	return out, nil
 }

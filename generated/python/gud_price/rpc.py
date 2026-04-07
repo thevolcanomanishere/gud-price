@@ -21,6 +21,9 @@ SEL_PHASE_ID = "0x58303b10"
 SEL_PHASE_AGGREGATORS = "0xc1597304"
 SEL_AGGREGATOR = "0x245a7bfc"
 
+_MULTICALL3 = "0xcA11bde05977b3631167028862bE2a173976CA11"
+_SEL_AGGREGATE3 = "0x82ad56cb"
+
 # -- Data classes --------------------------------------------------------------
 
 
@@ -149,6 +152,83 @@ def _resolve_urls(address: str, rpc_url: Optional[str]) -> list[str]:
     if not urls:
         raise RuntimeError(f"No RPC endpoints for chain: {chain}")
     return list(urls)
+
+
+# -- Multicall3 ABI helpers ----------------------------------------------------
+
+
+def _encode_aggregate3(calls: list[tuple[str, str]]) -> str:
+    """ABI-encode a call to Multicall3.aggregate3(Call3[])."""
+    n = len(calls)
+    # Pre-compute per-element sizes (in bytes)
+    data_byte_lens = [len(c[1][2:]) // 2 for c in calls]
+    padded_sizes = [((dbl + 31) // 32) * 32 for dbl in data_byte_lens]
+    # size of each element in bytes: 4 words (target, allowFailure, bytes_ptr, bytes_len) + padded calldata
+    elem_sizes = [128 + ps for ps in padded_sizes]
+
+    parts: list[str] = []
+    # selector (no 0x)
+    parts.append(_SEL_AGGREGATE3[2:])
+    # outer offset to array = 32
+    parts.append(format(32, "064x"))
+    # array length
+    parts.append(format(n, "064x"))
+    # element offsets (relative to array content start = after length word)
+    offset = n * 32  # first element starts after all the offset words
+    for i in range(n):
+        parts.append(format(offset, "064x"))
+        offset += elem_sizes[i]
+    # element bodies
+    for i, (target, calldata) in enumerate(calls):
+        dbl = data_byte_lens[i]
+        ps = padded_sizes[i]
+        # address (left-padded to 32 bytes)
+        parts.append("000000000000000000000000" + target[2:].lower())
+        # allowFailure = true
+        parts.append(format(1, "064x"))
+        # bytes ptr = 96 (3 words after element start)
+        parts.append(format(96, "064x"))
+        # bytes length
+        parts.append(format(dbl, "064x"))
+        # bytes data (right-padded)
+        parts.append(calldata[2:].ljust(ps * 2, "0"))
+    return "0x" + "".join(parts)
+
+
+def _decode_aggregate3_results(hex_str: str, n: int) -> list[tuple[bool, str]]:
+    """Decode the return value of Multicall3.aggregate3."""
+
+    def read_at(byte_pos: int) -> int:
+        return int(hex_str[2 + byte_pos * 2 : 2 + byte_pos * 2 + 64], 16)
+
+    array_byte_offset = read_at(0)  # = 32
+    array_content_start = array_byte_offset + 32
+    results: list[tuple[bool, str]] = []
+    for i in range(n):
+        elem_rel_offset = read_at(array_content_start + i * 32)
+        elem_start = array_content_start + elem_rel_offset
+        success = read_at(elem_start) != 0
+        bytes_rel_offset = read_at(elem_start + 32)
+        bytes_start = elem_start + bytes_rel_offset
+        bytes_len = read_at(bytes_start)
+        data_start = 2 + (bytes_start + 32) * 2
+        data = "0x" + hex_str[data_start : data_start + bytes_len * 2] if bytes_len > 0 else "0x"
+        results.append((success, data))
+    return results
+
+
+def _call_multicall(calls: list[tuple[str, str]], urls: list[str]) -> list[tuple[bool, str]]:
+    """Execute Multicall3.aggregate3 with fallback across multiple RPC URLs."""
+    sorted_urls = _sort_by_health(urls)
+    last_err: Optional[Exception] = None
+    for url in sorted_urls:
+        try:
+            result = eth_call(url, _MULTICALL3, _encode_aggregate3(calls))
+            return _decode_aggregate3_results(result, len(calls))
+        except Exception as e:
+            _mark_failed(url)
+            last_err = e
+    raise last_err  # type: ignore[misc]
 
 
 # -- JSON-RPC transport --------------------------------------------------------
@@ -289,9 +369,47 @@ def read_phase_aggregator(address: str, phase_id: int, rpc_url: Optional[str] = 
     return "0x" + hex_data[26:66]
 
 
+def multicall(calls: list[tuple[str, str]], rpc_url: str) -> list[tuple[bool, str]]:
+    """Execute a batch of calls via Multicall3.aggregate3.
+    Each call is a (target_address, calldata) tuple. Returns (success, data) pairs.
+    """
+    calldata = _encode_aggregate3(calls)
+    hex_result = eth_call(rpc_url, _MULTICALL3, calldata)
+    return _decode_aggregate3_results(hex_result, len(calls))
+
+
 def read_prices(feeds: Dict[str, str], rpc_url: Optional[str] = None) -> Dict[str, RoundData]:
-    """Read latest prices from multiple Chainlink feeds."""
+    """Read latest prices from multiple Chainlink feeds using Multicall3."""
+    if not feeds:
+        return {}
+    entries = list(feeds.items())
+    # Group by chain, or single group if rpc_url given
+    if rpc_url is not None:
+        groups = [(entries, [rpc_url])]
+    else:
+        from gud_price.feed_chains import feed_chain
+        from gud_price.rpcs import rpcs
+        by_chain: dict = {}
+        for name, address in entries:
+            chain = feed_chain(address)
+            if chain is None:
+                raise RuntimeError(f"Unknown feed address: {address}. Pass an RPC URL.")
+            by_chain.setdefault(chain, []).append((name, address))
+        groups = [(grp, list(rpcs[chain])) for chain, grp in by_chain.items()]
     result: Dict[str, RoundData] = {}
-    for name, address in feeds.items():
-        result[name] = read_latest_price(address, rpc_url)
+    for group_entries, group_urls in groups:
+        calls = []
+        for _, address in group_entries:
+            calls += [(address, SEL_DECIMALS), (address, SEL_DESCRIPTION), (address, SEL_LATEST_ROUND_DATA)]
+        mc = _call_multicall(calls, group_urls)
+        for i, (name, address) in enumerate(group_entries):
+            dec_ok, dec_data = mc[i * 3]
+            desc_ok, desc_data = mc[i * 3 + 1]
+            round_ok, round_data = mc[i * 3 + 2]
+            if not dec_ok or not desc_ok or not round_ok:
+                raise RuntimeError(f"Multicall sub-call failed for feed: {address}")
+            decimals = read_word(dec_data, 0)
+            description = decode_string(desc_data)
+            raw = _parse_round_data_raw(round_data)
+            result[name] = _format_round(raw, decimals, description)
     return result
