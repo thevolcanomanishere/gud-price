@@ -356,13 +356,73 @@ func TestReadPhaseAggregator(t *testing.T) {
 	}
 }
 
+// ── Multicall3 helpers ────────────────────────────────────────────────────────
+
+// buildAggregate3Response builds a mock ABI-encoded aggregate3 response for the
+// given per-result (success, hexData) pairs. hexData must not have "0x" prefix.
+func buildAggregate3Response(results []struct {
+	success bool
+	data    string
+}) string {
+	n := len(results)
+
+	encodeElement := func(success bool, data string) string {
+		dataBytes := len(data) / 2
+		padded := ((dataBytes + 31) / 32) * 32
+		var b strings.Builder
+		if success {
+			b.WriteString(fmt.Sprintf("%064x", 1))
+		} else {
+			b.WriteString(fmt.Sprintf("%064x", 0))
+		}
+		b.WriteString(fmt.Sprintf("%064x", 64)) // bytes ptr relative to element start
+		b.WriteString(fmt.Sprintf("%064x", dataBytes))
+		b.WriteString(data)
+		if padded > dataBytes {
+			b.WriteString(strings.Repeat("0", (padded-dataBytes)*2))
+		}
+		return b.String()
+	}
+
+	bodies := make([]string, n)
+	sizes := make([]int, n)
+	for i, r := range results {
+		bodies[i] = encodeElement(r.success, r.data)
+		sizes[i] = len(bodies[i]) / 2
+	}
+
+	var b strings.Builder
+	b.WriteString(fmt.Sprintf("%064x", 32)) // outer array offset
+	b.WriteString(fmt.Sprintf("%064x", n))  // array length
+	accumulated := 0
+	for i := 0; i < n; i++ {
+		b.WriteString(fmt.Sprintf("%064x", n*32+accumulated))
+		accumulated += sizes[i]
+	}
+	for _, body := range bodies {
+		b.WriteString(body)
+	}
+	return "0x" + b.String()
+}
+
 // ── ReadPrices tests ─────────────────────────────────────────────────────────
 
 func TestReadPrices(t *testing.T) {
+	dec := strings.TrimPrefix(hexWords(8), "0x")
+	desc := strings.TrimPrefix(hexString("ETH / USD"), "0x")
+	round := strings.TrimPrefix(hexWords(1, 180000000000, 1700000000, 1700000001, 1), "0x")
+
+	// 2 feeds × 3 calls each (decimals, description, latestRoundData)
+	mc3Response := buildAggregate3Response([]struct {
+		success bool
+		data    string
+	}{
+		{true, dec}, {true, desc}, {true, round},
+		{true, dec}, {true, desc}, {true, round},
+	})
+
 	srv := selectorRouter(map[string]string{
-		SelDecimals:        hexWords(8),
-		SelDescription:     hexString("ETH / USD"),
-		SelLatestRoundData: hexWords(1, 180000000000, 1700000000, 1700000001, 1),
+		SelAggregate3: mc3Response,
 	})
 	defer srv.Close()
 

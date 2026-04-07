@@ -10,10 +10,13 @@ from gud_price.rpc import (
     FeedMetadata,
     RoundData,
     RoundDataRaw,
+    _decode_aggregate3_results,
+    _encode_aggregate3,
     decode_string,
     encode_uint,
     eth_call,
     format_price,
+    multicall,
     read_aggregator,
     read_feed_metadata,
     read_latest_price,
@@ -242,6 +245,36 @@ class TestPhaseAndAggregator(unittest.TestCase):
 # -- read_prices tests ---------------------------------------------------------
 
 
+def _encode_aggregate3_response(results: list) -> str:
+    """Build a fake ABI-encoded Multicall3.aggregate3 Result[] return value.
+
+    Each element of *results* is a ``(success: bool, data_hex: str)`` pair.
+    """
+    n = len(results)
+    data_hexes = [r[1][2:] for r in results]  # strip "0x"
+    data_lens = [len(h) // 2 for h in data_hexes]
+    padded_lens = [((d + 31) // 32) * 32 for d in data_lens]
+    # Each element: bool(32) + bytes_ptr(32) + bytes_len(32) + bytes_data(padded) = 96 + padded
+    elem_sizes = [96 + p for p in padded_lens]
+
+    parts: list[str] = []
+    parts.append(format(32, "064x"))   # outer offset to array
+    parts.append(format(n, "064x"))    # array length
+    offset = n * 32
+    for sz in elem_sizes:
+        parts.append(format(offset, "064x"))
+        offset += sz
+    for i, (success, _) in enumerate(results):
+        h = data_hexes[i]
+        d = data_lens[i]
+        p = padded_lens[i]
+        parts.append(format(1 if success else 0, "064x"))  # bool success
+        parts.append(format(64, "064x"))                    # bytes ptr (2 words)
+        parts.append(format(d, "064x"))                     # bytes length
+        parts.append(h.ljust(p * 2, "0"))                   # bytes data
+    return "0x" + "".join(parts)
+
+
 class TestReadPrices(unittest.TestCase):
     @patch("gud_price.rpc.urllib.request.urlopen")
     def test_multiple_feeds(self, mock_urlopen):
@@ -250,13 +283,12 @@ class TestReadPrices(unittest.TestCase):
         text_hex = text.encode().hex().ljust(64, "0")
         desc_hex = "0x" + _pad_word(32) + _pad_word(len(text)) + text_hex
 
-        # Each feed requires 3 calls (decimals, description, latestRoundData)
-        single_feed_responses = [
-            _mock_urlopen(_make_rpc_response(dec_hex)),
-            _mock_urlopen(_make_rpc_response(desc_hex)),
-            _mock_urlopen(_make_rpc_response(_ROUND_HEX)),
-        ]
-        mock_urlopen.side_effect = single_feed_responses * 2
+        # read_prices batches all calls via Multicall3, so there is a single RPC
+        # call per chain group.  Build the expected aggregate3 return value for
+        # 6 sub-calls (3 per feed × 2 feeds).
+        sub_results = [(True, dec_hex), (True, desc_hex), (True, _ROUND_HEX)] * 2
+        mc_response = _encode_aggregate3_response(sub_results)
+        mock_urlopen.return_value = _mock_urlopen(_make_rpc_response(mc_response))
 
         feeds = {
             "ETH_USD": "0xaddr1",
