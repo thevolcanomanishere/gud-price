@@ -15,10 +15,17 @@ export {
   readPhaseAggregator,
   readAggregator,
   readPrices,
+  multicall,
   formatPrice,
 } from "./rpc.js";
 
-export type { RoundData, RoundDataRaw, FeedMetadata } from "./rpc.js";
+export type {
+  RoundData,
+  RoundDataRaw,
+  FeedMetadata,
+  Multicall3Call,
+  Multicall3Result,
+} from "./rpc.js";
 
 // Default public RPC endpoints per chain
 export { rpcs, rpc } from "./rpcs.js";
