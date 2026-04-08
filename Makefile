@@ -1,4 +1,4 @@
-.PHONY: all test lint format build generate clean release
+.PHONY: all test lint format build generate clean release test-docker
 
 all: lint test build
 
@@ -15,7 +15,7 @@ test-ts:
 	pnpm test:run
 
 test-go:
-	cd generated/go && go test -short ./...
+	cd generated/go && CGO_ENABLED=0 go test -short ./...
 
 test-rust:
 	cd generated/rust && cargo test
@@ -25,6 +25,10 @@ test-python:
 
 test-zig:
 	cd generated/zig && zig build test
+
+test-docker:
+	docker build -f Dockerfile.test -t gud-price-test .
+	docker run --rm gud-price-test
 
 # ── Lint ─────────────────────────────────────────────────────────────────────
 

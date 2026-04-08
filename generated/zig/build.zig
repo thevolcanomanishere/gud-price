@@ -4,11 +4,8 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    _ = b.addModule(.{
-        .name = "gud-price",
+    _ = b.addModule("gud-price", .{
         .root_source_file = b.path("ethereum.zig"),
-        .target = target,
-        .optimize = optimize,
     });
 
     // Tests for rpc.zig (pure-logic unit tests, no network required)
