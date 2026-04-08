@@ -11,5 +11,6 @@
         "ethereum.zig",
         "polygon.zig",
         "rpc.zig",
+        "live_test.zig",
     },
 }
