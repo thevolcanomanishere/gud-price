@@ -446,6 +446,127 @@ func TestReadPrices(t *testing.T) {
 	}
 }
 
+// ── Multicall3 unit tests ─────────────────────────────────────────────────────
+
+func TestEncodeAggregate3Selector(t *testing.T) {
+	calls := []Multicall3Call{
+		{Target: "0xb49f677943BC038e9857d61E7d053CaA2C1734C1", CallData: SelDecimals},
+	}
+	encoded := encodeAggregate3(calls)
+	if !strings.HasPrefix(encoded, SelAggregate3) {
+		t.Errorf("encodeAggregate3 should start with %s, got %s", SelAggregate3, encoded[:10])
+	}
+}
+
+func TestEncodeAggregate3Empty(t *testing.T) {
+	encoded := encodeAggregate3([]Multicall3Call{})
+	// selector + offset(32) + length(0) = 4 + 32 + 32 = 68 bytes = 136 hex chars + "0x"
+	if len(encoded) != 138 {
+		t.Errorf("empty encodeAggregate3 length = %d, want 138", len(encoded))
+	}
+}
+
+func TestDecodeAggregate3ResultsRoundTrip(t *testing.T) {
+	dec := strings.TrimPrefix(hexWords(8), "0x")
+	desc := strings.TrimPrefix(hexString("ETH / USD"), "0x")
+
+	response := buildAggregate3Response([]struct {
+		success bool
+		data    string
+	}{
+		{true, dec},
+		{true, desc},
+		{false, ""},
+	})
+
+	results, err := decodeAggregate3Results(response, 3)
+	if err != nil {
+		t.Fatalf("decodeAggregate3Results: %v", err)
+	}
+	if len(results) != 3 {
+		t.Fatalf("want 3 results, got %d", len(results))
+	}
+	if !results[0].Success {
+		t.Error("result[0] should be success")
+	}
+	word := ReadWord(results[0].Data, 0)
+	if word.Int64() != 8 {
+		t.Errorf("result[0] word = %d, want 8", word.Int64())
+	}
+	if !results[1].Success {
+		t.Error("result[1] should be success")
+	}
+	if got := DecodeString(results[1].Data); got != "ETH / USD" {
+		t.Errorf("result[1] string = %q, want %q", got, "ETH / USD")
+	}
+	if results[2].Success {
+		t.Error("result[2] should be failure")
+	}
+}
+
+func TestMulticall(t *testing.T) {
+	dec := strings.TrimPrefix(hexWords(8), "0x")
+	desc := strings.TrimPrefix(hexString("BTC / USD"), "0x")
+
+	mc3Response := buildAggregate3Response([]struct {
+		success bool
+		data    string
+	}{
+		{true, dec},
+		{true, desc},
+	})
+
+	srv := selectorRouter(map[string]string{
+		SelAggregate3: mc3Response,
+	})
+	defer srv.Close()
+
+	calls := []Multicall3Call{
+		{Target: "0xaaa", CallData: SelDecimals},
+		{Target: "0xaaa", CallData: SelDescription},
+	}
+	results, err := Multicall(calls, srv.URL)
+	if err != nil {
+		t.Fatalf("Multicall: %v", err)
+	}
+	if len(results) != 2 {
+		t.Fatalf("want 2 results, got %d", len(results))
+	}
+	if !results[0].Success {
+		t.Error("result[0] should be success")
+	}
+	if ReadWord(results[0].Data, 0).Int64() != 8 {
+		t.Errorf("result[0] decimals = %d, want 8", ReadWord(results[0].Data, 0).Int64())
+	}
+	if DecodeString(results[1].Data) != "BTC / USD" {
+		t.Errorf("result[1] description = %q, want %q", DecodeString(results[1].Data), "BTC / USD")
+	}
+}
+
+func TestReadPricesSubCallFailure(t *testing.T) {
+	dec := strings.TrimPrefix(hexWords(8), "0x")
+
+	// Only 1 of 3 sub-calls succeeds — readPrices should return an error
+	mc3Response := buildAggregate3Response([]struct {
+		success bool
+		data    string
+	}{
+		{true, dec},
+		{false, ""},
+		{false, ""},
+	})
+
+	srv := selectorRouter(map[string]string{
+		SelAggregate3: mc3Response,
+	})
+	defer srv.Close()
+
+	_, err := ReadPrices(map[string]string{"ETH / USD": "0xaaa"}, srv.URL)
+	if err == nil {
+		t.Error("ReadPrices should fail when a sub-call fails")
+	}
+}
+
 // ── RPC error handling tests ─────────────────────────────────────────────────
 
 func TestRPCErrorHandling(t *testing.T) {

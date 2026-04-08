@@ -56,4 +56,7 @@ RUN mkdir -p generated/rust/src \
 # Copy everything else
 COPY . .
 
+# Touch Rust sources so cargo detects they are newer than the pre-built stub binary
+RUN find generated/rust/src -name "*.rs" | xargs touch
+
 CMD ["make", "test"]

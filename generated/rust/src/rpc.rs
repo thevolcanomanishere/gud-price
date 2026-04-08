@@ -821,6 +821,155 @@ mod tests {
         assert_eq!(raw.answered_in_round, 0);
     }
 
+    // ── Multicall3 tests ─────────────────────────────────────────
+
+    fn build_aggregate3_response(results: &[(bool, &str)]) -> String {
+        // Each element: success(32) + bytes_ptr(32) + bytes_len(32) + bytes_data(padded)
+        let bodies: Vec<String> = results
+            .iter()
+            .map(|(success, data)| {
+                let data_hex = if data.starts_with("0x") { &data[2..] } else { data };
+                let data_bytes = data_hex.len() / 2;
+                let padded = ((data_bytes + 31) / 32) * 32;
+                let mut s = String::new();
+                s.push_str(&format!("{:064x}", if *success { 1usize } else { 0 }));
+                s.push_str(&format!("{:064x}", 64usize)); // bytes ptr
+                s.push_str(&format!("{:064x}", data_bytes));
+                s.push_str(data_hex);
+                s.push_str(&"0".repeat((padded - data_bytes) * 2));
+                s
+            })
+            .collect();
+
+        let n = results.len();
+        let sizes: Vec<usize> = bodies.iter().map(|b| b.len() / 2).collect();
+        let mut hex = String::new();
+        hex.push_str(&format!("{:064x}", 32usize)); // outer offset
+        hex.push_str(&format!("{:064x}", n));       // array length
+        let mut accumulated = 0usize;
+        for sz in &sizes {
+            hex.push_str(&format!("{:064x}", n * 32 + accumulated));
+            accumulated += sz;
+        }
+        for body in &bodies {
+            hex.push_str(body);
+        }
+        format!("0x{}", hex)
+    }
+
+    fn mock_rpc_server(_response_hex: &str) -> (std::net::TcpListener, String) {
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let addr = listener.local_addr().unwrap();
+        let url = format!("http://{}", addr);
+        (listener, url)
+    }
+
+    fn serve_one(listener: std::net::TcpListener, body: String) {
+        std::thread::spawn(move || {
+            use std::io::{Read, Write};
+            if let Ok((mut stream, _)) = listener.accept() {
+                let mut buf = [0u8; 4096];
+                let _ = stream.read(&mut buf);
+                let resp = format!(
+                    "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+                    body.len(),
+                    body
+                );
+                let _ = stream.write_all(resp.as_bytes());
+            }
+        });
+    }
+
+    #[test]
+    fn test_encode_aggregate3_selector() {
+        let calls = vec![Multicall3Call {
+            target: "0xb49f677943BC038e9857d61E7d053CaA2C1734C1".to_string(),
+            call_data: SEL_DECIMALS.to_string(),
+        }];
+        let encoded = encode_aggregate3(&calls);
+        assert!(
+            encoded.starts_with(&format!("0x{}", &SEL_AGGREGATE3[2..])),
+            "should start with aggregate3 selector"
+        );
+    }
+
+    #[test]
+    fn test_encode_aggregate3_address_lowercased() {
+        let calls = vec![Multicall3Call {
+            target: "0xAbCdEf1234567890ABCDEF1234567890abcdef12".to_string(),
+            call_data: SEL_DECIMALS.to_string(),
+        }];
+        let encoded = encode_aggregate3(&calls);
+        assert!(
+            encoded.to_lowercase().contains("abcdef1234567890abcdef1234567890abcdef12"),
+            "address should be lowercased in calldata"
+        );
+    }
+
+    #[test]
+    fn test_decode_aggregate3_results_round_trip() {
+        let dec_hex = format!("0x{:064x}", 8u128);
+        let response = build_aggregate3_response(&[(true, &dec_hex), (false, "0x")]);
+        let results = decode_aggregate3_results(&response, 2);
+
+        assert_eq!(results.len(), 2);
+        assert!(results[0].success);
+        assert_eq!(read_word(&results[0].data, 0), 8);
+        assert!(!results[1].success);
+    }
+
+    #[test]
+    fn test_read_prices_via_mock() {
+        let dec = format!("{:064x}", 8u128);
+        // ABI-encoded "ETH / USD": offset=32, length=9, data (right-padded to 32 bytes)
+        let desc = format!(
+            "{:064x}{:064x}{}",
+            32u128, 9u128,
+            "455448202f20555344000000000000000000000000000000000000000000000000"
+        );
+        let round = format!(
+            "{:064x}{:064x}{:064x}{:064x}{:064x}",
+            1u128, 180000000000u128, 1700000000u128, 1700000001u128, 1u128
+        );
+
+        // 1 feed × 3 calls each
+        let mc_response = build_aggregate3_response(&[
+            (true, &format!("0x{}", dec)),
+            (true, &format!("0x{}", desc)),
+            (true, &format!("0x{}", round)),
+        ]);
+
+        let rpc_body = format!(r#"{{"jsonrpc":"2.0","id":1,"result":"{}"}}"#, mc_response);
+        let (listener, url) = mock_rpc_server(&mc_response);
+        serve_one(listener, rpc_body);
+
+        let mut feeds = HashMap::new();
+        feeds.insert("ETH / USD".to_string(), "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419".to_string());
+
+        let results = read_prices(&feeds, Some(&url)).expect("read_prices failed");
+        assert_eq!(results.len(), 1);
+        let data = results.get("ETH / USD").expect("ETH / USD missing");
+        assert_eq!(data.answer, "1800");
+    }
+
+    #[test]
+    fn test_read_prices_sub_call_failure() {
+        let dec = format!("0x{:064x}", 8u128);
+        let mc_response = build_aggregate3_response(&[
+            (true, &dec),
+            (false, "0x"),
+            (false, "0x"),
+        ]);
+        let rpc_body = format!(r#"{{"jsonrpc":"2.0","id":1,"result":"{}"}}"#, mc_response);
+        let (listener, url) = mock_rpc_server(&mc_response);
+        serve_one(listener, rpc_body);
+
+        let mut feeds = HashMap::new();
+        feeds.insert("ETH / USD".to_string(), "0xaaa".to_string());
+        let result = read_prices(&feeds, Some(&url));
+        assert!(result.is_err(), "should fail when sub-call fails");
+    }
+
     // ── Live RPC tests (run with: cargo test -- --ignored) ──────
 
     #[test]

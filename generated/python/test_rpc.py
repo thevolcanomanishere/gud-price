@@ -275,6 +275,85 @@ def _encode_aggregate3_response(results: list) -> str:
     return "0x" + "".join(parts)
 
 
+class TestEncodeAggregate3(unittest.TestCase):
+    def test_starts_with_selector(self):
+        calls = [("0xb49f677943BC038e9857d61E7d053CaA2C1734C1", SEL_DECIMALS)]
+        encoded = _encode_aggregate3(calls)
+        self.assertTrue(encoded.startswith("0x82ad56cb"))
+
+    def test_address_lowercased(self):
+        calls = [("0xAbCdEf1234567890ABCDEF1234567890abcdef12", SEL_DECIMALS)]
+        encoded = _encode_aggregate3(calls)
+        self.assertIn("abcdef1234567890abcdef1234567890abcdef12", encoded)
+
+    def test_empty_calls(self):
+        encoded = _encode_aggregate3([])
+        # selector(4) + offset(32) + length(32) = 68 bytes = 136 hex + "0x"
+        self.assertEqual(len(encoded), 138)
+
+
+class TestDecodeAggregate3Results(unittest.TestCase):
+    def test_round_trip(self):
+        dec_hex = "0x" + _pad_word(8)
+        response = _encode_aggregate3_response([(True, dec_hex), (False, "0x")])
+        results = _decode_aggregate3_results(response, 2)
+
+        self.assertEqual(len(results), 2)
+        self.assertTrue(results[0][0])   # success
+        self.assertFalse(results[1][0])  # failure
+
+    def test_decoded_data_readable(self):
+        dec_hex = "0x" + _pad_word(8)
+        response = _encode_aggregate3_response([(True, dec_hex)])
+        results = _decode_aggregate3_results(response, 1)
+        success, data = results[0]
+        self.assertTrue(success)
+        from gud_price.rpc import read_word
+        self.assertEqual(read_word(data, 0), 8)
+
+
+class TestMulticall(unittest.TestCase):
+    @patch("gud_price.rpc.urllib.request.urlopen")
+    def test_returns_results(self, mock_urlopen):
+        dec_hex = "0x" + _pad_word(8)
+        mc_response = _encode_aggregate3_response([(True, dec_hex), (True, dec_hex)])
+        mock_urlopen.return_value = _mock_urlopen(_make_rpc_response(mc_response))
+
+        calls = [
+            ("0xaaa", SEL_DECIMALS),
+            ("0xbbb", SEL_DECIMALS),
+        ]
+        results = multicall(calls, RPC_URL)
+        self.assertEqual(len(results), 2)
+        self.assertTrue(results[0][0])
+        self.assertTrue(results[1][0])
+
+    @patch("gud_price.rpc.urllib.request.urlopen")
+    def test_single_rpc_call(self, mock_urlopen):
+        dec_hex = "0x" + _pad_word(8)
+        mc_response = _encode_aggregate3_response([(True, dec_hex)])
+        mock_urlopen.return_value = _mock_urlopen(_make_rpc_response(mc_response))
+
+        multicall([("0xaaa", SEL_DECIMALS)], RPC_URL)
+        self.assertEqual(mock_urlopen.call_count, 1)
+
+
+class TestReadPricesSubCallFailure(unittest.TestCase):
+    @patch("gud_price.rpc.urllib.request.urlopen")
+    def test_raises_on_sub_call_failure(self, mock_urlopen):
+        dec_hex = "0x" + _pad_word(8)
+        # First sub-call succeeds, second fails — readPrices should raise
+        mc_response = _encode_aggregate3_response([
+            (True, dec_hex),
+            (False, "0x"),
+            (False, "0x"),
+        ])
+        mock_urlopen.return_value = _mock_urlopen(_make_rpc_response(mc_response))
+
+        with self.assertRaises(Exception):
+            read_prices({"ETH / USD": "0xaaa"}, RPC_URL)
+
+
 class TestReadPrices(unittest.TestCase):
     @patch("gud_price.rpc.urllib.request.urlopen")
     def test_multiple_feeds(self, mock_urlopen):
