@@ -10,6 +10,7 @@ import {
   readPhaseAggregator,
   readAggregator,
   readPrices,
+  multicall,
 } from "../rpc.js";
 import { polygonDataFeeds } from "../dataFeeds/polygon.js";
 import { ethereumDataFeeds } from "../dataFeeds/ethereum.js";
@@ -71,6 +72,47 @@ function hexString(str: string): string {
     length.toString(16).padStart(64, "0") +
     hex.padEnd(Math.ceil(hex.length / 64) * 64, "0")
   );
+}
+
+/**
+ * Build a mock ABI-encoded Multicall3.aggregate3 Result[] response.
+ * Result = (bool success, bytes returnData)
+ */
+function hexMulticallResults(
+  results: Array<{ success: boolean; data: string }>,
+): string {
+  const n = results.length;
+
+  // sizeof each element: success(32) + bytes_ptr(32) + bytes_len(32) + bytes_data(padded)
+  const sizes = results.map(r => {
+    const dataBytes = (r.data.length - 2) / 2;
+    return 96 + Math.ceil(dataBytes / 32) * 32;
+  });
+
+  // Offsets from start of array content (right after length word).
+  const offsets: number[] = [];
+  let off = n * 32;
+  for (const sz of sizes) {
+    offsets.push(off);
+    off += sz;
+  }
+
+  let hex = "";
+  hex += "0000000000000000000000000000000000000000000000000000000000000020"; // array offset
+  hex += n.toString(16).padStart(64, "0"); // array length
+  for (const o of offsets) hex += o.toString(16).padStart(64, "0");
+
+  for (const r of results) {
+    const dataHex = r.data.slice(2);
+    const dataBytes = dataHex.length / 2;
+    const dataPadded = Math.ceil(dataBytes / 32) * 32;
+    hex += (r.success ? 1n : 0n).toString(16).padStart(64, "0"); // success
+    hex += "0000000000000000000000000000000000000000000000000000000000000040"; // bytes ptr = 64
+    hex += dataBytes.toString(16).padStart(64, "0"); // bytes length
+    hex += dataHex.padEnd(dataPadded * 2, "0"); // bytes data
+  }
+
+  return "0x" + hex;
 }
 
 function mockFetch(responses: Record<string, string>) {
@@ -236,25 +278,168 @@ describe("readAggregator", () => {
 });
 
 describe("readPrices", () => {
-  test("fetches multiple feeds in parallel", async () => {
-    mockFetch({
-      "0x313ce567": hexWords(8n),
-      "0x7284e416": hexString("ETH / USD"),
-      "0xfeaf968c": hexWords(1n, 180000000000n, 1700000000n, 1700000001n, 1n),
-    });
+  test("batches all feeds into a single multicall", async () => {
+    const mockResponse = hexMulticallResults([
+      { success: true, data: hexWords(8n) }, // ETH decimals
+      { success: true, data: hexString("ETH / USD") }, // ETH description
+      {
+        success: true,
+        data: hexWords(1n, 180000000000n, 1700000000n, 1700000001n, 1n),
+      }, // ETH latestRoundData
+      { success: true, data: hexWords(8n) }, // BTC decimals
+      { success: true, data: hexString("BTC / USD") }, // BTC description
+      {
+        success: true,
+        data: hexWords(2n, 4200000000000n, 1700000000n, 1700000001n, 2n),
+      }, // BTC latestRoundData
+    ]);
+
+    const calls = mockFetch({ "0x82ad56cb": mockResponse });
 
     const results = await readPrices(
-      {
-        "ETH / USD": "0xaaa",
-        "BTC / USD": "0xbbb",
-      },
+      { "ETH / USD": "0xaaa", "BTC / USD": "0xbbb" },
       "http://rpc",
     );
 
+    // Only 1 RPC call made (the multicall), not 6 individual calls
+    expect(calls).toHaveLength(1);
+    expect(calls[0].slice(0, 10)).toBe("0x82ad56cb");
+
     expect(Object.keys(results)).toHaveLength(2);
-    expect(results["ETH / USD"]).toBeDefined();
-    expect(results["BTC / USD"]).toBeDefined();
     expect(results["ETH / USD"].answer).toBe("1800");
+    expect(results["ETH / USD"].description).toBe("ETH / USD");
+    expect(results["BTC / USD"].answer).toBe("42000");
+    expect(results["BTC / USD"].description).toBe("BTC / USD");
+    expect(results["ETH / USD"].roundId).toBe(1n);
+    expect(results["BTC / USD"].roundId).toBe(2n);
+  });
+
+  test("returns empty object for empty input", async () => {
+    const result = await readPrices({}, "http://rpc");
+    expect(result).toEqual({});
+  });
+
+  test("throws when a sub-call fails", async () => {
+    const mockResponse = hexMulticallResults([
+      { success: false, data: "0x" }, // decimals call reverted
+      { success: true, data: hexString("ETH / USD") },
+      {
+        success: true,
+        data: hexWords(1n, 180000000000n, 1700000000n, 1700000001n, 1n),
+      },
+    ]);
+
+    mockFetch({ "0x82ad56cb": mockResponse });
+
+    await expect(
+      readPrices({ "ETH / USD": "0xaaa" }, "http://rpc"),
+    ).rejects.toThrow("Multicall sub-call failed for feed: 0xaaa");
+  });
+
+  test("encodes feed addresses in multicall calldata", async () => {
+    const mockResponse = hexMulticallResults([
+      { success: true, data: hexWords(8n) },
+      { success: true, data: hexString("ETH / USD") },
+      {
+        success: true,
+        data: hexWords(1n, 180000000000n, 1700000000n, 1700000001n, 1n),
+      },
+    ]);
+
+    const calls = mockFetch({ "0x82ad56cb": mockResponse });
+
+    await readPrices({ "ETH / USD": "0xAbCdEf1234567890abcdef1234567890AbCdEf12" }, "http://rpc");
+
+    // The feed address should appear (lowercased) inside the multicall calldata
+    expect(calls[0]).toContain("abcdef1234567890abcdef1234567890abcdef12");
+  });
+});
+
+describe("multicall", () => {
+  test("encodes and decodes aggregate3 round-trip", async () => {
+    const roundData = hexWords(
+      5n,
+      4200000000000n,
+      1700000000n,
+      1700000001n,
+      5n,
+    );
+    const mockResponse = hexMulticallResults([
+      { success: true, data: hexWords(8n) },
+      { success: true, data: roundData },
+    ]);
+
+    mockFetch({ "0x82ad56cb": mockResponse });
+
+    const results = await multicall(
+      [
+        { target: "0xabc", callData: "0x313ce567" },
+        { target: "0xabc", callData: "0xfeaf968c" },
+      ],
+      "http://rpc",
+    );
+
+    expect(results).toHaveLength(2);
+    expect(results[0].success).toBe(true);
+    expect(results[0].data).toBe(hexWords(8n));
+    expect(results[1].success).toBe(true);
+    expect(results[1].data).toBe(roundData);
+  });
+
+  test("returns success=false for failed sub-calls", async () => {
+    const mockResponse = hexMulticallResults([
+      { success: true, data: hexWords(42n) },
+      { success: false, data: "0x" },
+    ]);
+
+    mockFetch({ "0x82ad56cb": mockResponse });
+
+    const results = await multicall(
+      [
+        { target: "0xaaa", callData: "0x313ce567" },
+        { target: "0xbbb", callData: "0x313ce567" },
+      ],
+      "http://rpc",
+    );
+
+    expect(results[0].success).toBe(true);
+    expect(results[0].data).toBe(hexWords(42n));
+    expect(results[1].success).toBe(false);
+    expect(results[1].data).toBe("0x");
+  });
+
+  test("handles a single call", async () => {
+    const mockResponse = hexMulticallResults([
+      { success: true, data: hexWords(18n) },
+    ]);
+
+    const calls = mockFetch({ "0x82ad56cb": mockResponse });
+
+    const results = await multicall(
+      [{ target: "0xabc", callData: "0x313ce567" }],
+      "http://rpc",
+    );
+
+    expect(results).toHaveLength(1);
+    expect(results[0].success).toBe(true);
+    expect(calls).toHaveLength(1); // still only 1 RPC call
+  });
+
+  test("handles results with string return data", async () => {
+    const mockResponse = hexMulticallResults([
+      { success: true, data: hexString("BTC / USD") },
+    ]);
+
+    mockFetch({ "0x82ad56cb": mockResponse });
+
+    const results = await multicall(
+      [{ target: "0xabc", callData: "0x7284e416" }],
+      "http://rpc",
+    );
+
+    expect(results[0].success).toBe(true);
+    // The raw data should decode as a string via decodeString
+    expect(results[0].data).toBe(hexString("BTC / USD"));
   });
 });
 
@@ -334,6 +519,7 @@ describe("index exports", () => {
     expect(index.readPhaseAggregator).toBeTypeOf("function");
     expect(index.readAggregator).toBeTypeOf("function");
     expect(index.readPrices).toBeTypeOf("function");
+    expect(index.multicall).toBeTypeOf("function");
     expect(index.formatPrice).toBeTypeOf("function");
 
     // Data feed exports

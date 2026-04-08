@@ -72,21 +72,17 @@ npm install gud-price
 ```
 
 ```typescript
-import { readLatestPrice } from "gud-price/rpc";
+import { readLatestPrice, readPrices } from "gud-price/rpc";
 import { EUR_USD, BTC_USD } from "gud-price/feeds/ethereum";
 import { AAPL_USD, TSLA_USD } from "gud-price/feeds/arbitrum";
 
-const [eur, btc, aapl, tsla] = await Promise.all([
-  readLatestPrice(EUR_USD),
-  readLatestPrice(BTC_USD),
-  readLatestPrice(AAPL_USD),
-  readLatestPrice(TSLA_USD),
-]);
-
+// Single price — 3 eth_calls (decimals + description + latestRoundData)
+const eur = await readLatestPrice(EUR_USD);
 console.log(`EUR/USD: ${eur.answer}`);
-console.log(`BTC/USD: $${btc.answer}`);
-console.log(`AAPL:    $${aapl.answer}`);
-console.log(`TSLA:    $${tsla.answer}`);
+
+// Multiple prices — 1 eth_call total via Multicall3 (feeds grouped by chain)
+const prices = await readPrices({ EUR_USD, BTC_USD, AAPL_USD, TSLA_USD });
+console.log(`BTC/USD: $${prices["BTC / USD"].answer}`);
 ```
 
 ## Go
@@ -105,11 +101,22 @@ import (
 )
 
 func main() {
+	// Single price
 	data, err := rpc.ReadLatestPrice(ethereum.EUR_USD)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("EUR/USD: %s\n", data.Answer)
+
+	// Multiple prices — 1 RPC call via Multicall3
+	prices, err := rpc.ReadPrices(map[string]string{
+		"EUR/USD": ethereum.EUR_USD,
+		"BTC/USD": ethereum.BTC_USD,
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("BTC/USD: $%s\n", prices["BTC/USD"].Answer)
 }
 ```
 
@@ -120,12 +127,22 @@ cargo add gud-price
 ```
 
 ```rust
-use gud_price::rpc::read_latest_price;
-use gud_price::ethereum::EUR_USD;
+use std::collections::HashMap;
+use gud_price::rpc::{read_latest_price, read_prices};
+use gud_price::ethereum::{EUR_USD, BTC_USD};
 
 fn main() {
+    // Single price
     let data = read_latest_price(EUR_USD, None).unwrap();
     println!("EUR/USD: {}", data.answer);
+
+    // Multiple prices — 1 RPC call via Multicall3
+    let feeds = HashMap::from([
+        ("EUR/USD".to_string(), EUR_USD.to_string()),
+        ("BTC/USD".to_string(), BTC_USD.to_string()),
+    ]);
+    let prices = read_prices(&feeds, None).unwrap();
+    println!("BTC/USD: ${}", prices["BTC/USD"].answer);
 }
 ```
 
@@ -136,11 +153,16 @@ pip install gud-price
 ```
 
 ```python
-from gud_price.rpc import read_latest_price
-from gud_price.ethereum import EUR_USD
+from gud_price.rpc import read_latest_price, read_prices
+from gud_price.ethereum import EUR_USD, BTC_USD
 
+# Single price
 data = read_latest_price(EUR_USD)
 print(f"EUR/USD: {data.answer}")
+
+# Multiple prices — 1 RPC call via Multicall3
+prices = read_prices({"EUR/USD": EUR_USD, "BTC/USD": BTC_USD})
+print(f"BTC/USD: ${prices['BTC/USD'].answer}")
 ```
 
 ## Zig
@@ -152,11 +174,33 @@ zig fetch --save https://github.com/thevolcanomanishere/gud-price/archive/refs/t
 ```
 
 ```zig
-const gud_price = @import("gud-price");
+const std = @import("std");
+const rpc = @import("rpc.zig");
+const ethereum = @import("ethereum.zig");
+
+const ETH_RPC = "https://ethereum-rpc.publicnode.com";
 
 pub fn main() !void {
-    const price = try gud_price.readLatestPrice(gud_price.ethereum.EUR_USD, null);
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const alloc = gpa.allocator();
+
+    // Single price — 3 eth_calls (decimals + description + latestRoundData)
+    const price = try rpc.readLatestPrice(alloc, ethereum.EUR_USD, ETH_RPC);
+    defer price.deinit(alloc);
     std.debug.print("EUR/USD: {s}\n", .{price.answer});
+
+    // Multiple prices — 1 RPC call via Multicall3
+    const feeds = [_]rpc.Feed{
+        .{ .name = "EUR/USD", .address = ethereum.EUR_USD },
+        .{ .name = "BTC/USD", .address = ethereum.BTC_USD },
+    };
+    const prices = try rpc.readPrices(alloc, &feeds, ETH_RPC);
+    defer {
+        for (prices) |p| p.round.deinit(alloc);
+        alloc.free(prices);
+    }
+    std.debug.print("BTC/USD: ${s}\n", .{prices[1].round.answer});
 }
 ```
 
@@ -164,12 +208,13 @@ pub fn main() !void {
 
 | Function | Description |
 |---|---|
-| `readLatestPrice(address)` | Latest price, formatted with metadata |
+| `readLatestPrice(address)` | Latest price, formatted with metadata (3 RPC calls) |
 | `readLatestPriceWithMeta(address, meta)` | Latest price using pre-fetched metadata (1 RPC call) |
 | `readLatestPriceRaw(address)` | Latest price as raw integers |
 | `readPriceAtRound(address, roundId)` | Price at a specific Chainlink round |
 | `readFeedMetadata(address)` | Decimals and description |
-| `readPrices(feeds)` | Multiple feeds in parallel |
+| `readPrices(feeds)` | Multiple feeds via Multicall3 — **1 RPC call per chain** |
+| `multicall(calls, rpcUrl)` | Raw Multicall3.aggregate3 batch — returns `{success, data}[]` |
 | `readPhaseId(address)` | Current phase ID |
 | `readAggregator(address)` | Current aggregator address |
 | `readPhaseAggregator(address, phaseId)` | Aggregator for a specific phase |
@@ -187,7 +232,9 @@ See [FEEDS.md](FEEDS.md) for the full list of all 691 feeds and their addresses.
 
 ## How it works
 
-Chainlink price feeds are smart contracts deployed on EVM blockchains. Each feed (e.g. EUR/USD) has a contract address that anyone can read from using an RPC endpoint. gud-price makes a single `eth_call` JSON-RPC request to read the latest price -- no wallet, no transaction, no gas fees.
+Chainlink price feeds are smart contracts deployed on EVM blockchains. Each feed (e.g. EUR/USD) has a contract address that anyone can read from using an RPC endpoint. gud-price uses `eth_call` JSON-RPC requests to read prices -- no wallet, no transaction, no gas fees.
+
+When fetching multiple prices with `readPrices`, all calls for feeds on the same chain are batched into a single request via [Multicall3](https://www.multicall3.com/) (`aggregate3`). 10 feeds on Ethereum = 1 RPC call instead of 30.
 
 ## RPC endpoints
 

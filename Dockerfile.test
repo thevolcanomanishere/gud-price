@@ -1,0 +1,62 @@
+FROM debian:bookworm-slim
+
+# Docker sets TARGETARCH automatically from the build platform (amd64 or arm64)
+ARG TARGETARCH
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    curl wget xz-utils build-essential python3 python-is-python3 ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# ── Node.js 22 + pnpm ────────────────────────────────────────────────────────
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g pnpm \
+    && rm -rf /var/lib/apt/lists/*
+
+# ── Go 1.22 ──────────────────────────────────────────────────────────────────
+RUN curl -fsSL "https://go.dev/dl/go1.22.12.linux-${TARGETARCH}.tar.gz" \
+    | tar -C /usr/local -xz
+ENV PATH="/usr/local/go/bin:$PATH"
+
+# ── Rust stable ───────────────────────────────────────────────────────────────
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+    | sh -s -- -y --no-modify-path
+ENV PATH="/usr/local/cargo/bin:$PATH"
+
+# ── Zig 0.13.0 ───────────────────────────────────────────────────────────────
+RUN set -e; \
+    ZIG_ARCH=$([ "$TARGETARCH" = "arm64" ] && echo "aarch64" || echo "x86_64"); \
+    wget -qO /tmp/zig.tar.xz \
+        "https://ziglang.org/download/0.13.0/zig-linux-${ZIG_ARCH}-0.13.0.tar.xz"; \
+    tar -C /usr/local -xJf /tmp/zig.tar.xz; \
+    ln -s "/usr/local/zig-linux-${ZIG_ARCH}-0.13.0/zig" /usr/local/bin/zig; \
+    rm /tmp/zig.tar.xz
+
+# ── Project ───────────────────────────────────────────────────────────────────
+WORKDIR /app
+
+# Cache Node deps separately so code changes don't bust this layer
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+# Cache Go deps
+COPY generated/go/go.mod generated/go/
+RUN cd generated/go && go mod download
+
+# Cache Rust deps
+COPY generated/rust/Cargo.toml generated/rust/Cargo.lock generated/rust/
+RUN mkdir -p generated/rust/src \
+    && echo 'pub fn placeholder() {}' > generated/rust/src/lib.rs \
+    && cd generated/rust && cargo test --no-run 2>/dev/null; true
+
+# Copy everything else
+COPY . .
+
+# Touch Rust sources so cargo detects they are newer than the pre-built stub binary
+RUN find generated/rust/src -name "*.rs" | xargs touch
+
+CMD ["make", "test"]
